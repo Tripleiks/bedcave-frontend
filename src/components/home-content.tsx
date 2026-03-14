@@ -256,12 +256,12 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
                   // Modern automation and orchestration platform. Streamline your workflows with AI-powered tools.
                 </p>
                 <a 
-                  href="https://omarchy.com" 
+                  href="https://omarchy.org/" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-[#8338ec] font-mono text-sm hover:underline"
                 >
-                  <span>omarchy.com</span>
+                  <span>omarchy.org</span>
                   <ArrowRight className="w-3 h-3" />
                 </a>
               </div>

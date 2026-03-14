@@ -52,6 +52,31 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Save to image library
+    try {
+      const libraryResponse = await fetch(`${request.headers.get("origin") || "http://localhost:3000"}/api/images/library`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          url: imageUrl,
+          title: prompt,
+          prompt: `Professional tech blog cover image: ${prompt}`,
+          tags: ["ai-generated", "cover-image"],
+          category: "general",
+          source: "grok-aurora"
+        }),
+      });
+      
+      if (!libraryResponse.ok) {
+        console.warn("Failed to save to library:", await libraryResponse.text());
+      } else {
+        console.log("Image saved to library successfully");
+      }
+    } catch (libError) {
+      console.warn("Library save error (non-critical):", libError);
+      // Don't fail the main request if library save fails
+    }
+
     return NextResponse.json({
       success: true,
       data: {

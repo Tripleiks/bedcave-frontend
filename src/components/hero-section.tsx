@@ -3,7 +3,8 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Terminal, Cpu, HardDrive, Server, Zap } from "lucide-react";
 import Link from "next/link";
-import { WavyBackground } from "@/components/ui/wavy-background";
+import { WebGLShader } from "@/components/ui/web-gl-shader";
+import { LiquidButton } from "@/components/ui/liquid-glass-button";
 
 export function HeroSection() {
   const categories = [
@@ -14,15 +15,10 @@ export function HeroSection() {
   ];
 
   return (
-    <WavyBackground
-      colors={["#00d4ff", "#39ff14", "#ff006e", "#ffbe0b", "#8338ec"]}
-      waveWidth={50}
-      backgroundFill="#0a0a0f"
-      blur={10}
-      speed="slow"
-      waveOpacity={0.3}
-    >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black">
+      <WebGLShader />
+      
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
           {/* Terminal-style badge */}
           <motion.div
@@ -63,7 +59,7 @@ export function HeroSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-lg sm:text-xl text-[#64748b] mb-4 font-mono"
+            className="text-lg sm:text-xl text-[#94a3b8] mb-4 font-mono"
           >
             // Exploring technology, homelabs & modern development
           </motion.p>
@@ -72,7 +68,7 @@ export function HeroSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="text-[#94a3b8] mb-12 max-w-2xl mx-auto"
+            className="text-[#94a3b8]/80 mb-12 max-w-2xl mx-auto"
           >
             From Docker containers to hardware reviews. Insights for the tech-curious mind. 
             Welcome to the cave.
@@ -85,12 +81,10 @@ export function HeroSection() {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20"
           >
-            <Link
-              href="#latest"
-              className="group relative inline-flex items-center gap-3 px-8 py-4 bg-[#00d4ff] text-[#0a0a0f] font-mono font-bold rounded hover:bg-[#00d4ff]/90 transition-all box-glow-cyan overflow-hidden"
-            >
-              <span className="relative z-10">EXPLORE_ARTICLES</span>
-              <ArrowRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" />
+            <Link href="#latest">
+              <LiquidButton size="xl" className="text-white border border-white/20">
+                EXPLORE_ARTICLES
+              </LiquidButton>
             </Link>
             <Link
               href="/blog"
@@ -154,7 +148,7 @@ export function HeroSection() {
           <div className="w-px h-8 bg-gradient-to-b from-[#00d4ff] to-transparent" />
         </motion.div>
       </motion.div>
-    </WavyBackground>
+    </section>
   );
 }
 

@@ -141,7 +141,7 @@ export function Footer() {
               <span className="text-[#ff006e]">❤</span>
               <span>Built with code in {currentYear}</span>
               <span className="text-[#1e293b]">|</span>
-              <span>Powered by Next.js & WordPress</span>
+              <span>Powered by Next.js & Vercel</span>
             </p>
             <div className="flex items-center gap-4 font-mono text-xs text-[#64748b]">
               <span className="text-[#39ff14]">STATUS: 200 OK</span>

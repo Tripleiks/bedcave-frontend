@@ -80,9 +80,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Ensure directory exists
-    await fs.mkdir(POSTS_DIR, { recursive: true });
-
     // Generate filename from title
     const date = new Date().toISOString().split("T")[0];
     const slug = title
@@ -90,7 +87,6 @@ export async function POST(request: NextRequest) {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
     const filename = `${date}-${slug}.mdx`;
-    const filepath = path.join(POSTS_DIR, filename);
 
     // Create MDX content
     const mdxContent = `---
@@ -108,7 +104,7 @@ source: "bedcave-admin"
 ${content}
 `;
 
-    // Try GitHub first (works on Vercel), fallback to local (dev only)
+    // Try GitHub first (works on Vercel)
     let githubResult;
     if (GITHUB_TOKEN) {
       githubResult = await commitToGitHub(
@@ -116,34 +112,44 @@ ${content}
         mdxContent,
         `feat: add archived post "${title}"`
       );
+      
+      if (githubResult.success) {
+        return NextResponse.json({
+          success: true,
+          message: "Post archived successfully to GitHub",
+          filename,
+          path: `content/posts/generated/${filename}`,
+          github: true,
+        });
+      }
     }
 
-    // Try local write (works in dev, may fail on Vercel)
-    let localPath: string | undefined;
+    // Fallback: Try local write (works in dev only)
     try {
       await fs.mkdir(POSTS_DIR, { recursive: true });
       const filepath = path.join(POSTS_DIR, filename);
       await fs.writeFile(filepath, mdxContent, "utf-8");
-      localPath = `content/posts/generated/${filename}`;
+      
+      return NextResponse.json({
+        success: true,
+        message: "Post archived successfully (local)",
+        filename,
+        path: `content/posts/generated/${filename}`,
+        github: false,
+      });
     } catch (localError) {
       // Local write failed (expected on Vercel)
-      console.log("Local write skipped (Vercel environment)");
+      console.error("Local write failed:", localError);
     }
 
-    if (!githubResult?.success && !localPath) {
-      return NextResponse.json(
-        { error: githubResult?.error || "Failed to save post" },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: "Post archived successfully",
-      filename,
-      path: localPath || `content/posts/generated/${filename}`,
-      github: githubResult?.success || false,
-    });
+    // If we get here, both methods failed
+    return NextResponse.json(
+      { 
+        error: githubResult?.error || "Failed to save post. GITHUB_TOKEN may not be configured.",
+        details: "Please check your environment variables in Vercel dashboard."
+      },
+      { status: 500 }
+    );
   } catch (error: any) {
     console.error("Archive Error:", error);
     return NextResponse.json(

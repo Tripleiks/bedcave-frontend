@@ -1,0 +1,366 @@
+"use client";
+
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { 
+  Sparkles, 
+  Image as ImageIcon, 
+  FileText, 
+  Loader2, 
+  Save,
+  ArrowLeft,
+  Wand2,
+  Download
+} from "lucide-react";
+import Link from "next/link";
+
+interface GeneratedPost {
+  title: string;
+  excerpt: string;
+  content: string;
+  tags: string[];
+  keywords: string[];
+}
+
+interface UnsplashImage {
+  id: string;
+  url: string;
+  thumb: string;
+  author: string;
+  authorUrl: string;
+  description: string;
+}
+
+const categories = [
+  { value: "docker", label: "Docker", icon: "🐳" },
+  { value: "hardware", label: "Hardware", icon: "🔧" },
+  { value: "homelab", label: "Homelab", icon: "🏠" },
+  { value: "news", label: "News", icon: "📰" },
+  { value: "tutorial", label: "Tutorial", icon: "📚" },
+];
+
+export default function AIGeneratorPage() {
+  const [prompt, setPrompt] = useState("");
+  const [category, setCategory] = useState("docker");
+  const [loading, setLoading] = useState(false);
+  const [generatedPost, setGeneratedPost] = useState<GeneratedPost | null>(null);
+  const [image, setImage] = useState<UnsplashImage | null>(null);
+  const [imageLoading, setImageLoading] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const generateContent = async () => {
+    if (!prompt.trim()) return;
+    
+    setLoading(true);
+    setSaved(false);
+    
+    try {
+      // Generate blog content
+      const response = await fetch("/api/ai/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, category }),
+      });
+      
+      if (!response.ok) throw new Error("Failed to generate content");
+      
+      const data = await response.json();
+      setGeneratedPost(data.data);
+      
+      // Search for image
+      setImageLoading(true);
+      const imageResponse = await fetch(
+        `/api/unsplash/search?query=${encodeURIComponent(prompt)}&orientation=landscape`
+      );
+      
+      if (imageResponse.ok) {
+        const imageData = await imageResponse.json();
+        setImage(imageData.data);
+      }
+    } catch (error) {
+      console.error("Generation error:", error);
+      alert("Failed to generate content. Please check your API keys.");
+    } finally {
+      setLoading(false);
+      setImageLoading(false);
+    }
+  };
+
+  const downloadMDX = () => {
+    if (!generatedPost) return;
+    
+    const date = new Date().toISOString().split("T")[0];
+    const slug = generatedPost.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+    
+    const mdxContent = `---
+title: "${generatedPost.title}"
+date: "${date}"
+excerpt: "${generatedPost.excerpt}"
+category: "${category}"
+${image ? `coverImage: "${image.url}"` : ""}
+tags: [${generatedPost.tags.map(t => `"${t}"`).join(", ")}]
+keywords: [${generatedPost.keywords.map(k => `"${k}"`).join(", ")}]
+author: "AI Assistant"
+---
+
+${generatedPost.content}
+
+${image ? `\n*Cover image by [${image.author}](${image.authorUrl}) on Unsplash*` : ""}
+`;
+
+    const blob = new Blob([mdxContent], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${slug}.mdx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    setSaved(true);
+  };
+
+  const regenerateImage = async () => {
+    if (!prompt) return;
+    setImageLoading(true);
+    
+    try {
+      const imageResponse = await fetch(
+        `/api/unsplash/search?query=${encodeURIComponent(prompt)}&orientation=landscape`
+      );
+      
+      if (imageResponse.ok) {
+        const imageData = await imageResponse.json();
+        setImage(imageData.data);
+      }
+    } catch (error) {
+      console.error("Image search error:", error);
+    } finally {
+      setImageLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0f] text-white">
+      {/* Header */}
+      <header className="border-b border-[#1e293b] bg-[#13131f]/80 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Link 
+                href="/admin/new-post" 
+                className="flex items-center gap-2 text-[#64748b] hover:text-[#00d4ff] transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span className="font-mono text-sm">Back</span>
+              </Link>
+              <div className="h-6 w-px bg-[#1e293b]" />
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-[#ffbe0b]" />
+                <span className="font-mono text-lg font-bold">AI Blog Generator</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="font-mono text-xs text-[#64748b]">Powered by Claude + Unsplash</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="container mx-auto px-4 py-8">
+        {/* Input Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-4xl mx-auto"
+        >
+          <div className="rounded-xl border border-[#1e293b] bg-[#13131f] overflow-hidden mb-8">
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-[#1e293b] bg-[#0f0f1a]">
+              <Wand2 className="w-4 h-4 text-[#8338ec]" />
+              <span className="font-mono text-xs text-[#64748b]">$ ai.generate --prompt</span>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              {/* Category Selection */}
+              <div className="flex flex-wrap gap-2">
+                {categories.map((cat) => (
+                  <button
+                    key={cat.value}
+                    onClick={() => setCategory(cat.value)}
+                    className={`px-4 py-2 rounded font-mono text-sm transition-all ${
+                      category === cat.value
+                        ? "bg-[#00d4ff]/20 border border-[#00d4ff] text-[#00d4ff]"
+                        : "bg-[#1e293b] border border-transparent text-[#64748b] hover:border-[#64748b]"
+                    }`}
+                  >
+                    <span className="mr-2">{cat.icon}</span>
+                    {cat.label.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+
+              {/* Prompt Input */}
+              <div className="relative">
+                <textarea
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder="Enter your blog topic... (e.g., 'Docker Compose tutorial for beginners', 'Intel NUC 13 review', 'Homelab network setup guide')"
+                  className="w-full h-32 px-4 py-3 rounded bg-[#0a0a0f] border border-[#1e293b] text-white font-mono placeholder:text-[#64748b] focus:border-[#00d4ff] focus:outline-none resize-none"
+                />
+                <div className="absolute bottom-3 right-3 text-xs text-[#64748b] font-mono">
+                  {prompt.length} chars
+                </div>
+              </div>
+
+              {/* Generate Button */}
+              <button
+                onClick={generateContent}
+                disabled={loading || !prompt.trim()}
+                className="w-full py-4 rounded bg-[#8338ec] text-white font-mono font-bold hover:bg-[#8338ec]/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    GENERATING CONTENT...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-5 h-5" />
+                    GENERATE BLOG POST
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Results Section */}
+          {generatedPost && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-6"
+            >
+              {/* Generated Content Preview */}
+              <div className="rounded-xl border border-[#1e293b] bg-[#13131f] overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-[#1e293b] bg-[#0f0f1a]">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-[#39ff14]" />
+                    <span className="font-mono text-xs text-[#64748b]">Generated Content</span>
+                  </div>
+                  <button
+                    onClick={downloadMDX}
+                    className="flex items-center gap-2 px-4 py-2 rounded bg-[#39ff14] text-[#0a0a0f] font-mono text-sm font-bold hover:bg-[#39ff14]/90 transition-all"
+                  >
+                    {saved ? (
+                      <>
+                        <Save className="w-4 h-4" />
+                        SAVED!
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-4 h-4" />
+                        DOWNLOAD MDX
+                      </>
+                    )}
+                  </button>
+                </div>
+                
+                <div className="p-6 space-y-4">
+                  {/* Title */}
+                  <div>
+                    <label className="block font-mono text-xs text-[#64748b] mb-1">Title</label>
+                    <h2 className="text-2xl font-bold text-white">{generatedPost.title}</h2>
+                  </div>
+                  
+                  {/* Excerpt */}
+                  <div>
+                    <label className="block font-mono text-xs text-[#64748b] mb-1">Excerpt</label>
+                    <p className="text-[#94a3b8]">{generatedPost.excerpt}</p>
+                  </div>
+                  
+                  {/* Tags */}
+                  <div>
+                    <label className="block font-mono text-xs text-[#64748b] mb-2">Tags</label>
+                    <div className="flex flex-wrap gap-2">
+                      {generatedPost.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-3 py-1 rounded-full bg-[#1e293b] text-[#00d4ff] font-mono text-xs"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Content Preview */}
+                  <div>
+                    <label className="block font-mono text-xs text-[#64748b] mb-2">Content Preview</label>
+                    <div className="bg-[#0a0a0f] rounded p-4 font-mono text-sm text-[#94a3b8] max-h-96 overflow-y-auto whitespace-pre-wrap">
+                      {generatedPost.content.substring(0, 1000)}...
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Image Section */}
+              <div className="rounded-xl border border-[#1e293b] bg-[#13131f] overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-[#1e293b] bg-[#0f0f1a]">
+                  <div className="flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4 text-[#ff006e]" />
+                    <span className="font-mono text-xs text-[#64748b]">Cover Image</span>
+                  </div>
+                  <button
+                    onClick={regenerateImage}
+                    disabled={imageLoading}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded border border-[#1e293b] text-[#64748b] hover:text-[#ff006e] hover:border-[#ff006e] font-mono text-xs transition-all"
+                  >
+                    {imageLoading ? (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <>
+                        <Sparkles className="w-3 h-3" />
+                        NEW IMAGE
+                      </>
+                    )}
+                  </button>
+                </div>
+                
+                <div className="p-4">
+                  {image ? (
+                    <div className="space-y-3">
+                      <img
+                        src={image.url}
+                        alt={image.description || "Cover image"}
+                        className="w-full h-64 object-cover rounded-lg"
+                      />
+                      <p className="text-xs text-[#64748b] text-center font-mono">
+                        Photo by <a href={image.authorUrl} target="_blank" rel="noopener noreferrer" className="text-[#00d4ff] hover:underline">{image.author}</a> on Unsplash
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="h-64 flex items-center justify-center bg-[#0a0a0f] rounded-lg">
+                      <p className="text-[#64748b] font-mono text-sm">No image found</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Instructions */}
+              <div className="rounded-lg border border-[#1e293b] bg-[#0f0f1a] p-4">
+                <p className="font-mono text-sm text-[#64748b]">
+                  <span className="text-[#ffbe0b]">⚠</span> Click "DOWNLOAD MDX" to save the file. 
+                  Then move it to <code className="text-[#00d4ff]">content/posts/</code> and commit to GitHub.
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </motion.div>
+      </main>
+    </div>
+  );
+}

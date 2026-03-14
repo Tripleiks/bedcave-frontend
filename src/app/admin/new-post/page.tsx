@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth";
 import { 
   ArrowLeft, Copy, Check, FileCode, Terminal, Tag, Calendar, User, Folder, 
-  LogOut, ImageIcon, Plus, X, FileImage 
+  LogOut, ImageIcon, Plus, X, FileImage, Sparkles 
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -104,6 +104,13 @@ ${formData.content || "# Dein Inhalt hier\n\nSchreibe etwas Spannendes..."}
               $ cd /home
             </Link>
             <div className="flex items-center gap-4">
+              <Link
+                href="/admin/ai-generator"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-[#ffbe0b]/10 text-[#ffbe0b] font-mono text-xs hover:bg-[#ffbe0b]/20 transition-colors"
+              >
+                <Sparkles className="w-3 h-3" />
+                <span>AI</span>
+              </Link>
               <Link
                 href="/admin/images"
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-[#39ff14]/10 text-[#39ff14] font-mono text-xs hover:bg-[#39ff14]/20 transition-colors"

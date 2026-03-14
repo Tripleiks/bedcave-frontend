@@ -1,56 +1,58 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const UNSPLASH_ACCESS_KEY = process.env.UNSPLASH_ACCESS_KEY || "";
+const XAI_API_KEY = process.env.XAI_API_KEY || "";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const query = searchParams.get("query") || "technology";
-    const orientation = searchParams.get("orientation") || "landscape";
+    const prompt = searchParams.get("query") || "technology";
 
-    const response = await fetch(
-      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(
-        query
-      )}&orientation=${orientation}&per_page=10`,
-      {
-        headers: {
-          Authorization: `Client-ID ${UNSPLASH_ACCESS_KEY}`,
-        },
-      }
-    );
+    const response = await fetch("https://api.x.ai/v1/images/generations", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${XAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "aurora",
+        prompt: `Professional tech blog cover image: ${prompt}. Modern, clean, high quality, suitable for a technology blog.`,
+        n: 1,
+        size: "1024x768",
+      }),
+    });
 
     if (!response.ok) {
-      throw new Error(`Unsplash API error: ${response.status}`);
+      const errorData = await response.text();
+      console.error("Grok API Error:", errorData);
+      throw new Error(`Grok API error: ${response.status}`);
     }
 
     const data = await response.json();
     
-    // Return first image or null
-    const image = data.results[0] || null;
+    const imageUrl = data.data?.[0]?.url;
     
-    if (!image) {
+    if (!imageUrl) {
       return NextResponse.json(
-        { error: "No images found" },
-        { status: 404 }
+        { error: "No image generated" },
+        { status: 500 }
       );
     }
 
     return NextResponse.json({
       success: true,
       data: {
-        id: image.id,
-        url: image.urls.regular,
-        thumb: image.urls.small,
-        downloadUrl: image.links.download_location,
-        author: image.user.name,
-        authorUrl: image.user.links.html,
-        description: image.description || image.alt_description,
+        id: data.created || Date.now().toString(),
+        url: imageUrl,
+        thumb: imageUrl,
+        author: "Grok Aurora AI",
+        authorUrl: "https://x.ai",
+        description: `AI-generated: ${prompt}`,
       },
     });
   } catch (error) {
-    console.error("Unsplash API Error:", error);
+    console.error("Grok Aurora API Error:", error);
     return NextResponse.json(
-      { error: "Failed to fetch image" },
+      { error: "Failed to generate image" },
       { status: 500 }
     );
   }

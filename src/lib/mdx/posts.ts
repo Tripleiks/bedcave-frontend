@@ -13,6 +13,8 @@ export interface Post {
   tags: string[];
   author: string;
   readingTime: number;
+  sources?: string[];
+  aiModel?: string;
 }
 
 const postsDirectory = path.join(process.cwd(), 'content/posts');
@@ -69,6 +71,8 @@ export function getAllPosts(): Post[] {
         tags: data.tags || [],
         author: data.author || 'Bedcave Team',
         readingTime,
+        sources: data.sources || [],
+        aiModel: data.aiModel,
       };
     })
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -135,6 +139,8 @@ export function getPostBySlug(slug: string): Post | null {
       tags: data.tags || [],
       author: data.author || 'Bedcave Team',
       readingTime,
+      sources: data.sources || [],
+      aiModel: data.aiModel,
     };
   } catch {
     return null;

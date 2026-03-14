@@ -1,6 +1,6 @@
 import { getPostBySlug, getAllPosts } from '@/lib/mdx/posts';
 import Link from 'next/link';
-import { ArrowLeft, Calendar, Clock, User, Tag, Pencil } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, User, Tag, Pencil, BookOpen, ExternalLink } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -153,6 +153,37 @@ export default async function PostPage({ params }: PostPageProps) {
                   </span>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Sources Section */}
+          {post.sources && post.sources.length > 0 && (
+            <div className="mt-12 pt-8 border-t border-[#1e293b]">
+              <div className="flex items-center gap-2 mb-4">
+                <BookOpen className="w-4 h-4 text-[#64748b]" />
+                <h3 className="font-mono text-sm text-[#64748b] uppercase tracking-wider">Sources</h3>
+              </div>
+              <ul className="space-y-3">
+                {post.sources.map((source, index) => (
+                  <li key={index} className="flex items-start gap-3">
+                    <span className="text-[#00d4ff] font-mono text-sm mt-1">[{index + 1}]</span>
+                    <a 
+                      href={source} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-[#94a3b8] hover:text-[#00d4ff] font-mono text-sm break-all transition-colors flex items-center gap-1 group"
+                    >
+                      {source}
+                      <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              {post.aiModel && (
+                <p className="mt-4 text-xs text-[#64748b] font-mono">
+                  Research powered by {post.aiModel}
+                </p>
+              )}
             </div>
           )}
 

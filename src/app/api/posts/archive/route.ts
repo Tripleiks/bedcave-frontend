@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
 
-const POSTS_DIR = path.join(process.cwd(), "content", "posts", "generated");
+const POSTS_DIR = path.join(process.cwd(), "content", "posts", "archive");
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const GITHUB_REPO = process.env.GITHUB_REPO || "Tripleiks/bedcave-frontend";
@@ -19,7 +19,7 @@ async function commitToGitHub(
   }
 
   try {
-    const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/content/posts/generated/${filename}`;
+    const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/content/posts/archive/${filename}`;
     const base64Content = Buffer.from(content).toString("base64");
 
     // Check if file exists
@@ -118,7 +118,7 @@ ${content}
           success: true,
           message: "Post archived successfully to GitHub",
           filename,
-          path: `content/posts/generated/${filename}`,
+          path: `content/posts/archive/${filename}`,
           github: true,
         });
       }
@@ -134,7 +134,7 @@ ${content}
         success: true,
         message: "Post archived successfully (local)",
         filename,
-        path: `content/posts/generated/${filename}`,
+        path: `content/posts/archive/${filename}`,
         github: false,
       });
     } catch (localError) {
@@ -172,7 +172,7 @@ export async function GET() {
           const stat = await fs.stat(path.join(POSTS_DIR, filename));
           return {
             filename,
-            path: `content/posts/generated/${filename}`,
+            path: `content/posts/archive/${filename}`,
             createdAt: stat.birthtime.toISOString(),
             size: stat.size,
           };

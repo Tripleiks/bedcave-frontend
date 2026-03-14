@@ -133,11 +133,6 @@ export default function AdminLoginPage() {
                 )}
               </button>
             </form>
-
-            {/* Hint */}
-            <p className="text-center mt-6 text-[#64748b] font-mono text-xs">
-              Default: "bedcave2026" (set via NEXT_PUBLIC_ADMIN_PASSWORD)
-            </p>
           </div>
         </motion.div>
       </div>

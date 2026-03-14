@@ -71,10 +71,10 @@ export async function POST(request: NextRequest) {
       success: true,
       data: blogData,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("AI Generation Error:", error);
     return NextResponse.json(
-      { error: "Failed to generate content" },
+      { error: `Failed to generate content: ${error.message || 'Unknown error'}` },
       { status: 500 }
     );
   }

@@ -169,10 +169,10 @@ function FloatingCode() {
 
 export function HeroSection() {
   const categories = [
-    { icon: Terminal, label: "NEWS", href: "/category/news", color: "#00d4ff" },
-    { icon: Cpu, label: "HARDWARE", href: "/category/hardware", color: "#39ff14" },
-    { icon: HardDrive, label: "DOCKER", href: "/category/docker", color: "#ff006e" },
-    { icon: Server, label: "HOMELAB", href: "/category/homeserver", color: "#ffbe0b" },
+    { icon: Terminal, label: "NEWS", href: "/blog", color: "#00d4ff" },
+    { icon: Cpu, label: "HARDWARE", href: "/hardware", color: "#39ff14" },
+    { icon: HardDrive, label: "DOCKER", href: "/docker", color: "#ff006e" },
+    { icon: Server, label: "HOMELAB", href: "/homelab", color: "#ffbe0b" },
   ];
 
   return (
@@ -268,7 +268,7 @@ export function HeroSection() {
               <ArrowRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
-              href="/category/news"
+              href="/blog"
               className="inline-flex items-center gap-2 px-8 py-4 border border-[#1e293b] text-[#e2e8f0] font-mono rounded hover:border-[#00d4ff]/50 hover:bg-[#00d4ff]/5 transition-all"
             >
               <Zap className="w-4 h-4 text-[#ffbe0b]" />

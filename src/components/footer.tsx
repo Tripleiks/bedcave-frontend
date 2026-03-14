@@ -9,15 +9,15 @@ export function Footer() {
 
   const footerLinks = {
     categories: [
-      { label: "NEWS", href: "/category/news", color: "#00d4ff" },
-      { label: "HARDWARE", href: "/category/hardware", color: "#39ff14" },
-      { label: "DOCKER", href: "/category/docker", color: "#ff006e" },
-      { label: "HOMELAB", href: "/category/homeserver", color: "#ffbe0b" },
+      { label: "NEWS", href: "/blog", color: "#00d4ff" },
+      { label: "HARDWARE", href: "/hardware", color: "#39ff14" },
+      { label: "DOCKER", href: "/docker", color: "#ff006e" },
+      { label: "HOMELAB", href: "/homelab", color: "#ffbe0b" },
     ],
     resources: [
-      { label: "ABOUT", href: "/about" },
+      { label: "PRIVACY", href: "/privacy" },
+      { label: "LEGAL", href: "/legal" },
       { label: "RSS_FEED", href: "/feed" },
-      { label: "SITEMAP", href: "/sitemap" },
     ],
   };
 

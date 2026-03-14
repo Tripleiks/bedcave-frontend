@@ -212,7 +212,7 @@ export function ArticleCard({ post, variant = 'default', className = '' }: Artic
           </div>
         </div>
         
-        <Link href={`/post/${post.slug}`} className="block p-3">
+        <Link href={`/blog/${post.slug}`} className="block p-3">
           <div className="flex gap-3">
             {/* Thumbnail */}
             <div className="w-16 h-16 rounded overflow-hidden flex-shrink-0 relative bg-[#1e293b]">
@@ -252,7 +252,7 @@ export function ArticleCard({ post, variant = 'default', className = '' }: Artic
       <article className="group relative overflow-hidden rounded-lg bg-[#13131f] border border-[#1e293b] hover:border-[#00d4ff]/50 transition-all duration-500">
         <TerminalHeader filename={filename} category={mainCategory} />
         
-        <Link href={`/post/${post.slug}`} className="block">
+        <Link href={`/blog/${post.slug}`} className="block">
           {/* Image Area */}
           <div className="aspect-[16/10] relative overflow-hidden">
             {imageUrl ? (

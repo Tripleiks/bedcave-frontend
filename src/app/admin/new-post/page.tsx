@@ -6,7 +6,7 @@ import { useAuth } from "@/lib/auth";
 import { 
   ArrowLeft, Copy, Check, FileCode, Terminal, Tag, Calendar, User, Folder, 
   LogOut, ImageIcon, Plus, X, FileImage, Sparkles, Library, Search,
-  Wand2, Loader2
+  Wand2, Loader2, Archive, Save
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -36,6 +36,8 @@ export default function NewPostPage() {
   const [showOutput, setShowOutput] = useState(false);
   const [availableImages, setAvailableImages] = useState<string[]>([]);
   const [showImagePicker, setShowImagePicker] = useState(false);
+  const [archiving, setArchiving] = useState(false);
+  const [archived, setArchived] = useState(false);
   
   // Cover Image State
   const [libraryImages, setLibraryImages] = useState<LibraryImage[]>([]);
@@ -158,6 +160,47 @@ ${formData.content || "# Dein Inhalt hier\n\nSchreibe etwas Spannendes..."}
     }));
     setShowImagePicker(false);
     if (!showOutput) setShowOutput(true);
+  };
+
+  const archivePost = async () => {
+    if (!formData.title) {
+      alert("Please enter a title first!");
+      return;
+    }
+    
+    setArchiving(true);
+    
+    try {
+      const tagsArray = formData.tags.split(",").map(t => t.trim()).filter(t => t);
+      
+      const response = await fetch("/api/posts/archive", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: formData.title,
+          content: formData.content || "# Dein Inhalt hier\n\nSchreibe etwas Spannendes...",
+          category: formData.category,
+          tags: tagsArray,
+          excerpt: formData.excerpt,
+          imageUrl: formData.coverImage,
+          author: formData.author,
+        }),
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to archive");
+      }
+      
+      const data = await response.json();
+      setArchived(true);
+      alert(`✅ Archived successfully! File: ${data.path}`);
+    } catch (error: any) {
+      console.error("Archive error:", error);
+      alert(`❌ Failed to archive: ${error.message}`);
+    } finally {
+      setArchiving(false);
+    }
   };
 
   return (
@@ -509,6 +552,32 @@ ${formData.content || "# Dein Inhalt hier\n\nSchreibe etwas Spannendes..."}
                           </>
                         )}
                       </button>
+                      <button
+                        onClick={archivePost}
+                        disabled={archiving || archived}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded font-mono text-xs transition-all ${
+                          archived
+                            ? "bg-[#ffbe0b] text-[#0a0a0f]"
+                            : "bg-[#8338ec] text-white hover:bg-[#8338ec]/90"
+                        } disabled:opacity-50`}
+                      >
+                        {archiving ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>saving...</span>
+                          </>
+                        ) : archived ? (
+                          <>
+                            <Archive className="w-4 h-4" />
+                            <span>saved!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Save className="w-4 h-4" />
+                            <span>save to repo</span>
+                          </>
+                        )}
+                      </button>
                     </div>
 
                     {/* Generated Code */}
@@ -526,10 +595,9 @@ ${formData.content || "# Dein Inhalt hier\n\nSchreibe etwas Spannendes..."}
                 <h3 className="font-mono text-sm text-[#ffbe0b] mb-3">$ instructions.sh</h3>
                 <ol className="font-mono text-xs text-[#64748b] space-y-2 list-decimal list-inside">
                   <li>Fülle das Formular aus</li>
-                  <li>Kopiere den generierten MDX-Code</li>
-                  <li>Erstelle Datei in <span className="text-[#00d4ff]">content/posts/</span></li>
-                  <li>Committe und pushe zu GitHub</li>
-                  <li>Vercel deployt automatisch!</li>
+                  <li>Klicke <span className="text-[#8338ec]">save to repo</span> um direkt zu speichern</li>
+                  <li>Oder kopiere den MDX-Code und erstelle manuell</li>
+                  <li>Vercel deployt automatisch bei GitHub Push!</li>
                 </ol>
               </div>
             </div>

@@ -15,7 +15,8 @@ import {
   Library,
   X,
   Check,
-  Search
+  Search,
+  Archive
 } from "lucide-react";
 import Link from "next/link";
 
@@ -64,6 +65,8 @@ export default function AIGeneratorPage() {
   const [saved, setSaved] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [published, setPublished] = useState(false);
+  const [archiving, setArchiving] = useState(false);
+  const [archived, setArchived] = useState(false);
   
   // Library state
   const [libraryImages, setLibraryImages] = useState<LibraryImage[]>([]);
@@ -252,6 +255,41 @@ ${image ? `
     }
   };
 
+  const archivePost = async () => {
+    if (!generatedPost) return;
+    setArchiving(true);
+    
+    try {
+      const response = await fetch("/api/posts/archive", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: generatedPost.title,
+          content: generatedPost.content,
+          category,
+          tags: generatedPost.tags,
+          excerpt: generatedPost.excerpt,
+          imageUrl: image?.url,
+          author: "Grok Aurora AI",
+        }),
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to archive");
+      }
+      
+      const data = await response.json();
+      setArchived(true);
+      alert(`✅ Archived successfully! File: ${data.path}`);
+    } catch (error: any) {
+      console.error("Archive error:", error);
+      alert(`❌ Failed to archive: ${error.message}`);
+    } finally {
+      setArchiving(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white">
       {/* Header */}
@@ -392,6 +430,32 @@ ${image ? `
                     >
                       <Download className="w-4 h-4" />
                       DOWNLOAD
+                    </button>
+                    <button
+                      onClick={archivePost}
+                      disabled={archiving || archived}
+                      className={`flex items-center gap-2 px-4 py-2 rounded font-mono text-sm font-bold transition-all ${
+                        archived
+                          ? "bg-[#ffbe0b] text-[#0a0a0f]"
+                          : "bg-[#8338ec] text-white hover:bg-[#8338ec]/90"
+                      } disabled:opacity-50`}
+                    >
+                      {archiving ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          ARCHIVING...
+                        </>
+                      ) : archived ? (
+                        <>
+                          <Archive className="w-4 h-4" />
+                          ARCHIVED!
+                        </>
+                      ) : (
+                        <>
+                          <Archive className="w-4 h-4" />
+                          SAVE TO REPO
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>

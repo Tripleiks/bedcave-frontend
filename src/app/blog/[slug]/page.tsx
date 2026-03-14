@@ -45,14 +45,8 @@ export default async function PostPage({ params }: PostPageProps) {
     day: 'numeric',
   });
 
-  // Dynamically import MDX content
-  let MDXContent: React.ComponentType | null = null;
-  try {
-    const mdxModule = await import(`@/content/posts/${slug}.mdx`);
-    MDXContent = mdxModule.default;
-  } catch {
-    // If MDX import fails, we'll render the raw content
-  }
+  // Use post content directly
+  const content = post.content;
 
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
@@ -118,15 +112,9 @@ export default async function PostPage({ params }: PostPageProps) {
 
           {/* Content */}
           <div className="prose prose-invert prose-lg max-w-none font-mono">
-            {MDXContent ? (
-              <MDXComponents>
-                <MDXContent />
-              </MDXComponents>
-            ) : (
-              <div className="text-gray-300 whitespace-pre-wrap">
-                {post.content}
-              </div>
-            )}
+            <div className="text-gray-300 whitespace-pre-wrap">
+              {content}
+            </div>
           </div>
 
           {/* Tags */}

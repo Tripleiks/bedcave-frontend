@@ -41,7 +41,7 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {stickyPosts.map((post) => (
-                <ArticleCard key={post.id} post={post} variant="default" />
+                <ArticleCard key={post.slug} post={post} variant="default" />
               ))}
             </div>
           </motion.section>
@@ -68,7 +68,7 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
               {recentPosts.slice(0, 2).map((post, index) => (
                 <motion.div
-                  key={post.id}
+                  key={post.slug}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
@@ -86,7 +86,7 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {recentPosts.slice(2).map((post, index) => (
                 <motion.div
-                  key={post.id}
+                  key={post.slug}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}

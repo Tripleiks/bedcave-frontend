@@ -281,7 +281,7 @@ export function ArticleCard({ post, variant = 'default', className = '' }: Artic
               <span className="text-[#8338ec]">var</span>{" "}
               <span className="text-[#ffbe0b]">article</span>{" "}={" "}
               <span className="text-[#39ff14]">&quot;</span>
-              <span dangerouslySetInnerHTML={{ __html: post.title.rendered }} />
+              <span dangerouslySetInnerHTML={{ __html: post.title }} />
               <span className="text-[#39ff14]">&quot;</span>;
             </h3>
             

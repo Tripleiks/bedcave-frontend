@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
+import { CodeBlock } from '@/components/code-block';
 
 interface PostPageProps {
   params: Promise<{ slug: string }>;
@@ -132,7 +133,7 @@ export default async function PostPage({ params }: PostPageProps) {
                 h3: ({ children }) => <h3 className="text-xl font-bold text-white mt-6 mb-3 font-mono">{children}</h3>,
                 p: ({ children }) => <p className="text-gray-300 mb-4 leading-relaxed font-mono">{children}</p>,
                 code: ({ children }) => <code className="bg-[#1e293b] text-[#39ff14] px-2 py-1 rounded text-sm font-mono">{children}</code>,
-                pre: ({ children }) => <pre className="bg-[#0f0f1a] border border-[#1e293b] rounded-lg p-4 overflow-x-auto mb-4 font-mono text-sm">{children}</pre>,
+                pre: CodeBlock,
               }}
             >
               {content}

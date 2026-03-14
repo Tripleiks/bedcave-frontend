@@ -15,6 +15,7 @@ export interface Post {
   readingTime: number;
   sources?: string[];
   aiModel?: string;
+  sticky?: boolean;
 }
 
 const postsDirectory = path.join(process.cwd(), 'content/posts');
@@ -80,6 +81,7 @@ export function getAllPosts(): Post[] {
         readingTime,
         sources: data.sources || [],
         aiModel: data.aiModel,
+        sticky: data.sticky || false,
       };
     })
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -154,6 +156,7 @@ export function getPostBySlug(slug: string): Post | null {
       readingTime,
       sources: data.sources || [],
       aiModel: data.aiModel,
+      sticky: data.sticky || false,
     };
   } catch {
     return null;

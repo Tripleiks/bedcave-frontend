@@ -30,6 +30,7 @@ export default function NewPostPage() {
     author: "Bedcave Team",
     content: "",
     coverImage: "",
+    sticky: false,
   });
   
   const [copied, setCopied] = useState(false);
@@ -135,6 +136,7 @@ category: "${formData.category}"
 ${formData.coverImage ? `coverImage: "${formData.coverImage}"` : ""}
 tags: [${tagsArray.map(t => `"${t}"`).join(", ")}]
 author: "${formData.author}"
+sticky: ${formData.sticky}
 ---
 
 ${formData.content || "# Dein Inhalt hier\n\nSchreibe etwas Spannendes..."}
@@ -184,6 +186,7 @@ ${formData.content || "# Dein Inhalt hier\n\nSchreibe etwas Spannendes..."}
           excerpt: formData.excerpt,
           imageUrl: formData.coverImage,
           author: formData.author,
+          sticky: formData.sticky,
         }),
       });
       
@@ -351,6 +354,25 @@ ${formData.content || "# Dein Inhalt hier\n\nSchreibe etwas Spannendes..."}
                       placeholder="Bedcave Team"
                       className="w-full px-4 py-3 rounded bg-[#0a0a0f] border border-[#1e293b] text-white font-mono placeholder:text-[#64748b] focus:border-[#00d4ff] focus:outline-none transition-colors"
                     />
+                  </div>
+
+                  {/* Sticky Toggle */}
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-mono text-[#00d4ff] mb-2">
+                      <span>sticky_post</span>
+                      <span className="text-[#64748b] text-xs">// feature this post</span>
+                    </label>
+                    <button
+                      onClick={() => setFormData(prev => ({ ...prev, sticky: !prev.sticky }))}
+                      className={`flex items-center gap-2 px-4 py-3 rounded font-mono text-sm transition-all w-full ${
+                        formData.sticky
+                          ? "bg-[#ffbe0b]/20 border border-[#ffbe0b] text-[#ffbe0b]"
+                          : "bg-[#1e293b] border border-transparent text-[#64748b] hover:border-[#64748b]"
+                      }`}
+                    >
+                      <span className="mr-2">{formData.sticky ? "📌" : "📍"}</span>
+                      {formData.sticky ? "STICKY POST ENABLED" : "MARK AS STICKY POST"}
+                    </button>
                   </div>
 
                   {/* Excerpt */}

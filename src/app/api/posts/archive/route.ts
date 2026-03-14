@@ -71,7 +71,7 @@ async function commitToGitHub(
 
 export async function POST(request: NextRequest) {
   try {
-    const { title, content, category, tags, excerpt, imageUrl, author = "Bedcave Team" } = await request.json();
+    const { title, content, category, tags, excerpt, imageUrl, author = "Bedcave Team", sticky = false } = await request.json();
 
     if (!title || !content) {
       return NextResponse.json(
@@ -97,6 +97,7 @@ category: "${category || "General"}"
 ${imageUrl ? `coverImage: "${imageUrl}"` : ""}
 tags: [${(tags || []).map((t: string) => `"${t}"`).join(", ")}]
 author: "${author}"
+sticky: ${sticky}
 generatedAt: "${new Date().toISOString()}"
 source: "bedcave-admin"
 ---

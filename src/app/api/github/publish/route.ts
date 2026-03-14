@@ -6,7 +6,7 @@ const GITHUB_BRANCH = process.env.GITHUB_BRANCH || "main";
 
 export async function POST(request: NextRequest) {
   try {
-    const { title, content, category, tags, excerpt, imageUrl } = await request.json();
+    const { title, content, category, tags, excerpt, imageUrl, sticky } = await request.json();
 
     if (!title || !content) {
       return NextResponse.json(
@@ -39,6 +39,7 @@ category: "${category || "General"}"
 ${imageUrl ? `coverImage: "${imageUrl}"` : ""}
 tags: [${(tags || []).map((t: string) => `"${t}"`).join(", ")}]
 author: "Grok Aurora"
+sticky: ${sticky || false}
 ---
 
 ${content}

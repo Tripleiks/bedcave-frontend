@@ -4,12 +4,132 @@ import { motion } from "framer-motion";
 import { ArticleCard } from "@/components/article-card";
 import { HeroSection } from "@/components/hero-section";
 import { Post } from "@/lib/mdx/posts";
-import { Terminal, ArrowRight, Cpu, Mail } from "lucide-react";
+import { Terminal, ArrowRight, Cpu, Mail, Code2, Clock, Quote } from "lucide-react";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 
 interface HomeContentProps {
   recentPosts: Post[];
   stickyPosts: Post[];
+}
+
+// Digital Clock Component
+function DigitalClock() {
+  const [time, setTime] = useState<string>("");
+  const [date, setDate] = useState<string>("");
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setTime(now.toLocaleTimeString("en-GB", { hour12: false }));
+      setDate(now.toISOString().split("T")[0]);
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="rounded-xl border border-[#1e293b] bg-[#13131f] overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-[#1e293b] bg-[#0f0f1a]">
+        <Clock className="w-4 h-4 text-[#00d4ff]" />
+        <span className="font-mono text-xs text-[#64748b]">$ date --iso-8601</span>
+      </div>
+      <div className="p-6 text-center">
+        <div className="font-mono text-3xl font-bold text-[#00d4ff] tracking-wider">
+          {time || "00:00:00"}
+        </div>
+        <div className="font-mono text-sm text-[#64748b] mt-2">
+          {date || "1970-01-01"}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Tech Stack Pills Component
+function TechStackPills() {
+  const stack = [
+    { name: "Next.js", color: "#e2e8f0" },
+    { name: "Tailwind", color: "#38bdf8" },
+    { name: "MDX", color: "#f97316" },
+    { name: "Vercel", color: "#000000" },
+    { name: "Docker", color: "#2496ed" },
+  ];
+
+  return (
+    <div className="rounded-xl border border-[#1e293b] bg-[#13131f] overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-[#1e293b] bg-[#0f0f1a]">
+        <Code2 className="w-4 h-4 text-[#39ff14]" />
+        <span className="font-mono text-xs text-[#64748b]">$ cat stack.json</span>
+      </div>
+      <div className="p-6">
+        <div className="flex flex-wrap gap-2 justify-center">
+          {stack.map((tech) => (
+            <motion.span
+              key={tech.name}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1 * stack.indexOf(tech) }}
+              className="px-3 py-1.5 rounded-full font-mono text-xs font-bold border"
+              style={{ 
+                borderColor: tech.color,
+                color: tech.color,
+                backgroundColor: `${tech.color}10`
+              }}
+            >
+              {tech.name}
+            </motion.span>
+          ))}
+        </div>
+        <div className="mt-4 text-center font-mono text-xs text-[#64748b]">
+          // powered by
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Quote Ticker Component
+function QuoteTicker() {
+  const quotes = [
+    "There is no cloud, it's just someone else's computer",
+    "It works on my machine - famous last words",
+    "Docker: because 'works on my machine' wasn't good enough",
+    "Homelab: where your electricity bill goes to die",
+    "Kubernetes is just Borg for the rest of us",
+    "Have you tried turning it off and on again?",
+  ];
+
+  const [currentQuote, setCurrentQuote] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentQuote((prev) => (prev + 1) % quotes.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [quotes.length]);
+
+  return (
+    <div className="rounded-xl border border-[#1e293b] bg-[#13131f] overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-[#1e293b] bg-[#0f0f1a]">
+        <Quote className="w-4 h-4 text-[#ffbe0b]" />
+        <span className="font-mono text-xs text-[#64748b]">$ fortune | cowsay</span>
+      </div>
+      <div className="p-6 flex items-center justify-center min-h-[100px]">
+        <motion.p
+          key={currentQuote}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.5 }}
+          className="font-mono text-sm text-[#94a3b8] text-center italic"
+        >
+          &ldquo;{quotes[currentQuote]}&rdquo;
+        </motion.p>
+      </div>
+    </div>
+  );
 }
 
 export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
@@ -21,6 +141,25 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
       {/* Content Sections */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
         
+        {/* Tech Dashboard - Clock, Stack & Quotes */}
+        <motion.section 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-16"
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Digital Clock */}
+            <DigitalClock />
+            
+            {/* Tech Stack Pills */}
+            <TechStackPills />
+            
+            {/* Quote Ticker */}
+            <QuoteTicker />
+          </div>
+        </motion.section>
+
         {/* Featured / Sticky Posts - Terminal Style */}
         {stickyPosts.length > 0 && (
           <motion.section 

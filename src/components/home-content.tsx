@@ -334,6 +334,34 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
       {/* Hero Section */}
       <HeroSection />
 
+      {/* Featured / Sticky Posts - Terminal Style */}
+      {stickyPosts.length > 0 && (
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-16">
+          <motion.section 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-20"
+          >
+            <div className="flex items-center gap-4 mb-8">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded bg-[#1e293b] border border-[#1e293b]">
+                <Terminal className="w-4 h-4 text-[#00d4ff]" />
+                <span className="font-mono text-sm text-[#00d4ff]">$ cat featured.log</span>
+              </div>
+              <div className="flex-1 h-px bg-[#1e293b]" />
+              <Link href="#latest" className="font-mono text-sm text-[#64748b] hover:text-[#00d4ff] transition-colors">
+                view_all --tree
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {stickyPosts.map((post) => (
+                <ArticleCard key={post.slug} post={post} variant="default" />
+              ))}
+            </div>
+          </motion.section>
+        </div>
+      )}
+
       {/* Live News Ticker */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <motion.div
@@ -385,32 +413,6 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
             <QuoteTicker />
           </div>
         </motion.section>
-
-        {/* Featured / Sticky Posts - Terminal Style */}
-        {stickyPosts.length > 0 && (
-          <motion.section 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-20"
-          >
-            <div className="flex items-center gap-4 mb-8">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded bg-[#1e293b] border border-[#1e293b]">
-                <Terminal className="w-4 h-4 text-[#00d4ff]" />
-                <span className="font-mono text-sm text-[#00d4ff]">$ cat featured.log</span>
-              </div>
-              <div className="flex-1 h-px bg-[#1e293b]" />
-              <Link href="#latest" className="font-mono text-sm text-[#64748b] hover:text-[#00d4ff] transition-colors">
-                view_all --tree
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {stickyPosts.map((post) => (
-                <ArticleCard key={post.slug} post={post} variant="default" />
-              ))}
-            </div>
-          </motion.section>
-        )}
 
         {/* Latest Posts - Symmetrical Grid */}
         <motion.section 

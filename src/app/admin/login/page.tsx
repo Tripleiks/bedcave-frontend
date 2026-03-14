@@ -15,32 +15,28 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
 
-    setTimeout(() => {
-      const success = login(password);
-      if (!success) {
-        setError("Invalid password. Access denied.");
-      }
-      setIsLoading(false);
-    }, 500);
+    const success = await login(password);
+    if (!success) {
+      setError("Invalid password. Access denied.");
+    }
+    setIsLoading(false);
   };
 
-  const handlePinSubmit = (e: React.FormEvent) => {
+  const handlePinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
 
-    setTimeout(() => {
-      const success = verifyPin(pin);
-      if (!success) {
-        setError("Invalid PIN. Access denied.");
-      }
-      setIsLoading(false);
-    }, 500);
+    const success = await verifyPin(pin);
+    if (!success) {
+      setError("Invalid PIN. Access denied.");
+    }
+    setIsLoading(false);
   };
 
   return (

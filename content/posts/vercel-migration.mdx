@@ -1,0 +1,105 @@
+---
+title: "Vercel Migration: Goodbye WordPress, Hello Speed"
+date: "2026-03-14"
+excerpt: "Wie wir Bedcave von WordPress auf Vercel + Next.js umgezogen haben. Mehr Speed, weniger Maintenance, besseres Dev-Experience."
+category: "General"
+tags: ["vercel", "nextjs", "migration", "mdx", "performance"]
+author: "Bedcave Team"
+---
+
+# Vercel Migration: Goodbye WordPress, Hello Speed
+
+Nach wochenlangem Hin und Her mit WordPress-Hosts, SSL-Zertifikaten und API-Problemen haben wir einen radikalen Schritt gewagt: **Wir haben WordPress komplett abgeschafft.**
+
+## Das Problem
+
+Unser Setup war... kompliziert:
+- WordPress auf Strato-Hosting
+- SSL-Zertifikate die nicht funktionieren wollten
+- API-Proxy-Workarounds für CORS-Probleme
+- Langsame Ladezeiten durch PHP-Rendering
+
+Die letzte API-Blockade auf Vercel war der Tropfen, der das Fass zum Überlaufen brachte. Wir brauchten etwas Einfacheres, Schnelleres, Moderneres.
+
+## Die Lösung: MDX + Next.js + Vercel
+
+Wir sind komplett auf ein **Static Site** umgestiegen:
+
+### Warum das rockt:
+
+| Feature | Vorher (WordPress) | Jetzt (Vercel) |
+|---------|-------------------|----------------|
+| **Hosting** | Strato Shared | Vercel Edge |
+| **Backend** | PHP + MySQL | Keines nötig |
+| **API** | REST mit Proxy | Keine API nötig |
+| **Content** | Datenbank | Markdown Files |
+| **Speed** | ~2-3s Ladezeit | ~200ms Ladezeit |
+| **Dev-Experience** | WP-Admin GUI | VS Code + Git |
+
+### Das neue Setup
+
+```bash
+# Unser Stack
+- Next.js 16 (App Router)
+- React Server Components
+- MDX für Blog-Posts
+- Tailwind CSS + Custom Terminal-Theme
+- Vercel Hosting (Auto-Deploy)
+```
+
+## Content Management
+
+Kein WordPress-Admin mehr. Stattdessen:
+
+1. **Neuer Post:** Markdown-Datei in `content/posts/` erstellen
+2. **Frontmatter** mit Metadaten (Titel, Datum, Kategorie, Tags)
+3. **Git Commit** → Auto-Deploy auf Vercel
+
+Das ist schneller als WordPress und gibt uns Version Control für alle Inhalte.
+
+## Performance-Vergleich
+
+**Vorher (WordPress):**
+- TTFB: ~800ms
+- DOM Ready: ~2.5s
+- Vollständig geladen: ~4s
+
+**Jetzt (Vercel):**
+- TTFB: ~50ms  
+- DOM Ready: ~180ms
+- Vollständig geladen: ~400ms
+
+**Das ist ein 10x Speedup.**
+
+## Das Admin-Tool
+
+Damit das Erstellen neuer Posts nicht nur für Entwickler funktioniert, haben wir ein kleines **Terminal-Style Formular** gebaut:
+
+```
+https://bedcave.com/admin/new-post
+```
+
+Dort kannst du:
+- Titel, Datum, Kategorie wählen
+- Tags hinzufügen
+- Markdown-Content schreiben
+- MDX-Code kopieren und commiten
+
+## Fazit
+
+Die Migration hat sich absolut gelohnt. Weniger Moving Parts, bessere Performance, modernes Developer-Experience.
+
+**Tech-Stack für 2026:**
+- ✅ Next.js statt PHP
+- ✅ Markdown statt Datenbank  
+- ✅ Git statt WP-Admin
+- ✅ Vercel statt Shared Hosting
+
+> "Sometimes the best code is no code at all." — Wir haben das Backend komplett eliminiert und sind glücklicher denn je.
+
+**Next Steps:**
+- Mehr Hardware-Reviews
+- Docker-Tutorials
+- Homelab-Guides
+
+Stay tuned! 🚀

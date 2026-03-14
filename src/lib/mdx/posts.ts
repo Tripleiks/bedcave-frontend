@@ -26,12 +26,19 @@ export function getAllPosts(): Post[] {
   }
 
   // Recursively get all .mdx files from posts directory and subdirectories
+  // EXCLUDE: archive/ folder (archived posts should not appear on site)
   function getMdxFiles(dir: string): string[] {
     const files: string[] = [];
     const items = fs.readdirSync(dir, { withFileTypes: true });
     
     for (const item of items) {
       const fullPath = path.join(dir, item.name);
+      
+      // Skip archive directory
+      if (item.isDirectory() && item.name === 'archive') {
+        continue;
+      }
+      
       if (item.isDirectory()) {
         files.push(...getMdxFiles(fullPath));
       } else if (item.name.endsWith('.mdx') || item.name.endsWith('.md')) {
@@ -88,13 +95,19 @@ export function getPostBySlug(slug: string): Post | null {
       fullPath = path.join(postsDirectory, `${slug}.md`);
     }
     
-    // If not found, search recursively in subdirectories
+    // If not found, search recursively in subdirectories (exclude archive)
     if (!fs.existsSync(fullPath)) {
       function findMdxFile(dir: string, targetSlug: string): string | null {
         const items = fs.readdirSync(dir, { withFileTypes: true });
         
         for (const item of items) {
           const itemPath = path.join(dir, item.name);
+          
+          // Skip archive directory
+          if (item.isDirectory() && item.name === 'archive') {
+            continue;
+          }
+          
           if (item.isDirectory()) {
             const found = findMdxFile(itemPath, targetSlug);
             if (found) return found;

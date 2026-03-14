@@ -64,12 +64,23 @@ export async function POST(request: NextRequest) {
     try {
       // Extract JSON from potential markdown code blocks
       const jsonMatch = content.match(/```json\n?([\s\S]*?)\n?```/) || content.match(/```\n?([\s\S]*?)\n?```/);
-      const jsonString = jsonMatch ? jsonMatch[1] : content;
+      let jsonString = jsonMatch ? jsonMatch[1] : content;
+      
+      // Trim whitespace and find JSON boundaries
+      jsonString = jsonString.trim();
+      
+      // If content starts with { and ends with }, use that directly
+      const firstBrace = jsonString.indexOf('{');
+      const lastBrace = jsonString.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        jsonString = jsonString.substring(firstBrace, lastBrace + 1);
+      }
+      
       blogData = JSON.parse(jsonString);
-    } catch (parseError) {
+    } catch (parseError: any) {
       console.error("Failed to parse Claude response:", content);
       return NextResponse.json(
-        { error: "Failed to parse generated content" },
+        { error: `Failed to parse generated content: ${parseError.message}. Raw content: ${content.substring(0, 500)}` },
         { status: 500 }
       );
     }

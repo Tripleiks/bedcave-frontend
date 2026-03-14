@@ -1,0 +1,12 @@
+{
+  "images": [
+    {
+      "filename": "example-post-image.jpg",
+      "title": "Beispiel Post Bild",
+      "category": "Hardware",
+      "uploadDate": "2026-03-14",
+      "size": "245 KB",
+      "dimensions": "1200x800"
+    }
+  ]
+}

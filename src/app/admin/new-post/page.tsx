@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth";
-import { ArrowLeft, Copy, Check, FileCode, Terminal, Tag, Calendar, User, Folder, LogOut } from "lucide-react";
+import { ArrowLeft, Copy, Check, FileCode, Terminal, Tag, Calendar, User, Folder, LogOut, ImageIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function NewPostPage() {
@@ -72,12 +72,21 @@ ${formData.content || "# Dein Inhalt hier\n\nSchreibe etwas Spannendes..."}
               <ArrowLeft className="w-4 h-4" />
               $ cd /home
             </Link>
-            <div className="flex items-center gap-2">
-              <Terminal className="w-5 h-5 text-[#39ff14]" />
-              <span className="font-mono text-[#39ff14]">admin/new-post</span>
+            <div className="flex items-center gap-4">
+              <Link
+                href="/admin/images"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-[#39ff14]/10 text-[#39ff14] font-mono text-xs hover:bg-[#39ff14]/20 transition-colors"
+              >
+                <ImageIcon className="w-3 h-3" />
+                <span>images</span>
+              </Link>
+              <div className="flex items-center gap-2">
+                <Terminal className="w-5 h-5 text-[#39ff14]" />
+                <span className="font-mono text-[#39ff14]">admin/new-post</span>
+              </div>
               <button
                 onClick={logout}
-                className="ml-4 flex items-center gap-1 px-3 py-1.5 rounded bg-[#ff006e]/10 text-[#ff006e] font-mono text-xs hover:bg-[#ff006e]/20 transition-colors"
+                className="flex items-center gap-1 px-3 py-1.5 rounded bg-[#ff006e]/10 text-[#ff006e] font-mono text-xs hover:bg-[#ff006e]/20 transition-colors"
               >
                 <LogOut className="w-3 h-3" />
                 <span>logout</span>

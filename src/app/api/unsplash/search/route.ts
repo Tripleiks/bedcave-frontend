@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
       },
       body: JSON.stringify({
         model: "grok-imagine-image",
-        prompt: `Professional tech blog cover image: ${prompt}. Modern, clean, high quality, suitable for a technology blog.`,
+        prompt: `Professional tech blog cover image: ${prompt}. Modern, clean, high quality, suitable for a technology blog. NO TEXT, NO WORDS, NO LETTERS, purely visual illustration.`,
         n: 1,
       }),
     });

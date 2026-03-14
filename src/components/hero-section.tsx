@@ -85,10 +85,12 @@ export function HeroSection() {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20"
           >
-            <Link href="#latest">
-              <LiquidButton size="xl" className="text-white border border-white/20">
-                EXPLORE_ARTICLES
-              </LiquidButton>
+            <Link
+              href="#latest"
+              className="group relative inline-flex items-center gap-3 px-8 py-4 bg-[#00d4ff] text-[#0a0a0f] font-mono font-bold rounded hover:bg-[#00d4ff]/90 transition-all box-glow-cyan overflow-hidden"
+            >
+              <span className="relative z-10">EXPLORE_ARTICLES</span>
+              <ArrowRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
               href="/blog"
@@ -152,7 +154,6 @@ export function HeroSection() {
           <div className="w-px h-8 bg-gradient-to-b from-[#00d4ff] to-transparent" />
         </motion.div>
       </motion.div>
-    </section>
+    </WavyBackground>
   );
 }
-

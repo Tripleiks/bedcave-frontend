@@ -75,13 +75,31 @@ export default function AIGeneratorPage() {
       
       // Search for image
       setImageLoading(true);
-      const imageResponse = await fetch(
-        `/api/unsplash/search?query=${encodeURIComponent(prompt)}&orientation=landscape`
-      );
-      
-      if (imageResponse.ok) {
-        const imageData = await imageResponse.json();
-        setImage(imageData.data);
+      try {
+        const imageResponse = await fetch(
+          `/api/unsplash/search?query=${encodeURIComponent(prompt)}&orientation=landscape`
+        );
+        
+        if (imageResponse.ok) {
+          const imageData = await imageResponse.json();
+          if (imageData.success && imageData.data) {
+            setImage(imageData.data);
+          } else {
+            console.warn("Image API returned no data:", imageData);
+            setImage(null);
+          }
+        } else {
+          const errorData = await imageResponse.json().catch(() => ({}));
+          console.error("Image API error:", imageResponse.status, errorData);
+          alert(`Image generation failed: ${errorData.error || `HTTP ${imageResponse.status}`}`);
+          setImage(null);
+        }
+      } catch (imageError: any) {
+        console.error("Image fetch error:", imageError);
+        alert(`Image error: ${imageError.message}`);
+        setImage(null);
+      } finally {
+        setImageLoading(false);
       }
     } catch (error: any) {
       console.error("Generation error:", error);

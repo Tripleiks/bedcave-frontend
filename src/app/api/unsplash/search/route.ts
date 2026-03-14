@@ -7,6 +7,16 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const prompt = searchParams.get("query") || "technology";
 
+    if (!XAI_API_KEY) {
+      console.error("XAI_API_KEY not configured");
+      return NextResponse.json(
+        { error: "XAI_API_KEY not configured" },
+        { status: 500 }
+      );
+    }
+
+    console.log("Generating image with Grok Aurora for prompt:", prompt);
+
     const response = await fetch("https://api.x.ai/v1/images/generations", {
       method: "POST",
       headers: {
@@ -23,17 +33,22 @@ export async function GET(request: NextRequest) {
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error("Grok API Error:", errorData);
-      throw new Error(`Grok API error: ${response.status}`);
+      console.error("Grok API Error:", response.status, errorData);
+      return NextResponse.json(
+        { error: `Grok API error: ${response.status} - ${errorData}` },
+        { status: 500 }
+      );
     }
 
     const data = await response.json();
+    console.log("Grok API response:", JSON.stringify(data, null, 2));
     
     const imageUrl = data.data?.[0]?.url;
     
     if (!imageUrl) {
+      console.error("No image URL in response:", data);
       return NextResponse.json(
-        { error: "No image generated" },
+        { error: "No image generated - missing URL in response" },
         { status: 500 }
       );
     }
@@ -49,10 +64,10 @@ export async function GET(request: NextRequest) {
         description: `AI-generated: ${prompt}`,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Grok Aurora API Error:", error);
     return NextResponse.json(
-      { error: "Failed to generate image" },
+      { error: `Failed to generate image: ${error.message}` },
       { status: 500 }
     );
   }

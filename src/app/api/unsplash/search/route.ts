@@ -27,7 +27,6 @@ export async function GET(request: NextRequest) {
         model: "aurora",
         prompt: `Professional tech blog cover image: ${prompt}. Modern, clean, high quality, suitable for a technology blog.`,
         n: 1,
-        size: "1024x768",
       }),
     });
 

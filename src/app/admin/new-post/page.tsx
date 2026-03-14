@@ -5,9 +5,19 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth";
 import { 
   ArrowLeft, Copy, Check, FileCode, Terminal, Tag, Calendar, User, Folder, 
-  LogOut, ImageIcon, Plus, X, FileImage, Sparkles 
+  LogOut, ImageIcon, Plus, X, FileImage, Sparkles, Library, Search,
+  Wand2, Loader2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+
+interface LibraryImage {
+  id: string;
+  url: string;
+  title: string;
+  tags: string[];
+  category: string;
+  createdAt: string;
+}
 
 export default function NewPostPage() {
   const { logout } = useAuth();
@@ -19,12 +29,21 @@ export default function NewPostPage() {
     tags: "",
     author: "Bedcave Team",
     content: "",
+    coverImage: "",
   });
   
   const [copied, setCopied] = useState(false);
   const [showOutput, setShowOutput] = useState(false);
   const [availableImages, setAvailableImages] = useState<string[]>([]);
   const [showImagePicker, setShowImagePicker] = useState(false);
+  
+  // Cover Image State
+  const [libraryImages, setLibraryImages] = useState<LibraryImage[]>([]);
+  const [showLibrary, setShowLibrary] = useState(false);
+  const [showGenerateImage, setShowGenerateImage] = useState(false);
+  const [imageGenerating, setImageGenerating] = useState(false);
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+  const [librarySearch, setLibrarySearch] = useState("");
 
   // Load available images
   useEffect(() => {
@@ -41,6 +60,56 @@ export default function NewPostPage() {
     }
     loadImages();
   }, []);
+
+  // Load library images
+  useEffect(() => {
+    fetchLibraryImages();
+  }, []);
+
+  const fetchLibraryImages = async () => {
+    try {
+      const response = await fetch("/api/images/library");
+      const data = await response.json();
+      if (data.success) {
+        setLibraryImages(data.images);
+      }
+    } catch (error) {
+      console.error("Failed to load library images:", error);
+    }
+  };
+
+  const generateCoverImage = async () => {
+    if (!formData.title) {
+      alert("Please enter a title first!");
+      return;
+    }
+    
+    setImageGenerating(true);
+    try {
+      const response = await fetch(
+        `/api/unsplash/search?query=${encodeURIComponent(formData.title)}&orientation=landscape`
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data) {
+          setGeneratedImageUrl(data.data.url);
+          setFormData(prev => ({ ...prev, coverImage: data.data.url }));
+        }
+      }
+    } catch (error) {
+      console.error("Image generation error:", error);
+      alert("Failed to generate image");
+    } finally {
+      setImageGenerating(false);
+    }
+  };
+
+  const selectLibraryImage = (image: LibraryImage) => {
+    setFormData(prev => ({ ...prev, coverImage: image.url }));
+    setShowLibrary(false);
+    if (!showOutput) setShowOutput(true);
+  };
 
   const categories = ["General", "Hardware", "Docker", "Homelab"];
 
@@ -61,6 +130,7 @@ title: "${formData.title}"
 date: "${formData.date}"
 excerpt: "${formData.excerpt}"
 category: "${formData.category}"
+${formData.coverImage ? `coverImage: "${formData.coverImage}"` : ""}
 tags: [${tagsArray.map(t => `"${t}"`).join(", ")}]
 author: "${formData.author}"
 ---
@@ -255,6 +325,89 @@ ${formData.content || "# Dein Inhalt hier\n\nSchreibe etwas Spannendes..."}
                     />
                   </div>
 
+                  {/* Cover Image */}
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-mono text-[#00d4ff] mb-2">
+                      <ImageIcon className="w-4 h-4" />
+                      <span>cover_image</span>
+                    </label>
+                    
+                    {formData.coverImage ? (
+                      <div className="rounded-lg border border-[#1e293b] bg-[#0a0a0f] overflow-hidden">
+                        <div className="aspect-video relative">
+                          <img
+                            src={formData.coverImage}
+                            alt="Cover preview"
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            onClick={() => setFormData(prev => ({ ...prev, coverImage: "" }))}
+                            className="absolute top-2 right-2 p-1.5 rounded bg-[#ff006e] text-white hover:bg-[#ff006e]/90 transition-colors"
+                            title="Remove cover image"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <div className="p-3 flex items-center gap-2">
+                          <button
+                            onClick={() => setShowLibrary(true)}
+                            className="flex-1 py-2 rounded border border-[#1e293b] text-[#64748b] hover:text-[#00d4ff] hover:border-[#00d4ff] font-mono text-xs transition-all"
+                          >
+                            <Library className="w-3 h-3 inline mr-1" />
+                            Change from Library
+                          </button>
+                          <button
+                            onClick={generateCoverImage}
+                            disabled={imageGenerating}
+                            className="flex-1 py-2 rounded border border-[#1e293b] text-[#64748b] hover:text-[#ff006e] hover:border-[#ff006e] font-mono text-xs transition-all disabled:opacity-50"
+                          >
+                            {imageGenerating ? (
+                              <Loader2 className="w-3 h-3 inline mr-1 animate-spin" />
+                            ) : (
+                              <Sparkles className="w-3 h-3 inline mr-1" />
+                            )}
+                            Regenerate with AI
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="rounded-lg border border-[#1e293b] bg-[#0a0a0f] p-6">
+                        <div className="flex flex-col items-center gap-4">
+                          <div className="w-16 h-16 rounded-full bg-[#1e293b] flex items-center justify-center">
+                            <ImageIcon className="w-8 h-8 text-[#64748b]" />
+                          </div>
+                          <p className="text-[#64748b] font-mono text-sm">No cover image selected</p>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => setShowLibrary(true)}
+                              className="px-4 py-2 rounded border border-[#00d4ff] text-[#00d4ff] font-mono text-sm hover:bg-[#00d4ff]/10 transition-all"
+                            >
+                              <Library className="w-4 h-4 inline mr-2" />
+                              From Library
+                            </button>
+                            <button
+                              onClick={generateCoverImage}
+                              disabled={imageGenerating || !formData.title}
+                              className="px-4 py-2 rounded bg-[#ff006e] text-white font-mono text-sm hover:bg-[#ff006e]/90 transition-all disabled:opacity-50"
+                            >
+                              {imageGenerating ? (
+                                <Loader2 className="w-4 h-4 inline mr-2 animate-spin" />
+                              ) : (
+                                <Sparkles className="w-4 h-4 inline mr-2" />
+                              )}
+                              Generate AI
+                            </button>
+                          </div>
+                          {!formData.title && (
+                            <p className="text-[#ffbe0b] font-mono text-xs">
+                              // Enter a title to generate image
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   {/* Content */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
@@ -383,6 +536,118 @@ ${formData.content || "# Dein Inhalt hier\n\nSchreibe etwas Spannendes..."}
           </div>
         </div>
       </main>
+
+      {/* Library Selection Modal */}
+      <AnimatePresence>
+        {showLibrary && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="w-full max-w-4xl max-h-[80vh] rounded-xl border border-[#1e293b] bg-[#13131f] overflow-hidden flex flex-col"
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-[#1e293b] bg-[#0f0f1a]">
+                <div className="flex items-center gap-2">
+                  <Library className="w-4 h-4 text-[#00d4ff]" />
+                  <span className="font-mono text-sm text-[#00d4ff]">$ select_from_library.sh</span>
+                </div>
+                <button
+                  onClick={() => setShowLibrary(false)}
+                  className="text-[#64748b] hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              {/* Search */}
+              <div className="p-4 border-b border-[#1e293b]">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748b]" />
+                  <input
+                    type="text"
+                    value={librarySearch}
+                    onChange={(e) => setLibrarySearch(e.target.value)}
+                    placeholder="Search library images..."
+                    className="w-full pl-10 pr-4 py-2 rounded bg-[#0a0a0f] border border-[#1e293b] text-white font-mono placeholder:text-[#64748b] focus:border-[#00d4ff] focus:outline-none transition-colors"
+                  />
+                </div>
+              </div>
+              
+              {/* Image Grid */}
+              <div className="flex-1 overflow-y-auto p-4">
+                {libraryImages.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-[#64748b] font-mono text-sm mb-4">// No images in library yet</p>
+                    <button
+                      onClick={() => {
+                        setShowLibrary(false);
+                        generateCoverImage();
+                      }}
+                      className="px-4 py-2 rounded bg-[#00d4ff] text-[#0a0a0f] font-mono text-sm hover:bg-[#00d4ff]/90 transition-colors"
+                    >
+                      Generate First Image →
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {libraryImages
+                      .filter(img => 
+                        img.title.toLowerCase().includes(librarySearch.toLowerCase()) ||
+                        img.tags.some(tag => tag.toLowerCase().includes(librarySearch.toLowerCase()))
+                      )
+                      .map((libraryImage) => (
+                        <button
+                          key={libraryImage.id}
+                          onClick={() => selectLibraryImage(libraryImage)}
+                          className="group relative rounded-lg border border-[#1e293b] bg-[#0a0a0f] overflow-hidden hover:border-[#00d4ff]/50 transition-all text-left"
+                        >
+                          <div className="aspect-video">
+                            <img
+                              src={libraryImage.url}
+                              alt={libraryImage.title}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="p-2">
+                            <p className="font-mono text-xs text-white truncate">{libraryImage.title}</p>
+                            <p className="font-mono text-[10px] text-[#64748b]">
+                              {new Date(libraryImage.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                          {formData.coverImage === libraryImage.url && (
+                            <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-[#00d4ff] flex items-center justify-center">
+                              <Check className="w-4 h-4 text-[#0a0a0f]" />
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                  </div>
+                )}
+              </div>
+              
+              {/* Modal Footer */}
+              <div className="px-4 py-3 border-t border-[#1e293b] bg-[#0f0f1a] flex items-center justify-between">
+                <span className="font-mono text-xs text-[#64748b]">
+                  {libraryImages.length} images in library
+                </span>
+                <button
+                  onClick={() => setShowLibrary(false)}
+                  className="px-4 py-2 rounded border border-[#1e293b] text-[#64748b] font-mono text-sm hover:text-white transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Image Picker Modal */}
       <AnimatePresence>

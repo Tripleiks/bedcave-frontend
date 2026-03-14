@@ -1,15 +1,36 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, ReactNode, isValidElement } from 'react';
 import { Copy, Check } from 'lucide-react';
+
+// Utility: Recursively extract text from React children
+function extractText(children: ReactNode): string {
+  if (typeof children === 'string') {
+    return children;
+  }
+  
+  if (typeof children === 'number') {
+    return String(children);
+  }
+  
+  if (Array.isArray(children)) {
+    return children.map(extractText).join('');
+  }
+  
+  if (isValidElement(children) && children.props) {
+    const props = children.props as { children?: ReactNode };
+    return extractText(props.children);
+  }
+  
+  return '';
+}
 
 export function CodeBlock({ children, className, ...props }: any) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
-    const codeText = typeof children === 'string' 
-      ? children 
-      : children?.props?.children || '';
+    // Extract all text content recursively
+    const codeText = extractText(children);
     
     try {
       await navigator.clipboard.writeText(codeText);

@@ -30,19 +30,23 @@ export async function POST(request: NextRequest) {
       system: `You are a technical blog writer for BEDCAVE, a blog about homelabs, Docker, hardware, and tech. 
       Write engaging, informative blog posts with a technical but accessible tone.
       
-      Format your response as a JSON object with these fields:
-      - title: A catchy, SEO-friendly title
-      - excerpt: A compelling 2-3 sentence summary
-      - content: The full blog post content in Markdown format
-      - tags: An array of 3-5 relevant tags
-      - keywords: An array of SEO keywords
+      CRITICAL: Return ONLY a valid JSON object. No markdown, no code blocks, no explanations before or after.
+      
+      The JSON must have these exact fields:
+      - title: A catchy, SEO-friendly title (string)
+      - excerpt: A compelling 2-3 sentence summary (string)
+      - content: The full blog post content in Markdown format (string, properly escaped)
+      - tags: An array of 3-5 relevant tags (array of strings)
+      - keywords: An array of SEO keywords (array of strings)
       
       The content should:
       - Be 800-1500 words
       - Include practical examples and code snippets where relevant
       - Have clear sections with headers
       - Be technically accurate but accessible
-      - Include a brief introduction and conclusion`,
+      - Include a brief introduction and conclusion
+      
+      IMPORTANT: Ensure all newlines in the content field are properly escaped as \\n in the JSON.`,
       messages: [
         {
           role: "user",
@@ -62,25 +66,30 @@ export async function POST(request: NextRequest) {
     // Parse JSON response
     let blogData;
     try {
-      // Extract JSON from potential markdown code blocks
-      const jsonMatch = content.match(/```json\n?([\s\S]*?)\n?```/) || content.match(/```\n?([\s\S]*?)\n?```/);
-      let jsonString = jsonMatch ? jsonMatch[1] : content;
+      // Try to extract JSON from markdown code blocks first
+      let jsonString = content;
       
-      // Trim whitespace and find JSON boundaries
-      jsonString = jsonString.trim();
+      // Look for JSON in code blocks
+      const codeBlockMatch = content.match(/```(?:json)?\n?([\s\S]*?)\n?```/);
+      if (codeBlockMatch) {
+        jsonString = codeBlockMatch[1];
+      }
       
-      // If content starts with { and ends with }, use that directly
+      // Try to find JSON object boundaries
       const firstBrace = jsonString.indexOf('{');
       const lastBrace = jsonString.lastIndexOf('}');
       if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
         jsonString = jsonString.substring(firstBrace, lastBrace + 1);
       }
       
+      // Clean up the string
+      jsonString = jsonString.trim();
+      
       blogData = JSON.parse(jsonString);
     } catch (parseError: any) {
       console.error("Failed to parse Claude response:", content);
       return NextResponse.json(
-        { error: `Failed to parse generated content: ${parseError.message}. Raw content: ${content.substring(0, 500)}` },
+        { error: `Failed to parse generated content: ${parseError.message}. Raw: ${content.substring(0, 300)}` },
         { status: 500 }
       );
     }

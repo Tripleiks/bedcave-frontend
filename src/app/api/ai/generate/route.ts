@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || "",
-});
+// Lazy initialization - prüfe Key erst bei Request
+function getAnthropicClient() {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    throw new Error("ANTHROPIC_API_KEY not set in environment");
+  }
+  return new Anthropic({ apiKey });
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,6 +20,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    const anthropic = getAnthropicClient();
 
     // Generate blog content with Claude
     const message = await anthropic.messages.create({

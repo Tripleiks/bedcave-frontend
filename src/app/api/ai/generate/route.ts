@@ -27,26 +27,28 @@ export async function POST(request: NextRequest) {
     const message = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 4000,
-      system: `You are a technical blog writer for BEDCAVE, a blog about homelabs, Docker, hardware, and tech. 
-      Write engaging, informative blog posts with a technical but accessible tone.
+      system: `You are a technical blog writer for BEDCAVE, a blog about homelabs, Docker, hardware, and tech.
       
-      CRITICAL: Return ONLY a valid JSON object. No markdown, no code blocks, no explanations before or after.
+      CRITICAL INSTRUCTIONS:
+      1. Return ONLY a valid JSON object - no markdown, no explanations, no code blocks wrapping the JSON
+      2. The content field must contain base64-encoded markdown (to avoid JSON parsing issues with newlines and quotes)
+      3. Code snippets in the article should use triple backticks as normal
       
-      The JSON must have these exact fields:
-      - title: A catchy, SEO-friendly title (string)
-      - excerpt: A compelling 2-3 sentence summary (string)
-      - content: The full blog post content in Markdown format (string, properly escaped)
-      - tags: An array of 3-5 relevant tags (array of strings)
-      - keywords: An array of SEO keywords (array of strings)
+      JSON structure:
+      {
+        "title": "string",
+        "excerpt": "string", 
+        "content": "base64-encoded markdown content",
+        "tags": ["tag1", "tag2"],
+        "keywords": ["keyword1", "keyword2"]
+      }
       
-      The content should:
-      - Be 800-1500 words
-      - Include practical examples and code snippets where relevant
-      - Have clear sections with headers
-      - Be technically accurate but accessible
-      - Include a brief introduction and conclusion
-      
-      IMPORTANT: Ensure all newlines in the content field are properly escaped as \\n in the JSON.`,
+      Requirements:
+      - 800-1500 words
+      - Practical examples with code snippets
+      - Clear section headers
+      - Technical but accessible tone
+      - Brief intro and conclusion`,
       messages: [
         {
           role: "user",
@@ -63,7 +65,7 @@ export async function POST(request: NextRequest) {
 
     const content = message.content[0].type === "text" ? message.content[0].text : "";
     
-    // Parse JSON response
+    // Parse JSON response and decode base64 content
     let blogData;
     try {
       // Try to extract JSON from markdown code blocks first
@@ -86,6 +88,16 @@ export async function POST(request: NextRequest) {
       jsonString = jsonString.trim();
       
       blogData = JSON.parse(jsonString);
+      
+      // Decode base64 content
+      if (blogData.content && typeof blogData.content === 'string') {
+        try {
+          blogData.content = Buffer.from(blogData.content, 'base64').toString('utf-8');
+        } catch (e) {
+          // If not valid base64, use as-is
+          console.log("Content not base64, using raw");
+        }
+      }
     } catch (parseError: any) {
       console.error("Failed to parse Claude response:", content);
       return NextResponse.json(

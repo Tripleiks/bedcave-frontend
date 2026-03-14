@@ -10,7 +10,8 @@ import {
   Save,
   ArrowLeft,
   Wand2,
-  Download
+  Download,
+  GitBranch
 } from "lucide-react";
 import Link from "next/link";
 
@@ -47,6 +48,8 @@ export default function AIGeneratorPage() {
   const [image, setImage] = useState<GeneratedImage | null>(null);
   const [imageLoading, setImageLoading] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [published, setPublished] = useState(false);
 
   const generateContent = async () => {
     if (!prompt.trim()) return;
@@ -146,6 +149,40 @@ ${image ? `
       console.error("Image search error:", error);
     } finally {
       setImageLoading(false);
+    }
+  };
+
+  const publishPost = async () => {
+    if (!generatedPost) return;
+    setPublishing(true);
+    
+    try {
+      const response = await fetch("/api/github/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: generatedPost.title,
+          content: generatedPost.content,
+          category,
+          tags: generatedPost.tags,
+          excerpt: generatedPost.excerpt,
+          imageUrl: image?.url,
+        }),
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to publish");
+      }
+      
+      const data = await response.json();
+      setPublished(true);
+      alert(`✅ Published successfully! File: ${data.filename}`);
+    } catch (error: any) {
+      console.error("Publish error:", error);
+      alert(`❌ Failed to publish: ${error.message}`);
+    } finally {
+      setPublishing(false);
     }
   };
 
@@ -256,22 +293,41 @@ ${image ? `
                     <FileText className="w-4 h-4 text-[#39ff14]" />
                     <span className="font-mono text-xs text-[#64748b]">Generated Content</span>
                   </div>
-                  <button
-                    onClick={downloadMDX}
-                    className="flex items-center gap-2 px-4 py-2 rounded bg-[#39ff14] text-[#0a0a0f] font-mono text-sm font-bold hover:bg-[#39ff14]/90 transition-all"
-                  >
-                    {saved ? (
-                      <>
-                        <Save className="w-4 h-4" />
-                        SAVED!
-                      </>
-                    ) : (
-                      <>
-                        <Download className="w-4 h-4" />
-                        DOWNLOAD MDX
-                      </>
-                    )}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={publishPost}
+                      disabled={publishing || published}
+                      className={`flex items-center gap-2 px-4 py-2 rounded font-mono text-sm font-bold transition-all ${
+                        published
+                          ? "bg-[#39ff14] text-[#0a0a0f]"
+                          : "bg-[#00d4ff] text-[#0a0a0f] hover:bg-[#00d4ff]/90"
+                      } disabled:opacity-50`}
+                    >
+                      {publishing ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          PUBLISHING...
+                        </>
+                      ) : published ? (
+                        <>
+                          <GitBranch className="w-4 h-4" />
+                          PUBLISHED!
+                        </>
+                      ) : (
+                        <>
+                          <GitBranch className="w-4 h-4" />
+                          PUBLISH TO GITHUB
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={downloadMDX}
+                      className="flex items-center gap-2 px-4 py-2 rounded bg-[#1e293b] text-[#00d4ff] font-mono text-sm font-bold hover:bg-[#1e293b]/80 transition-all"
+                    >
+                      <Download className="w-4 h-4" />
+                      DOWNLOAD
+                    </button>
+                  </div>
                 </div>
                 
                 <div className="p-6 space-y-4">
@@ -358,8 +414,11 @@ ${image ? `
               {/* Instructions */}
               <div className="rounded-lg border border-[#1e293b] bg-[#0f0f1a] p-4">
                 <p className="font-mono text-sm text-[#64748b]">
-                  <span className="text-[#ffbe0b]">⚠</span> Click "DOWNLOAD MDX" to save the file. 
-                  Then move it to <code className="text-[#00d4ff]">content/posts/</code> and commit to GitHub.
+                  {published ? (
+                    <><span className="text-[#39ff14]">✓</span> Post published! Vercel will auto-deploy in ~1 minute.</>
+                  ) : (
+                    <><span className="text-[#ffbe0b]">⚠</span> Click "PUBLISH TO GITHUB" to auto-commit, or "DOWNLOAD" for manual upload.</>
+                  )}
                 </p>
               </div>
             </motion.div>

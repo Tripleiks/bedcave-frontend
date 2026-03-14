@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
       CONTENT_END
       
       Requirements:
-      - 500-800 words
+      - 1200-1500 words
       - Practical examples with code snippets
       - Clear section headers
       - Technical but accessible tone

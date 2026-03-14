@@ -25,9 +25,26 @@
 ### 🤖 AI Blog Generator (Admin)
 - **Claude API Integration** - Generate 1200-1500 word technical articles
 - **Grok Aurora Image Generation** - Auto-create cover images based on article titles
+- **Image Library** - Store and reuse all generated images (`/admin/images`)
+- **Library Selection** - Choose from existing images in AI Generator and New Post form
 - **GitHub Auto-Publish** - Direct commit to repository from admin panel
 - **Category Selection** - Pre-configured tags and keywords
 - **MDX Export** - Download articles for manual editing
+
+### 🖼️ Image Library System
+- **Automatic Storage** - All Grok-generated images saved to JSON library
+- **Admin Interface** - Browse, search, copy URLs, delete images (`/admin/images`)
+- **Category Filtering** - Filter by Docker, Hardware, Homelab, etc.
+- **Stats Dashboard** - View total images per category
+- **Reuse Anywhere** - Select library images in AI Generator and New Post form
+- **Grid/List Views** - Toggle between visual grid and list view
+
+### 📝 New Post Form
+- **Terminal-Style UI** - Consistent with site design
+- **Cover Image Selection** - Choose from library or generate with AI
+- **Live MDX Preview** - Real-time generated output
+- **Quick Image Insert** - Insert images into content
+- **Form Validation** - Required fields and formatting
 
 ### 📧 Newsletter System
 - **Resend Integration** - Professional email delivery

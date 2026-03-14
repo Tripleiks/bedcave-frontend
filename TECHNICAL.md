@@ -16,20 +16,28 @@
 ├─────────────────────────────────────────────────────────┤
 │                    API LAYER                            │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────┐  │
-│  │ /api/ai/    │  │ /api/github/│  │ /api/newsletter/│  │
-│  │  generate   │  │   publish   │  │   subscribe     │  │
+│  │ /api/ai/    │  │ /api/github/│  │ /api/images/    │  │
+│  │  generate   │  │   publish   │  │   library       │  │
+│  └─────────────┘  └─────────────┘  └─────────────────┘  │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────┐  │
+│  │ /api/news- │  │ /api/unsplash│  │                 │  │
+│  │ letter/sub │  │   search    │  │                 │  │
 │  └─────────────┘  └─────────────┘  └─────────────────┘  │
 ├─────────────────────────────────────────────────────────┤
 │                   SERVICE LAYER                         │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────┐  │
 │  │   Claude    │  │   Grok      │  │    Resend       │  │
-│  │   (Anthropic)│  │   Aurora    │  │   (Email)       │  │
+│  │(Anthropic) │  │   Aurora    │  │   (Email)       │  │
 │  └─────────────┘  └─────────────┘  └─────────────────┘  │
 ├─────────────────────────────────────────────────────────┤
 │                   DATA LAYER                            │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────┐  │
-│  │    MDX      │  │   GitHub    │  │   Resend        │  │
-│  │   Files     │  │    API      │  │   Audience      │  │
+│  │    MDX      │  │   GitHub    │  │  JSON Library   │  │
+│  │   Files     │  │    API      │  │   (Images)      │  │
+│  └─────────────┘  └─────────────┘  └─────────────────┘  │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────┐  │
+│  │   Resend    │  │   Grok      │  │                 │  │
+│  │  Audience   │  │   Images    │  │                 │  │
 │  └─────────────┘  └─────────────┘  └─────────────────┘  │
 └─────────────────────────────────────────────────────────┘
 ```
@@ -98,6 +106,66 @@
 - Grok Aurora AI image generation
 - Uses article title as prompt
 - Returns direct image URL
+- **Auto-saves to library** - Every generated image stored in `content/images/library.json`
+
+---
+
+### `/api/images/library` - Image Library Management
+
+**Methods:** GET, POST, DELETE
+
+**GET - List Images:**
+```bash
+GET /api/images/library
+GET /api/images/library?category=docker
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "images": [
+    {
+      "id": "img_123",
+      "url": "https://...",
+      "title": "Docker Container",
+      "prompt": "Professional tech blog cover...",
+      "tags": ["docker", "containers"],
+      "category": "docker",
+      "createdAt": "2024-03-14T10:30:00Z",
+      "usedInPosts": ["docker-tutorial"],
+      "source": "grok-aurora"
+    }
+  ],
+  "stats": {
+    "totalImages": 5,
+    "byCategory": { "docker": 2, "hardware": 1 }
+  }
+}
+```
+
+**POST - Add Image:**
+```json
+{
+  "url": "https://...",
+  "title": "Article Title",
+  "prompt": "Prompt used",
+  "tags": ["ai-generated"],
+  "category": "docker",
+  "source": "grok-aurora"
+}
+```
+
+**DELETE - Remove Image:**
+```bash
+DELETE /api/images/library?id=img_123
+```
+
+**Storage:**
+- JSON file: `content/images/library.json`
+- Auto-created if doesn't exist
+- Tracks usage in posts
+- Categories: docker, unraid, homelab, hardware, m365, azure, general
 
 **Environment Variables:**
 - `XAI_API_KEY`

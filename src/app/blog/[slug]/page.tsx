@@ -1,6 +1,6 @@
 import { getPostBySlug, getAllPosts } from '@/lib/mdx/posts';
 import Link from 'next/link';
-import { ArrowLeft, Calendar, Clock, User, Tag } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, User, Tag, Pencil } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -63,8 +63,17 @@ export default async function PostPage({ params }: PostPageProps) {
               <ArrowLeft className="w-4 h-4" />
               $ cd /home
             </Link>
-            <div className="font-mono text-sm text-[#64748b]">
-              bedcave.com/blog/{slug}
+            <div className="flex items-center gap-4">
+              <Link
+                href={`/admin/edit/${slug}`}
+                className="font-mono text-xs text-[#ffbe0b] hover:text-white transition-colors flex items-center gap-1.5 px-2 py-1 rounded border border-[#ffbe0b]/30 hover:border-[#ffbe0b]"
+              >
+                <Pencil className="w-3 h-3" />
+                $ edit
+              </Link>
+              <div className="font-mono text-sm text-[#64748b]">
+                bedcave.com/blog/{slug}
+              </div>
             </div>
           </div>
         </div>

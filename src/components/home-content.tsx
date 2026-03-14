@@ -286,6 +286,48 @@ function QuoteTicker() {
 }
 
 export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
+  // Newsletter State
+  const [email, setEmail] = useState("");
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [subscribeStatus, setSubscribeStatus] = useState<"idle" | "success" | "error">("idle");
+  const [subscribeMessage, setSubscribeMessage] = useState("");
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email || !email.includes("@")) {
+      setSubscribeStatus("error");
+      setSubscribeMessage("Please enter a valid email address");
+      return;
+    }
+
+    setIsSubscribing(true);
+    setSubscribeStatus("idle");
+
+    try {
+      const response = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to subscribe");
+      }
+
+      setSubscribeStatus("success");
+      setSubscribeMessage("Successfully subscribed! Check your inbox.");
+      setEmail("");
+    } catch (error: any) {
+      setSubscribeStatus("error");
+      setSubscribeMessage(error.message || "Failed to subscribe");
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
       {/* Hero Section */}
@@ -444,20 +486,38 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
                   <br />
                   // delivered directly to your inbox. No spam, just bytes.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-3">
+                <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3">
                   <div className="flex-1 relative">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748b]" />
                     <input
                       type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@email.com"
-                      className="w-full pl-12 pr-4 py-4 rounded bg-[#0a0a0f] border border-[#1e293b] text-white font-mono placeholder:text-[#64748b] focus:border-[#00d4ff] focus:outline-none transition-colors"
+                      disabled={isSubscribing}
+                      className="w-full pl-12 pr-4 py-4 rounded bg-[#0a0a0f] border border-[#1e293b] text-white font-mono placeholder:text-[#64748b] focus:border-[#00d4ff] focus:outline-none transition-colors disabled:opacity-50"
                     />
                   </div>
-                  <button className="group px-8 py-4 rounded bg-[#00d4ff] text-[#0a0a0f] font-mono font-bold hover:bg-[#00d4ff]/90 transition-all flex items-center justify-center gap-2">
-                    <span>EXECUTE</span>
+                  <button 
+                    type="submit"
+                    disabled={isSubscribing}
+                    className="group px-8 py-4 rounded bg-[#00d4ff] text-[#0a0a0f] font-mono font-bold hover:bg-[#00d4ff]/90 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    <span>{isSubscribing ? "PROCESSING..." : "EXECUTE"}</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </button>
-                </div>
+                </form>
+                
+                {/* Status Message */}
+                {subscribeStatus !== "idle" && (
+                  <div className={`mt-4 p-3 rounded font-mono text-sm ${
+                    subscribeStatus === "success" 
+                      ? "bg-[#39ff14]/10 border border-[#39ff14] text-[#39ff14]" 
+                      : "bg-[#ff006e]/10 border border-[#ff006e] text-[#ff006e]"
+                  }`}>
+                    {subscribeMessage}
+                  </div>
+                )}
               </div>
             </div>
           </div>

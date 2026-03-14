@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useAuth } from "@/lib/auth";
-import { ArrowLeft, Copy, Check, FileCode, Terminal, Tag, Calendar, User, Folder, Save, Loader2, LogOut } from "lucide-react";
+import { ArrowLeft, Copy, Check, FileCode, Terminal, Tag, Calendar, User, Folder, Save, Loader2, LogOut, ImageIcon, Plus, X, FileImage } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function EditPostPage() {
@@ -25,15 +25,16 @@ export default function EditPostPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [showOutput, setShowOutput] = useState(false);
+  const [availableImages, setAvailableImages] = useState<string[]>([]);
+  const [showImagePicker, setShowImagePicker] = useState(false);
 
   const categories = ["General", "Hardware", "Docker", "Homelab"];
 
-  // Load existing post
+  // Load existing post and available images
   useEffect(() => {
     async function loadPost() {
       setIsLoading(true);
       try {
-        // Import the content directly
         const response = await fetch(`/api/posts/${slug}`);
         if (response.ok) {
           const post = await response.json();
@@ -53,9 +54,22 @@ export default function EditPostPage() {
       setIsLoading(false);
     }
     
+    async function loadImages() {
+      try {
+        const response = await fetch("/images/posts/manifest.json");
+        if (response.ok) {
+          const data = await response.json();
+          setAvailableImages(data.images?.map((img: { filename: string }) => img.filename) || []);
+        }
+      } catch (error) {
+        console.error("Failed to load images:", error);
+      }
+    }
+    
     if (slug) {
       loadPost();
     }
+    loadImages();
   }, [slug]);
 
   const generateSlug = (title: string) => {
@@ -91,6 +105,16 @@ ${formData.content}
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (!showOutput && value) setShowOutput(true);
+  };
+
+  const insertImage = (filename: string) => {
+    const imageMarkdown = `\n\n![${filename.replace(/\.[^/.]+$/, "")}](/images/posts/${filename})\n\n`;
+    setFormData(prev => ({
+      ...prev,
+      content: prev.content + imageMarkdown
+    }));
+    setShowImagePicker(false);
+    if (!showOutput) setShowOutput(true);
   };
 
   if (isLoading) {
@@ -255,10 +279,20 @@ ${formData.content}
 
                   {/* Content */}
                   <div>
-                    <label className="flex items-center gap-2 text-sm font-mono text-[#00d4ff] mb-2">
-                      <span>content</span>
-                      <span className="text-[#64748b] text-xs">// markdown supported</span>
-                    </label>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="flex items-center gap-2 text-sm font-mono text-[#00d4ff]">
+                        <span>content</span>
+                        <span className="text-[#64748b] text-xs">// markdown supported</span>
+                      </label>
+                      <button
+                        onClick={() => setShowImagePicker(true)}
+                        className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#39ff14]/10 text-[#39ff14] font-mono text-xs hover:bg-[#39ff14]/20 transition-colors"
+                      >
+                        <Plus className="w-3 h-3" />
+                        <ImageIcon className="w-3 h-3" />
+                        insert image
+                      </button>
+                    </div>
                     <textarea
                       value={formData.content}
                       onChange={(e) => handleInputChange("content", e.target.value)}
@@ -269,6 +303,41 @@ ${formData.content}
                   </div>
                 </div>
               </div>
+
+              {/* Quick Image Gallery */}
+              {availableImages.length > 0 && (
+                <div className="rounded-xl border border-[#1e293b] bg-[#13131f] overflow-hidden">
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-[#1e293b] bg-[#0f0f1a]">
+                    <span className="font-mono text-xs text-[#64748b]">quick-insert.json</span>
+                    <span className="font-mono text-xs text-[#39ff14]">{availableImages.length} images</span>
+                  </div>
+                  <div className="p-4">
+                    <div className="grid grid-cols-4 gap-2">
+                      {availableImages.slice(0, 8).map((filename) => (
+                        <button
+                          key={filename}
+                          onClick={() => insertImage(filename)}
+                          className="aspect-square rounded bg-[#0a0a0f] border border-[#1e293b] hover:border-[#00d4ff] flex flex-col items-center justify-center gap-1 transition-all group"
+                          title={`Insert ${filename}`}
+                        >
+                          <FileImage className="w-6 h-6 text-[#64748b] group-hover:text-[#00d4ff]" />
+                          <span className="font-mono text-[10px] text-[#64748b] truncate w-full px-1 text-center">
+                            {filename.slice(0, 10)}...
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                    {availableImages.length > 8 && (
+                      <button
+                        onClick={() => setShowImagePicker(true)}
+                        className="w-full mt-3 py-2 rounded bg-[#0a0a0f] border border-[#1e293b] text-[#64748b] font-mono text-xs hover:border-[#00d4ff] hover:text-[#00d4ff] transition-colors"
+                      >
+                        + {availableImages.length - 8} more images
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Output Preview */}
@@ -336,6 +405,76 @@ ${formData.content}
           </div>
         </div>
       </main>
+
+      {/* Image Picker Modal */}
+      <AnimatePresence>
+        {showImagePicker && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="w-full max-w-2xl max-h-[80vh] rounded-xl border border-[#1e293b] bg-[#13131f] overflow-hidden flex flex-col"
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-[#1e293b] bg-[#0f0f1a]">
+                <div className="flex items-center gap-2">
+                  <ImageIcon className="w-5 h-5 text-[#39ff14]" />
+                  <span className="font-mono text-sm text-[#00d4ff]">$ select_image.sh</span>
+                </div>
+                <button
+                  onClick={() => setShowImagePicker(false)}
+                  className="text-[#64748b] hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Image Grid */}
+              <div className="flex-1 overflow-y-auto p-4">
+                {availableImages.length === 0 ? (
+                  <div className="text-center py-12">
+                    <FileImage className="w-16 h-16 text-[#1e293b] mx-auto mb-4" />
+                    <p className="text-[#64748b] font-mono text-sm">
+                      No images found.
+                    </p>
+                    <p className="text-[#64748b] font-mono text-xs mt-2">
+                      Add images to public/images/posts/
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-4 gap-3">
+                    {availableImages.map((filename) => (
+                      <button
+                        key={filename}
+                        onClick={() => insertImage(filename)}
+                        className="aspect-square rounded-lg bg-[#0a0a0f] border border-[#1e293b] hover:border-[#00d4ff] flex flex-col items-center justify-center gap-2 p-3 transition-all group"
+                      >
+                        <FileImage className="w-10 h-10 text-[#64748b] group-hover:text-[#00d4ff]" />
+                        <span className="font-mono text-xs text-[#64748b] group-hover:text-white truncate w-full text-center">
+                          {filename}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="px-4 py-3 border-t border-[#1e293b] bg-[#0f0f1a]">
+                <p className="text-[#64748b] font-mono text-xs text-center">
+                  Click an image to insert: <span className="text-[#ffbe0b]">![alt](/images/posts/filename.jpg)</span>
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

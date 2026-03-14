@@ -77,9 +77,10 @@ export default function AIGeneratorPage() {
         const imageData = await imageResponse.json();
         setImage(imageData.data);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Generation error:", error);
-      alert("Failed to generate content. Please check your API keys.");
+      const errorMessage = error.message || "Unknown error";
+      alert(`Error: ${errorMessage}`);
     } finally {
       setLoading(false);
       setImageLoading(false);

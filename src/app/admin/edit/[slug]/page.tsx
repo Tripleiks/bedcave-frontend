@@ -1,27 +1,77 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useAuth } from "@/lib/auth";
-import { ArrowLeft, Copy, Check, FileCode, Terminal, Tag, Calendar, User, Folder, LogOut } from "lucide-react";
+import { ArrowLeft, Copy, Check, FileCode, Terminal, Tag, Calendar, User, Folder, Save, Loader2, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getPostBySlug } from "@/lib/mdx/posts";
 
-export default function NewPostPage() {
+export default function EditPostPage() {
   const { logout } = useAuth();
+  const params = useParams();
+  const slug = params.slug as string;
+  
   const [formData, setFormData] = useState({
     title: "",
-    date: new Date().toISOString().split('T')[0],
+    date: "",
     excerpt: "",
     category: "General",
     tags: "",
-    author: "Bedcave Team",
+    author: "",
     content: "",
   });
   
+  const [isLoading, setIsLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [showOutput, setShowOutput] = useState(false);
 
   const categories = ["General", "Hardware", "Docker", "Homelab"];
+
+  // Load existing post
+  useEffect(() => {
+    async function loadPost() {
+      setIsLoading(true);
+      try {
+        // Import the content directly
+        const response = await fetch(`/api/posts/${slug}`);
+        if (response.ok) {
+          const post = await response.json();
+          setFormData({
+            title: post.title || "",
+            date: post.date ? new Date(post.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+            excerpt: post.excerpt || "",
+            category: post.category || "General",
+            tags: post.tags?.join(", ") || "",
+            author: post.author || "Bedcave Team",
+            content: post.content || "",
+          });
+        }
+      } catch (error) {
+        console.error("Failed to load post:", error);
+        // Fallback: try to get from static data
+        const { getPostBySlug } = await import("@/lib/mdx/posts");
+        const post = getPostBySlug(slug);
+        if (post) {
+          setFormData({
+            title: post.title,
+            date: new Date(post.date).toISOString().split('T')[0],
+            excerpt: post.excerpt,
+            category: post.category,
+            tags: post.tags.join(", "),
+            author: post.author,
+            content: post.content,
+          });
+        }
+      }
+      setIsLoading(false);
+    }
+    
+    if (slug) {
+      loadPost();
+    }
+  }, [slug]);
 
   const generateSlug = (title: string) => {
     return title
@@ -32,7 +82,6 @@ export default function NewPostPage() {
   };
 
   const generateMDX = () => {
-    const slug = generateSlug(formData.title);
     const tagsArray = formData.tags.split(",").map(t => t.trim()).filter(t => t);
     
     return `---
@@ -44,7 +93,7 @@ tags: [${tagsArray.map(t => `"${t}"`).join(", ")}]
 author: "${formData.author}"
 ---
 
-${formData.content || "# Dein Inhalt hier\n\nSchreibe etwas Spannendes..."}
+${formData.content}
 `;
   };
 
@@ -59,6 +108,17 @@ ${formData.content || "# Dein Inhalt hier\n\nSchreibe etwas Spannendes..."}
     if (!showOutput && value) setShowOutput(true);
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+        <div className="flex items-center gap-3 font-mono text-[#00d4ff]">
+          <Loader2 className="w-5 h-5 animate-spin" />
+          <span>Loading post...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
       {/* Header */}
@@ -66,15 +126,15 @@ ${formData.content || "# Dein Inhalt hier\n\nSchreibe etwas Spannendes..."}
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link 
-              href="/" 
+              href="/admin/new-post" 
               className="font-mono text-[#00d4ff] hover:text-white transition-colors flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
-              $ cd /home
+              $ cd /admin
             </Link>
             <div className="flex items-center gap-2">
-              <Terminal className="w-5 h-5 text-[#39ff14]" />
-              <span className="font-mono text-[#39ff14]">admin/new-post</span>
+              <Save className="w-5 h-5 text-[#ffbe0b]" />
+              <span className="font-mono text-[#ffbe0b]">edit/{slug}</span>
               <button
                 onClick={logout}
                 className="ml-4 flex items-center gap-1 px-3 py-1.5 rounded bg-[#ff006e]/10 text-[#ff006e] font-mono text-xs hover:bg-[#ff006e]/20 transition-colors"
@@ -92,10 +152,10 @@ ${formData.content || "# Dein Inhalt hier\n\nSchreibe etwas Spannendes..."}
           {/* Title */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-white mb-2 font-mono">
-              <span className="text-[#39ff14]">$</span> create_new_post.sh
+              <span className="text-[#ffbe0b]">$</span> edit_post.sh
             </h1>
             <p className="text-[#64748b] font-mono text-sm">
-              // Generate MDX blog posts with terminal precision
+              // Edit existing blog post: {slug}
             </p>
           </div>
 
@@ -111,7 +171,7 @@ ${formData.content || "# Dein Inhalt hier\n\nSchreibe etwas Spannendes..."}
                     <div className="w-3 h-3 rounded-full bg-[#ffbe0b]" />
                     <div className="w-3 h-3 rounded-full bg-[#39ff14]" />
                   </div>
-                  <span className="ml-4 font-mono text-xs text-[#64748b]">post-config.json</span>
+                  <span className="ml-4 font-mono text-xs text-[#64748b]">{slug}.mdx</span>
                 </div>
 
                 {/* Form Fields */}
@@ -245,7 +305,7 @@ ${formData.content || "# Dein Inhalt hier\n\nSchreibe etwas Spannendes..."}
                           <div className="w-3 h-3 rounded-full bg-[#39ff14]" />
                         </div>
                         <span className="ml-4 font-mono text-xs text-[#64748b]">
-                          {generateSlug(formData.title) || "new-post"}.mdx
+                          {slug}.mdx (updated)
                         </span>
                       </div>
                       <button
@@ -278,11 +338,11 @@ ${formData.content || "# Dein Inhalt hier\n\nSchreibe etwas Spannendes..."}
 
               {/* Instructions */}
               <div className="rounded-lg border border-[#1e293b] bg-[#0f0f1a] p-4">
-                <h3 className="font-mono text-sm text-[#ffbe0b] mb-3">$ instructions.sh</h3>
+                <h3 className="font-mono text-sm text-[#ffbe0b] mb-3">$ update_instructions.sh</h3>
                 <ol className="font-mono text-xs text-[#64748b] space-y-2 list-decimal list-inside">
-                  <li>Fülle das Formular aus</li>
-                  <li>Kopiere den generierten MDX-Code</li>
-                  <li>Erstelle Datei in <span className="text-[#00d4ff]">content/posts/</span></li>
+                  <li>Ändere die gewünschten Felder</li>
+                  <li>Kopiere den aktualisierten MDX-Code</li>
+                  <li>Ersetze Inhalt in <span className="text-[#00d4ff]">content/posts/{slug}.mdx</span></li>
                   <li>Committe und pushe zu GitHub</li>
                   <li>Vercel deployt automatisch!</li>
                 </ol>

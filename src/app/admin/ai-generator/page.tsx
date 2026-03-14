@@ -62,7 +62,10 @@ export default function AIGeneratorPage() {
         body: JSON.stringify({ prompt, category }),
       });
       
-      if (!response.ok) throw new Error("Failed to generate content");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      }
       
       const data = await response.json();
       setGeneratedPost(data.data);

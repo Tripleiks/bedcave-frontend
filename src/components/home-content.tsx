@@ -4,13 +4,166 @@ import { motion } from "framer-motion";
 import { ArticleCard } from "@/components/article-card";
 import { HeroSection } from "@/components/hero-section";
 import { Post } from "@/lib/mdx/posts";
-import { Terminal, ArrowRight, Cpu, Mail, Code2, Clock, Quote } from "lucide-react";
+import { Terminal, ArrowRight, Cpu, Mail, Code2, Clock, Quote, Activity, Search, TerminalSquare } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
 interface HomeContentProps {
   recentPosts: Post[];
   stickyPosts: Post[];
+}
+
+// System Stats Component
+function SystemStats() {
+  const [stats, setStats] = useState({
+    cpu: 42,
+    ram: 68,
+    containers: 12,
+    uptime: { days: 14, hours: 3, mins: 27 }
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setStats(prev => ({
+        ...prev,
+        cpu: Math.floor(Math.random() * 30) + 30,
+        ram: Math.floor(Math.random() * 20) + 60,
+      }));
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="rounded-xl border border-[#1e293b] bg-[#13131f] overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-[#1e293b] bg-[#0f0f1a]">
+        <Activity className="w-4 h-4 text-[#ff006e]" />
+        <span className="font-mono text-xs text-[#64748b]">$ htop --no-interactive</span>
+      </div>
+      <div className="p-4 grid grid-cols-2 gap-4">
+        <div className="text-center">
+          <div className="font-mono text-2xl font-bold text-[#ff006e]">{stats.cpu}%</div>
+          <div className="font-mono text-xs text-[#64748b]">CPU</div>
+        </div>
+        <div className="text-center">
+          <div className="font-mono text-2xl font-bold text-[#00d4ff]">{stats.ram}%</div>
+          <div className="font-mono text-xs text-[#64748b]">RAM</div>
+        </div>
+        <div className="text-center">
+          <div className="font-mono text-2xl font-bold text-[#39ff14]">{stats.containers}</div>
+          <div className="font-mono text-xs text-[#64748b]">Containers</div>
+        </div>
+        <div className="text-center">
+          <div className="font-mono text-sm font-bold text-[#ffbe0b]">
+            {stats.uptime.days}d {stats.uptime.hours}h
+          </div>
+          <div className="font-mono text-xs text-[#64748b]">Uptime</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Typing Command Component
+function TypingCommand() {
+  const commands = [
+    "docker-compose up -d",
+    "git push origin main",
+    "kubectl get pods",
+    "apt update && apt upgrade",
+    "systemctl restart nginx",
+    "cd ~/homelab && ls -la",
+  ];
+  
+  const [currentCmd, setCurrentCmd] = useState(0);
+  const [displayText, setDisplayText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const cmd = commands[currentCmd];
+    
+    if (isDeleting) {
+      if (displayText === "") {
+        setIsDeleting(false);
+        setCurrentCmd((prev) => (prev + 1) % commands.length);
+      } else {
+        const timeout = setTimeout(() => {
+          setDisplayText(displayText.slice(0, -1));
+        }, 50);
+        return () => clearTimeout(timeout);
+      }
+    } else {
+      if (displayText === cmd) {
+        const timeout = setTimeout(() => setIsDeleting(true), 2000);
+        return () => clearTimeout(timeout);
+      } else {
+        const timeout = setTimeout(() => {
+          setDisplayText(cmd.slice(0, displayText.length + 1));
+        }, 100);
+        return () => clearTimeout(timeout);
+      }
+    }
+  }, [displayText, isDeleting, currentCmd, commands]);
+
+  return (
+    <div className="rounded-xl border border-[#1e293b] bg-[#13131f] overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-[#1e293b] bg-[#0f0f1a]">
+        <TerminalSquare className="w-4 h-4 text-[#8338ec]" />
+        <span className="font-mono text-xs text-[#64748b]">$ watch -n 1 echo</span>
+      </div>
+      <div className="p-6 font-mono text-sm">
+        <span className="text-[#39ff14]">user@bedcave</span>
+        <span className="text-white">:</span>
+        <span className="text-[#00d4ff]">~/homelab</span>
+        <span className="text-white">$ </span>
+        <span className="text-[#e2e8f0]">{displayText}</span>
+        <motion.span
+          animate={{ opacity: [1, 0] }}
+          transition={{ duration: 0.5, repeat: Infinity }}
+          className="inline-block w-2 h-4 bg-[#00d4ff] ml-1 align-middle"
+        />
+      </div>
+    </div>
+  );
+}
+
+// Quick Commands Component
+function QuickCommands() {
+  const commands = [
+    { label: "Latest Post", href: "#latest", icon: ArrowRight, color: "#00d4ff" },
+    { label: "Random", href: "/blog", icon: Terminal, color: "#ffbe0b" },
+    { label: "Search", href: "#", icon: Search, color: "#39ff14" },
+  ];
+
+  return (
+    <div className="rounded-xl border border-[#1e293b] bg-[#13131f] overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-[#1e293b] bg-[#0f0f1a]">
+        <Terminal className="w-4 h-4 text-[#39ff14]" />
+        <span className="font-mono text-xs text-[#64748b]">$ alias --list</span>
+      </div>
+      <div className="p-4">
+        <div className="flex flex-wrap gap-2 justify-center">
+          {commands.map((cmd) => (
+            <Link
+              key={cmd.label}
+              href={cmd.href}
+              className="group flex items-center gap-2 px-4 py-2 rounded border font-mono text-xs font-bold transition-all hover:scale-105"
+              style={{ 
+                borderColor: cmd.color,
+                color: cmd.color,
+                backgroundColor: `${cmd.color}10`
+              }}
+            >
+              <cmd.icon className="w-3 h-3" />
+              <span>{cmd.label.toUpperCase()}</span>
+            </Link>
+          ))}
+        </div>
+        <div className="mt-3 text-center font-mono text-xs text-[#64748b]">
+          // quick shortcuts
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // Digital Clock Component
@@ -141,6 +294,25 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
       {/* Content Sections */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
         
+        {/* System Dashboard - Stats, Typing, Quick Commands */}
+        <motion.section 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-8"
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* System Stats */}
+            <SystemStats />
+            
+            {/* Typing Command */}
+            <TypingCommand />
+            
+            {/* Quick Commands */}
+            <QuickCommands />
+          </div>
+        </motion.section>
+
         {/* Tech Dashboard - Clock, Stack & Quotes */}
         <motion.section 
           initial={{ opacity: 0, y: 20 }}

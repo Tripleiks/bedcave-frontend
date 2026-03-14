@@ -8,7 +8,8 @@ export default async function Home() {
   
   // Ersten Post als "sticky" markieren (falls vorhanden)
   const stickyPosts = posts.length > 0 ? [posts[0]] : [];
-  const remainingPosts = posts.length > 1 ? posts.slice(1) : posts;
+  // Alle Posts für "all-posts" (inkl. sticky posts)
+  const allPosts = posts;
 
-  return <HomeContent recentPosts={remainingPosts} stickyPosts={stickyPosts} />;
+  return <HomeContent recentPosts={allPosts} stickyPosts={stickyPosts} />;
 }

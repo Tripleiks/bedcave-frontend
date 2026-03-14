@@ -6,7 +6,6 @@ import { useParams } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import { ArrowLeft, Copy, Check, FileCode, Terminal, Tag, Calendar, User, Folder, Save, Loader2, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { getPostBySlug } from "@/lib/mdx/posts";
 
 export default function EditPostPage() {
   const { logout } = useAuth();
@@ -50,20 +49,6 @@ export default function EditPostPage() {
         }
       } catch (error) {
         console.error("Failed to load post:", error);
-        // Fallback: try to get from static data
-        const { getPostBySlug } = await import("@/lib/mdx/posts");
-        const post = getPostBySlug(slug);
-        if (post) {
-          setFormData({
-            title: post.title,
-            date: new Date(post.date).toISOString().split('T')[0],
-            excerpt: post.excerpt,
-            category: post.category,
-            tags: post.tags.join(", "),
-            author: post.author,
-            content: post.content,
-          });
-        }
       }
       setIsLoading(false);
     }

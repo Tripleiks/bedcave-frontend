@@ -77,7 +77,7 @@ export default function AIGeneratorPage() {
       setImageLoading(true);
       try {
         const imageResponse = await fetch(
-          `/api/unsplash/search?query=${encodeURIComponent(prompt)}&orientation=landscape`
+          `/api/unsplash/search?query=${encodeURIComponent(data.data.title)}&orientation=landscape`
         );
         
         if (imageResponse.ok) {
@@ -151,12 +151,12 @@ ${image ? `
   };
 
   const regenerateImage = async () => {
-    if (!prompt) return;
+    if (!generatedPost?.title) return;
     setImageLoading(true);
     
     try {
       const imageResponse = await fetch(
-        `/api/unsplash/search?query=${encodeURIComponent(prompt)}&orientation=landscape`
+        `/api/unsplash/search?query=${encodeURIComponent(generatedPost.title)}&orientation=landscape`
       );
       
       if (imageResponse.ok) {

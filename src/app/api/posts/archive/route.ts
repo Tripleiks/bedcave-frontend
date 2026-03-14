@@ -58,16 +58,13 @@ async function fetchWithRetry(
   throw lastError || new Error(`Failed after ${retries} retries`);
 }
 
-// Utility: Generate unique filename
-function generateUniqueFilename(title: string): string {
-  const timestamp = Date.now().toString(36);
-  const date = new Date().toISOString().split("T")[0];
-  const baseSlug = title
+// Utility: Generate consistent filename (no timestamp)
+function generateConsistentFilename(title: string): string {
+  return title
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "")
-    .substring(0, 40);
-  return `${date}-${baseSlug}-${timestamp}.mdx`;
+    .substring(0, 60) + ".mdx";
 }
 
 // Utility: Validate input data
@@ -187,8 +184,8 @@ export async function POST(request: NextRequest) {
 
     const { title, content, category, tags, excerpt, imageUrl, author = "Bedcave Team", sticky = false } = body;
 
-    // Generate unique filename
-    const filename = generateUniqueFilename(title);
+    // Generate consistent filename
+    const filename = generateConsistentFilename(title);
 
     console.log(`[Archive] Starting archive for "${title}" → ${filename}`);
 

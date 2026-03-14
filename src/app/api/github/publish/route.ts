@@ -56,15 +56,13 @@ async function fetchWithRetry(
   throw lastError || new Error(`Failed after ${retries} retries`);
 }
 
-// Utility: Generate unique filename to avoid collisions
-function generateUniqueSlug(title: string): string {
-  const timestamp = Date.now().toString(36); // Base36 timestamp
-  const baseSlug = title
+// Utility: Generate consistent, readable slug from title
+function generateConsistentSlug(title: string): string {
+  return title
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "")
-    .substring(0, 50); // Limit length
-  return `${baseSlug}-${timestamp}`;
+    .substring(0, 60); // Reasonable length limit
 }
 
 // Utility: Validate input data
@@ -122,10 +120,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate unique filename
+    // Generate consistent filename
     const date = new Date().toISOString().split("T")[0];
-    const uniqueSlug = generateUniqueSlug(title);
-    const filename = `content/posts/${uniqueSlug}.mdx`;
+    const consistentSlug = generateConsistentSlug(title);
+    const filename = `content/posts/${consistentSlug}.mdx`;
 
     console.log(`[Publish] Starting publish for "${title}" → ${filename}`);
 

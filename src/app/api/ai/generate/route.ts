@@ -30,22 +30,29 @@ export async function POST(request: NextRequest) {
       system: `You are a technical blog writer for BEDCAVE, a blog about homelabs, Docker, hardware, and tech.
       
       CRITICAL INSTRUCTIONS:
-      1. Return ONLY a valid JSON object - no markdown, no explanations, no code blocks wrapping the JSON
-      2. The content field must contain the full blog post in markdown format (escaped for JSON)
-      3. Escape newlines as \\n and quotes as \\"
-      4. Code snippets should use triple backticks
+      1. Return a JSON object with metadata (title, excerpt, tags, keywords)
+      2. AFTER the JSON, on a new line starting with "CONTENT_START", provide the full markdown content
+      3. End the content with "CONTENT_END" on its own line
+      4. This format avoids JSON escaping issues with code blocks
       
-      JSON structure:
+      Format:
       {
         "title": "Blog Post Title",
-        "excerpt": "Short description", 
-        "content": "Full markdown content with escaped newlines",
+        "excerpt": "Short description",
         "tags": ["docker", "tutorial"],
         "keywords": ["docker compose", "containers"]
       }
+      CONTENT_START
+      # Full Markdown Content Here
+      
+      With code examples:
+      \`\`\`yaml
+      version: '3'
+      \`\`\`
+      CONTENT_END
       
       Requirements:
-      - 500-800 words (shorter to fit in response)
+      - 500-800 words
       - Practical examples with code snippets
       - Clear section headers
       - Technical but accessible tone
@@ -66,41 +73,36 @@ export async function POST(request: NextRequest) {
 
     const content = message.content[0].type === "text" ? message.content[0].text : "";
     
-    // Parse JSON response - content is directly in the JSON
+    // Parse response - JSON metadata followed by CONTENT_START/CONTENT_END block
     let blogData;
     try {
-      // Try to extract JSON from markdown code blocks first
-      let jsonString = content;
+      // Find JSON boundaries
+      const firstBrace = content.indexOf('{');
+      const lastBrace = content.lastIndexOf('}');
       
-      // Look for JSON in code blocks
-      const codeBlockMatch = content.match(/```(?:json)?\n?([\s\S]*?)\n?```/);
-      if (codeBlockMatch) {
-        jsonString = codeBlockMatch[1];
+      if (firstBrace === -1 || lastBrace === -1) {
+        throw new Error("No JSON object found in response");
       }
       
-      // Try to find JSON object boundaries
-      const firstBrace = jsonString.indexOf('{');
-      const lastBrace = jsonString.lastIndexOf('}');
-      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-        jsonString = jsonString.substring(firstBrace, lastBrace + 1);
-      }
-      
-      // Clean up the string - handle unescaped newlines
-      jsonString = jsonString
-        .trim()
-        .replace(/\n/g, '\\n')  // Escape newlines
-        .replace(/\t/g, '\\t'); // Escape tabs
-      
+      const jsonString = content.substring(firstBrace, lastBrace + 1);
       blogData = JSON.parse(jsonString);
       
-      // Unescape content for display
-      if (blogData.content && typeof blogData.content === 'string') {
-        blogData.content = blogData.content.replace(/\\n/g, '\n').replace(/\\t/g, '\t');
+      // Extract content between CONTENT_START and CONTENT_END
+      const contentStart = content.indexOf('CONTENT_START');
+      const contentEnd = content.indexOf('CONTENT_END');
+      
+      if (contentStart !== -1 && contentEnd !== -1 && contentEnd > contentStart) {
+        blogData.content = content.substring(contentStart + 'CONTENT_START'.length, contentEnd).trim();
+      } else {
+        // Fallback: look for markdown content after JSON
+        const afterJson = content.substring(lastBrace + 1);
+        // Remove any leading whitespace or markers
+        blogData.content = afterJson.replace(/^\s*[\n\r]+/, '').trim();
       }
     } catch (parseError: any) {
       console.error("Failed to parse Claude response:", content);
       return NextResponse.json(
-        { error: `Failed to parse generated content: ${parseError.message}. Raw: ${content.substring(0, 300)}` },
+        { error: `Failed to parse generated content: ${parseError.message}. Raw: ${content.substring(0, 400)}` },
         { status: 500 }
       );
     }

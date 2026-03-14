@@ -128,7 +128,7 @@ export function ArticleCard({ post, variant = 'default', className = '' }: Artic
             variant="featured"
           />
           
-          <Link href={`/post/${post.slug}`} className="block">
+          <Link href={`/blog/${post.slug}`} className="block">
             {/* Content Area */}
             <div className="relative">
               {/* Image with aspect ratio */}

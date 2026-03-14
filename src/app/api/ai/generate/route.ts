@@ -76,15 +76,35 @@ export async function POST(request: NextRequest) {
     // Parse response - JSON metadata followed by CONTENT_START/CONTENT_END block
     let blogData;
     try {
-      // Find JSON boundaries
+      // Find JSON boundaries by counting braces to handle nested objects
+      let jsonEnd = -1;
+      let braceCount = 0;
+      let inJson = false;
       const firstBrace = content.indexOf('{');
-      const lastBrace = content.lastIndexOf('}');
       
-      if (firstBrace === -1 || lastBrace === -1) {
+      if (firstBrace === -1) {
         throw new Error("No JSON object found in response");
       }
       
-      const jsonString = content.substring(firstBrace, lastBrace + 1);
+      // Walk through string to find where the JSON object ends
+      for (let i = firstBrace; i < content.length; i++) {
+        if (content[i] === '{') {
+          braceCount++;
+          inJson = true;
+        } else if (content[i] === '}') {
+          braceCount--;
+          if (braceCount === 0 && inJson) {
+            jsonEnd = i;
+            break; // Found the end of the first JSON object
+          }
+        }
+      }
+      
+      if (jsonEnd === -1) {
+        throw new Error("Could not find complete JSON object");
+      }
+      
+      const jsonString = content.substring(firstBrace, jsonEnd + 1);
       blogData = JSON.parse(jsonString);
       
       // Extract content between CONTENT_START and CONTENT_END
@@ -94,8 +114,8 @@ export async function POST(request: NextRequest) {
       if (contentStart !== -1 && contentEnd !== -1 && contentEnd > contentStart) {
         blogData.content = content.substring(contentStart + 'CONTENT_START'.length, contentEnd).trim();
       } else {
-        // Fallback: look for markdown content after JSON
-        const afterJson = content.substring(lastBrace + 1);
+        // Fallback: look for markdown content after the JSON object
+        const afterJson = content.substring(jsonEnd + 1);
         // Remove any leading whitespace or markers
         blogData.content = afterJson.replace(/^\s*[\n\r]+/, '').trim();
       }

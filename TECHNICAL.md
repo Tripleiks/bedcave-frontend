@@ -26,8 +26,8 @@
 ├─────────────────────────────────────────────────────────┤
 │                   SERVICE LAYER                         │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────┐  │
-│  │   Claude    │  │   Grok      │  │    Resend       │  │
-│  │(Anthropic) │  │   Aurora    │  │   (Email)       │  │
+│  │ Perplexity │  │   Grok      │  │    Resend       │  │
+│  │    AI      │  │   Aurora    │  │   (Email)       │  │
 │  └─────────────┘  └─────────────┘  └─────────────────┘  │
 ├─────────────────────────────────────────────────────────┤
 │                   DATA LAYER                            │
@@ -46,7 +46,7 @@
 
 ## 📡 API Routes
 
-### `/api/ai/generate` - AI Blog Generation
+### `/api/ai/generate` - **AI Blog Generation**: Perplexity AI (`sonar-pro`) mit Quellenangaben
 
 **Method:** POST
 
@@ -70,14 +70,16 @@
 ```
 
 **Features:**
-- Uses Claude API (`claude-sonnet-4-6`)
-- 8192 max_tokens
+- Uses Perplexity API (`sonar-pro`)
+- Real-time web search with source citations
+- 4000 max_tokens
 - Robust JSON parsing with brace counting
 - Content separated from metadata (CONTENT_START/CONTENT_END)
 - 1200-1500 word generation
+- Automatic source attribution (copyright safe)
 
 **Environment Variables:**
-- `ANTHROPIC_API_KEY`
+- `PERPLEXITY_API_KEY`
 
 ---
 
@@ -375,7 +377,7 @@ gap-8: 32px
 ### AI Generation Flow
 
 ```
-User Input → Claude API → JSON Parse → Content Extract
+User Input → Perplexity API → JSON Parse → Content Extract + Sources
                                     ↓
                               ┌─────────────┐
                               │  MDX Format │
@@ -592,7 +594,7 @@ chore: Maintenance
 - [Next.js Docs](https://nextjs.org/docs)
 - [Tailwind CSS](https://tailwindcss.com/docs)
 - [Framer Motion](https://www.framer.com/motion/)
-- [Claude API](https://docs.anthropic.com/)
+- [Perplexity API](https://docs.perplexity.ai/)
 - [Grok Aurora](https://x.ai/api)
 - [Resend](https://resend.com/docs)
 

@@ -3,8 +3,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Terminal, Cpu, HardDrive, Server, Zap } from "lucide-react";
 import Link from "next/link";
-import { WebGLShader } from "@/components/ui/web-gl-shader";
-import { LiquidButton } from "@/components/ui/liquid-glass-button";
+import { WavyBackground } from "@/components/ui/wavy-background";
 
 export function HeroSection() {
   const categories = [
@@ -15,9 +14,14 @@ export function HeroSection() {
   ];
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black">
-      <WebGLShader />
-      
+    <WavyBackground
+      colors={["#00d4ff", "#39ff14", "#ff006e", "#ffbe0b", "#8338ec"]}
+      waveWidth={50}
+      backgroundFill="#0a0a0f"
+      blur={10}
+      speed="slow"
+      waveOpacity={0.3}
+    >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
           {/* Terminal-style badge */}

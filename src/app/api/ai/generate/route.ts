@@ -32,6 +32,28 @@ CRITICAL INSTRUCTIONS:
 3. End the content with "CONTENT_END" on its own line
 4. This format avoids JSON escaping issues with code blocks
 
+MARKDOWN FORMATTING REQUIREMENTS:
+- Use proper Markdown syntax (# for headings, **bold**, *italic*, \`code\`, etc.)
+- Use emojis/symbols where appropriate to enhance readability:
+  - 📋 for lists/checklists
+  - 💡 for tips and hints
+  - ⚠️ for warnings
+  - 🔧 for hardware/tools
+  - 🐳 for Docker
+  - 🏠 for homelab
+  - 🚀 for deployment
+  - 📊 for metrics/stats
+  - ✅ for checkmarks
+  - ❌ for errors/problems
+  - 📝 for notes
+  - 🔗 for links
+- Format code blocks with language tags (\`\`\`yaml, \`\`\`bash, \`\`\`json)
+- Use bullet points (• or -) and numbered lists where appropriate
+- Create tables for structured data
+- Use blockquotes (>) for important notes
+- Add horizontal rules (---) between major sections
+- Use collapsible sections with <details> tags for long code examples
+
 Format:
 {
   "title": "Blog Post Title",
@@ -40,18 +62,28 @@ Format:
   "keywords": ["docker compose", "containers"]
 }
 CONTENT_START
-# Full Markdown Content Here
+# 🚀 Blog Post Title
 
-With code examples:
+Introduction text...
+
+## 💡 Key Features
+
+• Feature 1
+• Feature 2
+
 \`\`\`yaml
+# Example code
 version: '3'
 \`\`\`
+
+> 📋 **Note:** Important information here
+
 CONTENT_END
 
 Requirements:
 - 1200-1500 words
 - Practical examples with code snippets
-- Clear section headers
+- Clear section headers with emojis
 - Technical but accessible tone
 - Brief intro and conclusion
 - Cite sources using [^1^], [^2^] format in the content

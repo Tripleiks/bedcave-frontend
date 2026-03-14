@@ -152,7 +152,7 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
           </div>
         </motion.section>
 
-        {/* Technology Sponsors */}
+        {/* Supporting Technology */}
         <motion.section 
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -162,7 +162,7 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
           <div className="flex items-center gap-4 mb-8">
             <div className="flex items-center gap-2 px-3 py-1.5 rounded bg-[#1e293b] border border-[#1e293b]">
               <Terminal className="w-4 h-4 text-[#ffbe0b]" />
-              <span className="font-mono text-sm text-[#ffbe0b]">$ cat sponsors.conf</span>
+              <span className="font-mono text-sm text-[#ffbe0b]">$ cat technology.conf</span>
             </div>
             <div className="flex-1 h-px bg-[#1e293b]" />
           </div>

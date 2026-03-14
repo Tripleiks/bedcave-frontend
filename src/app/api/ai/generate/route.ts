@@ -26,25 +26,26 @@ export async function POST(request: NextRequest) {
     // Generate blog content with Claude
     const message = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 4000,
+      max_tokens: 8192,
       system: `You are a technical blog writer for BEDCAVE, a blog about homelabs, Docker, hardware, and tech.
       
       CRITICAL INSTRUCTIONS:
       1. Return ONLY a valid JSON object - no markdown, no explanations, no code blocks wrapping the JSON
-      2. The content field must contain base64-encoded markdown (to avoid JSON parsing issues with newlines and quotes)
-      3. Code snippets in the article should use triple backticks as normal
+      2. The content field must contain the full blog post in markdown format (escaped for JSON)
+      3. Escape newlines as \\n and quotes as \\"
+      4. Code snippets should use triple backticks
       
       JSON structure:
       {
-        "title": "string",
-        "excerpt": "string", 
-        "content": "base64-encoded markdown content",
-        "tags": ["tag1", "tag2"],
-        "keywords": ["keyword1", "keyword2"]
+        "title": "Blog Post Title",
+        "excerpt": "Short description", 
+        "content": "Full markdown content with escaped newlines",
+        "tags": ["docker", "tutorial"],
+        "keywords": ["docker compose", "containers"]
       }
       
       Requirements:
-      - 800-1500 words
+      - 500-800 words (shorter to fit in response)
       - Practical examples with code snippets
       - Clear section headers
       - Technical but accessible tone
@@ -65,7 +66,7 @@ export async function POST(request: NextRequest) {
 
     const content = message.content[0].type === "text" ? message.content[0].text : "";
     
-    // Parse JSON response and decode base64 content
+    // Parse JSON response - content is directly in the JSON
     let blogData;
     try {
       // Try to extract JSON from markdown code blocks first
@@ -84,19 +85,17 @@ export async function POST(request: NextRequest) {
         jsonString = jsonString.substring(firstBrace, lastBrace + 1);
       }
       
-      // Clean up the string
-      jsonString = jsonString.trim();
+      // Clean up the string - handle unescaped newlines
+      jsonString = jsonString
+        .trim()
+        .replace(/\n/g, '\\n')  // Escape newlines
+        .replace(/\t/g, '\\t'); // Escape tabs
       
       blogData = JSON.parse(jsonString);
       
-      // Decode base64 content
+      // Unescape content for display
       if (blogData.content && typeof blogData.content === 'string') {
-        try {
-          blogData.content = Buffer.from(blogData.content, 'base64').toString('utf-8');
-        } catch (e) {
-          // If not valid base64, use as-is
-          console.log("Content not base64, using raw");
-        }
+        blogData.content = blogData.content.replace(/\\n/g, '\n').replace(/\\t/g, '\t');
       }
     } catch (parseError: any) {
       console.error("Failed to parse Claude response:", content);

@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ArticleCard } from "@/components/article-card";
 import { HeroSection } from "@/components/hero-section";
+import { NewsTicker } from "@/components/news-ticker";
 import { Post } from "@/lib/mdx/posts";
 import { Terminal, ArrowRight, Cpu, Mail, Code2, Clock, Quote, Activity, Search, TerminalSquare } from "lucide-react";
 import Link from "next/link";
@@ -332,6 +333,17 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
     <div className="min-h-screen bg-[#0a0a0f]">
       {/* Hero Section */}
       <HeroSection />
+
+      {/* Live News Ticker */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <NewsTicker />
+        </motion.div>
+      </div>
 
       {/* Content Sections */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">

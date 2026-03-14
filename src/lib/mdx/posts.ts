@@ -23,12 +23,33 @@ export function getAllPosts(): Post[] {
     return [];
   }
 
-  const fileNames = fs.readdirSync(postsDirectory);
-  const allPosts = fileNames
-    .filter((fileName) => fileName.endsWith('.mdx') || fileName.endsWith('.md'))
-    .map((fileName) => {
-      const slug = fileName.replace(/\.mdx?$/, '');
-      const fullPath = path.join(postsDirectory, fileName);
+  // Recursively get all .mdx files from posts directory and subdirectories
+  function getMdxFiles(dir: string): string[] {
+    const files: string[] = [];
+    const items = fs.readdirSync(dir, { withFileTypes: true });
+    
+    for (const item of items) {
+      const fullPath = path.join(dir, item.name);
+      if (item.isDirectory()) {
+        files.push(...getMdxFiles(fullPath));
+      } else if (item.name.endsWith('.mdx') || item.name.endsWith('.md')) {
+        files.push(fullPath);
+      }
+    }
+    
+    return files;
+  }
+
+  const mdxFiles = getMdxFiles(postsDirectory);
+  const allPosts = mdxFiles
+    .map((fullPath) => {
+      // Create slug from relative path (e.g., "generated/filename" -> "generated-filename")
+      const relativePath = path.relative(postsDirectory, fullPath);
+      const slug = relativePath
+        .replace(/\\/g, '/') // Windows path fix
+        .replace(/\.mdx?$/, '')
+        .replace(/\//g, '-');
+      
       const fileContents = fs.readFileSync(fullPath, 'utf8');
       const { data, content } = matter(fileContents);
 
@@ -57,13 +78,42 @@ export function getAllPosts(): Post[] {
 
 export function getPostBySlug(slug: string): Post | null {
   try {
-    // Try .mdx first, then .md
+    // First try direct path (legacy posts)
     let fullPath = path.join(postsDirectory, `${slug}.mdx`);
     if (!fs.existsSync(fullPath)) {
       fullPath = path.join(postsDirectory, `${slug}.md`);
-      if (!fs.existsSync(fullPath)) {
+    }
+    
+    // If not found, search recursively in subdirectories
+    if (!fs.existsSync(fullPath)) {
+      function findMdxFile(dir: string, targetSlug: string): string | null {
+        const items = fs.readdirSync(dir, { withFileTypes: true });
+        
+        for (const item of items) {
+          const itemPath = path.join(dir, item.name);
+          if (item.isDirectory()) {
+            const found = findMdxFile(itemPath, targetSlug);
+            if (found) return found;
+          } else if (item.name.endsWith('.mdx') || item.name.endsWith('.md')) {
+            // Create slug from relative path to check match
+            const relativePath = path.relative(postsDirectory, itemPath);
+            const itemSlug = relativePath
+              .replace(/\\/g, '/')
+              .replace(/\.mdx?$/, '')
+              .replace(/\//g, '-');
+            if (itemSlug === targetSlug) {
+              return itemPath;
+            }
+          }
+        }
         return null;
       }
+      
+      const foundPath = findMdxFile(postsDirectory, slug);
+      if (!foundPath) {
+        return null;
+      }
+      fullPath = foundPath;
     }
 
     const fileContents = fs.readFileSync(fullPath, 'utf8');

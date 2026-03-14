@@ -1,0 +1,68 @@
+---
+title: "Getting Started with Docker Compose"
+date: "2026-03-13"
+excerpt: "A beginner-friendly guide to orchestrating multi-container applications with Docker Compose."
+category: "Docker"
+tags: ["docker", "compose", "tutorial"]
+author: "Bedcave Team"
+---
+
+# Getting Started with Docker Compose
+
+Docker Compose is a tool for defining and running multi-container Docker applications. With Compose, you use a YAML file to configure your application's services.
+
+## Why Docker Compose?
+
+- **Simplified Orchestration**: Manage multiple containers as a single unit
+- **Reproducible Environments**: Same setup across development and production
+- **Version Control**: Your infrastructure is code
+
+## Basic docker-compose.yml
+
+```yaml
+version: '3.8'
+
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./html:/usr/share/nginx/html
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: myapp
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+```
+
+## Common Commands
+
+```bash
+# Start services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+
+# Rebuild after Dockerfile changes
+docker-compose up -d --build
+```
+
+## Tips for Homelabs
+
+1. **Use .env files** for sensitive data
+2. **Implement health checks** for critical services
+3. **Set up automated backups** for persistent volumes
+
+> Docker Compose makes managing complex applications as simple as running a single command.

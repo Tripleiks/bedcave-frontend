@@ -4,11 +4,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useRef } from "react";
-import { WordPressPost } from '@/lib/wordpress-types';
+import { Post } from '@/lib/mdx/posts';
 import { ArrowUpRight } from "lucide-react";
 
 interface ArticleCardProps {
-  post: WordPressPost;
+  post: Post;
   variant?: 'default' | 'featured' | 'compact';
   className?: string;
 }
@@ -103,16 +103,13 @@ function TerminalHeader({
 }
 
 export function ArticleCard({ post, variant = 'default', className = '' }: ArticleCardProps) {
-  const featuredImage = post._embedded?.['wp:featuredmedia']?.[0];
-  const author = post._embedded?.author?.[0];
-  const categories = post._embedded?.['wp:term']?.[0] || [];
-  
-  const imageUrl = featuredImage?.source_url;
-  const altText = featuredImage?.alt_text || post.title.rendered;
+  const imageUrl = post.coverImage;
+  const altText = post.title;
   
   // Create filename from slug
   const filename = `${post.slug.slice(0, 20)}${post.slug.length > 20 ? '...' : ''}.md`;
-  const mainCategory = categories[0]?.name || 'Article';
+  const mainCategory = post.category || 'Article';
+  const author = post.author;
   
   // Format date as comment
   const formattedDate = new Date(post.date).toLocaleDateString('en-US', {
@@ -158,14 +155,14 @@ export function ArticleCard({ post, variant = 'default', className = '' }: Artic
                   <span className="text-[#8338ec]">const</span>{" "}
                   <span className="text-[#ffbe0b]">title</span>{" "}={" "}
                   <span className="text-[#39ff14]">&quot;</span>
-                  <span dangerouslySetInnerHTML={{ __html: post.title.rendered }} />
+                  <span dangerouslySetInnerHTML={{ __html: post.title }} />
                   <span className="text-[#39ff14]">&quot;</span>;
                 </h2>
                 
                 {/* Excerpt as comment */}
                 <p className="text-[#64748b] line-clamp-2 mb-4 font-mono text-sm">
                   <span className="text-[#64748b]">// </span>
-                  <span dangerouslySetInnerHTML={{ __html: post.excerpt.rendered.replace(/<[^>]*>/g, '').slice(0, 100) }} />
+                  <span dangerouslySetInnerHTML={{ __html: post.excerpt.slice(0, 100) }} />
                 </p>
                 
                 {/* Footer info */}
@@ -173,7 +170,7 @@ export function ArticleCard({ post, variant = 'default', className = '' }: Artic
                   <div className="flex items-center gap-3">
                     {author && (
                       <span className="text-[#00d4ff]">
-                        @<span className="text-white">{author.name.toLowerCase().replace(/\s+/g, '_')}</span>
+                        @<span className="text-white">{author.toLowerCase().replace(/\s+/g, '_')}</span>
                       </span>
                     )}
                     <span className="text-[#64748b]">// {formattedDate}</span>
@@ -236,7 +233,7 @@ export function ArticleCard({ post, variant = 'default', className = '' }: Artic
             {/* Content */}
             <div className="flex-1 min-w-0">
               <h3 className="font-mono text-sm font-semibold text-white group-hover:text-[#00d4ff] transition-colors line-clamp-2 mb-1">
-                <span dangerouslySetInnerHTML={{ __html: post.title.rendered }} />
+                <span dangerouslySetInnerHTML={{ __html: post.title }} />
               </h3>
               <div className="flex items-center gap-2 text-[10px] text-[#64748b] font-mono">
                 <span className={colorScheme.text}>[{mainCategory.toUpperCase()}]</span>
@@ -293,7 +290,7 @@ export function ArticleCard({ post, variant = 'default', className = '' }: Artic
               <div className="flex items-center gap-2">
                 {author && (
                   <span className="text-[#64748b]">
-                    @<span className="text-[#00d4ff]">{author.name.toLowerCase().replace(/\s+/g, '_')}</span>
+                    @<span className="text-[#00d4ff]">{author.toLowerCase().replace(/\s+/g, '_')}</span>
                   </span>
                 )}
               </div>

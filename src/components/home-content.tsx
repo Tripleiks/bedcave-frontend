@@ -3,13 +3,13 @@
 import { motion } from "framer-motion";
 import { ArticleCard } from "@/components/article-card";
 import { HeroSection } from "@/components/hero-section";
-import { WordPressPost } from "@/lib/wordpress-types";
+import { Post } from "@/lib/mdx/posts";
 import { Terminal, ArrowRight, Cpu, Mail } from "lucide-react";
 import Link from "next/link";
 
 interface HomeContentProps {
-  recentPosts: WordPressPost[];
-  stickyPosts: WordPressPost[];
+  recentPosts: Post[];
+  stickyPosts: Post[];
 }
 
 export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {

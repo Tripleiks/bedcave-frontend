@@ -3,169 +3,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Terminal, Cpu, HardDrive, Server, Zap } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-
-// Client-only matrix rain component
-function MatrixRain() {
-  const [mounted, setMounted] = useState(false);
-  
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  
-  if (!mounted) return null;
-  
-  // Matrix characters
-  const chars = "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン";
-  
-  // Generate falling columns
-  const columns = Array.from({ length: 15 }, (_, i) => ({
-    id: i,
-    left: `${(i * 7) % 100}%`,
-    delay: (i * 0.3) % 5,
-    duration: 4 + (i % 4),
-    char: chars[i % chars.length],
-  }));
-  
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
-      {columns.map((col) => (
-        <motion.div
-          key={col.id}
-          className="absolute font-mono text-[#00d4ff] text-xs leading-none"
-          style={{ left: col.left, top: "-20px" }}
-          initial={{ y: -50, opacity: 0 }}
-          animate={{ 
-            y: ["0vh", "100vh"],
-            opacity: [0, 1, 1, 0],
-          }}
-          transition={{
-            duration: col.duration,
-            repeat: Infinity,
-            delay: col.delay,
-            ease: "linear",
-          }}
-        >
-          {/* Falling characters in column */}
-          {Array.from({ length: 8 }).map((_, j) => (
-            <motion.span
-              key={j}
-              className="block"
-              initial={{ opacity: 0.3 }}
-              animate={{ 
-                opacity: j === 0 ? [0.8, 1, 0.8] : [0.2, 0.6, 0.2],
-                color: j === 0 ? ["#ffffff", "#00d4ff", "#ffffff"] : "#00d4ff"
-              }}
-              transition={{
-                duration: 0.5,
-                repeat: Infinity,
-                delay: j * 0.1,
-              }}
-            >
-              {chars[(col.id + j) % chars.length]}
-            </motion.span>
-          ))}
-        </motion.div>
-      ))}
-    </div>
-  );
-}
-
-// Connection lines between random points
-function ConnectionLines() {
-  const [mounted, setMounted] = useState(false);
-  
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  
-  if (!mounted) return null;
-  
-  const nodes = Array.from({ length: 12 }, (_, i) => ({
-    id: i,
-    x: 10 + (i * 8) % 80,
-    y: 15 + (i * 13) % 70,
-  }));
-  
-  return (
-    <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-20">
-      {nodes.map((node, i) => 
-        nodes.slice(i + 1).map((target, j) => {
-          const distance = Math.sqrt(
-            Math.pow(node.x - target.x, 2) + Math.pow(node.y - target.y, 2)
-          );
-          if (distance > 30) return null;
-          
-          return (
-            <motion.line
-              key={`${node.id}-${target.id}`}
-              x1={`${node.x}%`}
-              y1={`${node.y}%`}
-              x2={`${target.x}%`}
-              y2={`${target.y}%`}
-              stroke="#00d4ff"
-              strokeWidth="0.5"
-              initial={{ pathLength: 0, opacity: 0 }}
-              animate={{ 
-                pathLength: [0, 1, 1, 0],
-                opacity: [0, 0.5, 0.5, 0],
-              }}
-              transition={{
-                duration: 3 + (i % 3),
-                repeat: Infinity,
-                delay: (i * 0.5) % 5,
-              }}
-            />
-          );
-        })
-      )}
-    </svg>
-  );
-}
-
-// Floating code snippets
-function FloatingCode() {
-  const [mounted, setMounted] = useState(false);
-  
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  
-  if (!mounted) return null;
-  
-  const snippets = [
-    "{code}", "<div>", "npm i", "git push", "docker run", "sudo apt",
-    "const x", "import", "export", "async", "await", "function"
-  ];
-  
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {snippets.map((snippet, i) => (
-        <motion.div
-          key={i}
-          className="absolute font-mono text-[10px] text-[#00d4ff]/20"
-          style={{ 
-            left: `${10 + (i * 17) % 80}%`,
-            top: `${20 + (i * 23) % 60}%`,
-          }}
-          initial={{ opacity: 0, y: 0 }}
-          animate={{ 
-            opacity: [0, 0.4, 0.4, 0],
-            y: [-20, -40],
-            x: [0, (i % 2 === 0 ? 10 : -10)],
-          }}
-          transition={{
-            duration: 5 + (i % 4),
-            repeat: Infinity,
-            delay: (i * 0.8) % 10,
-          }}
-        >
-          {snippet}
-        </motion.div>
-      ))}
-    </div>
-  );
-}
+import { WavyBackground } from "@/components/ui/wavy-background";
 
 export function HeroSection() {
   const categories = [
@@ -176,28 +14,15 @@ export function HeroSection() {
   ];
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#0a0a0f]">
-      {/* Animated grid background */}
-      <div className="absolute inset-0">
-        <div 
-          className="absolute inset-0 opacity-20"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(0, 212, 255, 0.1) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(0, 212, 255, 0.1) 1px, transparent 1px)
-            `,
-            backgroundSize: '50px 50px',
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a0a0f]/50 to-[#0a0a0f]" />
-      </div>
-
-      {/* Background effects */}
-      <MatrixRain />
-      <ConnectionLines />
-      <FloatingCode />
-
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <WavyBackground
+      colors={["#00d4ff", "#39ff14", "#ff006e", "#ffbe0b", "#8338ec"]}
+      waveWidth={50}
+      backgroundFill="#0a0a0f"
+      blur={10}
+      speed="slow"
+      waveOpacity={0.3}
+    >
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
         <div className="max-w-4xl mx-auto text-center">
           {/* Terminal-style badge */}
           <motion.div
@@ -292,7 +117,7 @@ export function HeroSection() {
               >
                 <Link
                   href={item.href}
-                  className="group block p-6 rounded-lg border border-[#1e293b] bg-[#13131f]/50 hover:border-[color:var(--hover-color)] hover:bg-[#1a1a2e] transition-all duration-300"
+                  className="group block p-6 rounded-lg border border-[#1e293b] bg-[#13131f]/80 hover:border-[color:var(--hover-color)] hover:bg-[#1a1a2e] transition-all duration-300 backdrop-blur-sm"
                   style={{ "--hover-color": item.color } as React.CSSProperties}
                 >
                   <item.icon 
@@ -329,7 +154,7 @@ export function HeroSection() {
           <div className="w-px h-8 bg-gradient-to-b from-[#00d4ff] to-transparent" />
         </motion.div>
       </motion.div>
-    </section>
+    </WavyBackground>
   );
 }
 

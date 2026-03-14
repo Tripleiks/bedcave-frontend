@@ -6,8 +6,8 @@ export default async function Home() {
   // Alle MDX-Posts zur Build-Zeit laden
   const posts = getAllPosts();
   
-  // Ersten Post als "sticky" markieren (falls vorhanden)
-  const stickyPosts = posts.length > 0 ? [posts[0]] : [];
+  // Posts mit sticky=true aus dem Frontmatter filtern
+  const stickyPosts = posts.filter(post => post.sticky);
   // Alle Posts für "all-posts" (inkl. sticky posts)
   const allPosts = posts;
 

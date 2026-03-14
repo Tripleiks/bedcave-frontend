@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
 
     // Generate blog content with Claude
     const message = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-sonnet-4-6",
       max_tokens: 4000,
       system: `You are a technical blog writer for BEDCAVE, a blog about homelabs, Docker, hardware, and tech. 
       Write engaging, informative blog posts with a technical but accessible tone.

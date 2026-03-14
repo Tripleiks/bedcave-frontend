@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
         "Authorization": `Bearer ${XAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "aurora",
+        model: "grok-imagine-image",
         prompt: `Professional tech blog cover image: ${prompt}. Modern, clean, high quality, suitable for a technology blog.`,
         n: 1,
       }),

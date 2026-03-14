@@ -1,8 +1,10 @@
 import { getPostBySlug, getAllPosts } from '@/lib/mdx/posts';
-import { MDXComponents } from '@/components/mdx-components';
 import Link from 'next/link';
 import { ArrowLeft, Calendar, Clock, User, Tag } from 'lucide-react';
 import { notFound } from 'next/navigation';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
 
 interface PostPageProps {
   params: Promise<{ slug: string }>;
@@ -112,9 +114,20 @@ export default async function PostPage({ params }: PostPageProps) {
 
           {/* Content */}
           <div className="prose prose-invert prose-lg max-w-none font-mono">
-            <div className="text-gray-300 whitespace-pre-wrap">
+            <Markdown 
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeHighlight]}
+              components={{
+                h1: ({ children }) => <h1 className="text-3xl font-bold text-white mb-6 font-mono">{children}</h1>,
+                h2: ({ children }) => <h2 className="text-2xl font-bold text-white mt-8 mb-4 font-mono">{children}</h2>,
+                h3: ({ children }) => <h3 className="text-xl font-bold text-white mt-6 mb-3 font-mono">{children}</h3>,
+                p: ({ children }) => <p className="text-gray-300 mb-4 leading-relaxed font-mono">{children}</p>,
+                code: ({ children }) => <code className="bg-[#1e293b] text-[#39ff14] px-2 py-1 rounded text-sm font-mono">{children}</code>,
+                pre: ({ children }) => <pre className="bg-[#0f0f1a] border border-[#1e293b] rounded-lg p-4 overflow-x-auto mb-4 font-mono text-sm">{children}</pre>,
+              }}
+            >
               {content}
-            </div>
+            </Markdown>
           </div>
 
           {/* Tags */}

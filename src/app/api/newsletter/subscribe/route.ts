@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialization of Resend client
+let resend: Resend | null = null;
+function getResend(): Resend | null {
+  if (!resend && process.env.RESEND_API_KEY) {
+    resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resend;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,7 +33,15 @@ export async function POST(request: NextRequest) {
     if (!process.env.RESEND_API_KEY) {
       return NextResponse.json(
         { error: "RESEND_API_KEY not configured" },
-        { status: 500 }
+        { status: 503 }
+      );
+    }
+
+    const resendClient = getResend();
+    if (!resendClient) {
+      return NextResponse.json(
+        { error: "Newsletter service unavailable" },
+        { status: 503 }
       );
     }
 
@@ -40,7 +55,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Add contact to Resend audience
-    const { data, error } = await resend.contacts.create({
+    const { data, error } = await resendClient.contacts.create({
       email,
       audienceId,
       unsubscribed: false,
@@ -56,7 +71,7 @@ export async function POST(request: NextRequest) {
 
     // Send welcome email
     try {
-      await resend.emails.send({
+      await resendClient.emails.send({
         from: "BEDCAVE <newsletter@bedcave.com>",
         to: email,
         subject: "Welcome to BEDCAVE! 🔧",

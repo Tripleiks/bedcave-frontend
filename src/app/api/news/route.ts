@@ -71,6 +71,288 @@ const fallbackNews: NewsItem[] = [
   { id: "fb-38", text: "PostgreSQL 17 beta with enhanced JSON support", category: "tech", icon: "Database", color: "#336791", source: "PostgreSQL" },
 ];
 
+// Fetch GitHub Trending Repositories
+async function fetchGitHubTrending(): Promise<NewsItem[]> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
+    // Fetch trending repos from GitHub API
+    const response = await fetch(
+      "https://api.github.com/search/repositories?q=created:>2024-01-01&sort=stars&order=desc&per_page=10",
+      { 
+        signal: controller.signal,
+        headers: { "Accept": "application/vnd.github.v3+json" }
+      }
+    );
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) throw new Error("Failed to fetch GitHub trending");
+    
+    const data = await response.json();
+    
+    return data.items.slice(0, 8).map((repo: any) => {
+      const title = repo.name?.toLowerCase() || "";
+      const description = repo.description?.toLowerCase() || "";
+      const fullText = `${title} ${description}`;
+      
+      let category: NewsItem["category"] = "github";
+      let icon = "GitBranch";
+      let color = "#39ff14";
+      
+      if (fullText.includes("docker") || fullText.includes("kubernetes") || fullText.includes("container") || fullText.includes("k8s")) {
+        category = "docker";
+        icon = "Container";
+        color = "#2496ed";
+      } else if (fullText.includes("azure") || fullText.includes("aws") || fullText.includes("cloud") || fullText.includes("serverless")) {
+        category = "azure";
+        icon = "Cloud";
+        color = "#0089d6";
+      } else if (fullText.includes("ai") || fullText.includes("machine learning") || fullText.includes("llm") || fullText.includes("gpt") || fullText.includes("neural")) {
+        category = "ai";
+        icon = "Brain";
+        color = "#10a37f";
+      } else if (fullText.includes("homelab") || fullText.includes("self-host") || fullText.includes("nas") || fullText.includes("server")) {
+        category = "homelab";
+        icon = "Server";
+        color = "#e57000";
+      }
+      
+      return {
+        id: `gh-${repo.id}`,
+        text: `⭐ ${repo.stargazers_count.toLocaleString()} | ${repo.name}: ${repo.description?.substring(0, 60) || "No description"}${repo.description?.length > 60 ? "..." : ""}`,
+        category,
+        icon,
+        color,
+        url: repo.html_url,
+        source: "GitHub",
+        isNew: repo.stargazers_count > 1000,
+      };
+    });
+  } catch (error) {
+    console.error("[News API] GitHub trending fetch failed:", error);
+    return [];
+  }
+}
+
+// Fetch Dev.to Tech Articles
+async function fetchDevTo(): Promise<NewsItem[]> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
+    const response = await fetch(
+      "https://dev.to/api/articles?top=1&per_page=10",
+      { signal: controller.signal }
+    );
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) throw new Error("Failed to fetch Dev.to articles");
+    
+    const articles = await response.json();
+    
+    return articles.slice(0, 8).map((article: any) => {
+      const title = article.title?.toLowerCase() || "";
+      const tags = article.tag_list?.join(" ").toLowerCase() || "";
+      const fullText = `${title} ${tags}`;
+      
+      let category: NewsItem["category"] = "tech";
+      let icon = "Cpu";
+      let color = "#64748b";
+      
+      if (fullText.includes("docker") || fullText.includes("kubernetes") || fullText.includes("container")) {
+        category = "docker";
+        icon = "Container";
+        color = "#2496ed";
+      } else if (fullText.includes("react") || fullText.includes("nextjs") || fullText.includes("vue") || fullText.includes("angular") || fullText.includes("javascript") || fullText.includes("typescript")) {
+        category = "github";
+        icon = "Code";
+        color = "#39ff14";
+      } else if (fullText.includes("ai") || fullText.includes("machine learning") || fullText.includes("python")) {
+        category = "ai";
+        icon = "Brain";
+        color = "#10a37f";
+      } else if (fullText.includes("cloud") || fullText.includes("aws") || fullText.includes("azure")) {
+        category = "azure";
+        icon = "Cloud";
+        color = "#0089d6";
+      }
+      
+      return {
+        id: `dev-${article.id}`,
+        text: article.title,
+        category,
+        icon,
+        color,
+        url: article.url,
+        source: "Dev.to",
+        isNew: article.positive_reactions_count > 50,
+      };
+    });
+  } catch (error) {
+    console.error("[News API] Dev.to fetch failed:", error);
+    return [];
+  }
+}
+
+// Fetch Product Hunt
+async function fetchProductHunt(): Promise<NewsItem[]> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
+    // Product Hunt API requires authentication
+    // Using their public GraphQL endpoint
+    const response = await fetch(
+      "https://www.producthunt.com/frontend/graphql",
+      {
+        method: "POST",
+        signal: controller.signal,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: JSON.stringify({
+          query: `
+            query {
+              posts(first: 8) {
+                edges {
+                  node {
+                    id
+                    name
+                    tagline
+                    url
+                    votesCount
+                    topics {
+                      edges {
+                        node {
+                          name
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          `
+        })
+      }
+    );
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      // Product Hunt requires auth, fallback to placeholder
+      console.log("[News API] Product Hunt requires authentication, skipping");
+      return [];
+    }
+    
+    const data = await response.json();
+    
+    if (!data.data?.posts?.edges) return [];
+    
+    return data.data.posts.edges.slice(0, 6).map((edge: any) => {
+      const node = edge.node;
+      const tagline = node.tagline?.toLowerCase() || "";
+      const topics = node.topics?.edges?.map((e: any) => e.node.name.toLowerCase()).join(" ") || "";
+      const fullText = `${tagline} ${topics}`;
+      
+      let category: NewsItem["category"] = "tech";
+      let icon = "Layers";
+      let color = "#ffffff";
+      
+      if (fullText.includes("ai") || fullText.includes("gpt") || fullText.includes("machine learning")) {
+        category = "ai";
+        icon = "Brain";
+        color = "#10a37f";
+      } else if (fullText.includes("dev") || fullText.includes("code") || fullText.includes("developer")) {
+        category = "github";
+        icon = "Code";
+        color = "#39ff14";
+      } else if (fullText.includes("cloud") || fullText.includes("hosting")) {
+        category = "azure";
+        icon = "Cloud";
+        color = "#0089d6";
+      }
+      
+      return {
+        id: `ph-${node.id}`,
+        text: `🔥 ${node.votesCount} | ${node.name}: ${node.tagline}`,
+        category,
+        icon,
+        color,
+        url: node.url,
+        source: "Product Hunt",
+        isNew: node.votesCount > 100,
+      };
+    });
+  } catch (error) {
+    console.error("[News API] Product Hunt fetch failed:", error);
+    return [];
+  }
+}
+
+// Fetch Mastodon Tech Posts (from popular tech instances)
+async function fetchMastodon(): Promise<NewsItem[]> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
+    // Try to fetch from mastodon.social tech hashtag
+    const response = await fetch(
+      "https://mastodon.social/api/v1/timelines/tag/tech?limit=8",
+      { signal: controller.signal }
+    );
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) throw new Error("Failed to fetch Mastodon");
+    
+    const posts = await response.json();
+    
+    return posts.slice(0, 6).map((post: any) => {
+      const content = post.content?.toLowerCase() || "";
+      
+      let category: NewsItem["category"] = "tech";
+      let icon = "MessageSquare";
+      let color = "#6364ff";
+      
+      if (content.includes("docker") || content.includes("kubernetes")) {
+        category = "docker";
+        icon = "Container";
+        color = "#2496ed";
+      } else if (content.includes("linux") || content.includes("server") || content.includes("homelab")) {
+        category = "homelab";
+        icon = "Server";
+        color = "#e57000";
+      } else if (content.includes("ai") || content.includes("gpt") || content.includes("claude")) {
+        category = "ai";
+        icon = "Brain";
+        color = "#10a37f";
+      }
+      
+      // Strip HTML tags from content
+      const text = post.content?.replace(/<[^>]*>/g, "").substring(0, 100) || "";
+      
+      return {
+        id: `masto-${post.id}`,
+        text: `${text}${text.length >= 100 ? "..." : ""}`,
+        category,
+        icon,
+        color,
+        url: post.url,
+        source: "Mastodon",
+        isNew: post.reblogged || post.favourited,
+      };
+    });
+  } catch (error) {
+    console.error("[News API] Mastodon fetch failed:", error);
+    return [];
+  }
+}
+
 // Fetch HackerNews Top Stories
 async function fetchHackerNews(): Promise<NewsItem[]> {
   try {
@@ -161,16 +443,33 @@ export async function GET() {
   const requestStart = Date.now();
   
   try {
-    console.log("[News API] Fetching tech news...");
+    console.log("[News API] Fetching tech news from multiple sources...");
     
-    // Try to fetch from HackerNews
-    const hnNews = await fetchHackerNews();
+    // Fetch from all sources in parallel
+    const [hnNews, gitHubTrending, devToArticles, productHunt, mastodonPosts] = await Promise.all([
+      fetchHackerNews(),
+      fetchGitHubTrending(),
+      fetchDevTo(),
+      fetchProductHunt(),
+      fetchMastodon(),
+    ]);
+    
+    // Combine all sources
+    const allApiNews = [
+      ...hnNews,
+      ...gitHubTrending,
+      ...devToArticles,
+      ...productHunt,
+      ...mastodonPosts,
+    ];
+    
+    console.log(`[News API] Sources: HN(${hnNews.length}) GH(${gitHubTrending.length}) DevTo(${devToArticles.length}) PH(${productHunt.length}) Mastodon(${mastodonPosts.length})`);
     
     // If we got news from APIs, mix with fallback
     let allNews: NewsItem[];
-    if (hnNews.length > 0) {
-      // Mix HN news with fallback (60/40)
-      const mixed = [...hnNews.slice(0, 12), ...fallbackNews.slice(0, 12)];
+    if (allApiNews.length > 0) {
+      // Mix API news with fallback (70/30)
+      const mixed = [...allApiNews.slice(0, 16), ...fallbackNews.slice(0, 8)];
       allNews = mixed.sort(() => Math.random() - 0.5); // Shuffle
     } else {
       allNews = [...fallbackNews];
@@ -191,6 +490,10 @@ export async function GET() {
       items: limitedNews,
       sources: {
         hackerNews: hnNews.length,
+        gitHub: gitHubTrending.length,
+        devTo: devToArticles.length,
+        productHunt: productHunt.length,
+        mastodon: mastodonPosts.length,
         fallback: fallbackNews.length,
       },
       lastUpdated: new Date().toISOString(),
@@ -207,7 +510,14 @@ export async function GET() {
       success: true,
       error: error.message,
       items: fallbackNews,
-      sources: { hackerNews: 0, fallback: fallbackNews.length },
+      sources: { 
+        hackerNews: 0, 
+        gitHub: 0, 
+        devTo: 0, 
+        productHunt: 0, 
+        mastodon: 0,
+        fallback: fallbackNews.length 
+      },
     }, { 
       status: 200,
       headers: {

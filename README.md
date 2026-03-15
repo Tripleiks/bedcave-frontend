@@ -54,8 +54,10 @@
 
 ### 📰 Live News Ticker
 - **3-Row Animated Ticker** - Infinite scrolling with varying speeds
-- **Categories:** Docker, Unraid, Homelab, M365, Azure, GitHub, Tech
+- **Categories:** Docker, Unraid, Homelab, M365, Azure, AI, GitHub, Tech
+- **38 Curated Fallback Items** - Always ensure all rows are filled
 - **Smart Fallback** - Automatically fills empty rows with fallback content
+- **HackerNews Integration** - Live tech news with intelligent categorization
 - **Vivid Colors** - Cyan (#00d4ff), Pink (#ff006e), Neon Green (#39ff14)
 - **NEW Badges** - Highlights for latest news items
 - **Terminal Aesthetics** - Glow effects and smooth animations
@@ -68,7 +70,7 @@
 - **Uptime Stats** - 99.9%+ uptime indicators
 - **Terminal Design** - Consistent with site-wide terminal aesthetic
 
-### �🎨 Design System
+### � Design System
 - **Terminal/IDE Inspired** - Dark theme with monospace fonts
 - **Vivid Accent Colors:**
   - Cyan `#00d4ff` - Primary actions
@@ -188,7 +190,7 @@ bedcave-frontend/
 | AI Generator | ✅ Ready | Claude + Grok Aurora |
 | GitHub Publish | ✅ Ready | Auto-commit MDX files |
 | Newsletter | ✅ Ready | Resend integration |
-| News Ticker | ✅ Ready | 3-row animated with fallback |
+| News Ticker | ✅ Ready | 38 fallback items + HackerNews API |
 | Cloud Status | ✅ Ready | Azure, AWS, GCP, Vercel dashboard |
 | Terminal Design | ✅ Live | Complete design system |
 

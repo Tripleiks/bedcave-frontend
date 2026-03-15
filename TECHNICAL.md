@@ -267,11 +267,14 @@ DELETE /api/images/library?id=img_123
 #### `NewsTicker`
 - 3-row infinite scrolling with conditional rendering
 - **Smart Fallback** - Automatically fills empty rows with fallback content
+- **38 Curated Fallback Items** - Docker, Azure, M365, Homelab, Unraid, AI, GitHub, Tech
+- **HackerNews API Integration** - Live tech news with intelligent categorization
+- **AI Category** - Brain icon for AI/ML news (OpenAI, Claude, LLaMA, etc.)
+- **Minimum 24 items guarantee** - 8 items per row, prevents empty rows
 - Different directions per row
 - Varying scroll speeds
 - Category icons and colors
 - NEW badges for recent items
-- **Minimum 9 items guarantee** - Prevents empty rows
 
 #### `CloudStatusBanner`
 - **4 Major Cloud Providers** - Azure, AWS, Google Cloud, Vercel
@@ -415,10 +418,14 @@ User Email → Validation → Resend API → Contact Created
 ### News Ticker Flow
 
 ```
-Static Data → Framer Motion → Infinite Loop
-                   ↓
+HackerNews API → Categorization → Mix with Fallback
+                       ↓
+              24 Items (8 per row)
+                       ↓
+              Framer Motion Loop
+                       ↓
               3 Rows × Different Speeds
-                   ↓
+                       ↓
               Seamless Animation
 ```
 
@@ -627,4 +634,4 @@ chore: Maintenance
 ---
 
 > Last Updated: 2025-03-15
-> Version: 1.1.0
+> Version: 1.2.0

@@ -32,35 +32,28 @@ function generateIP(): string {
 function SystemTerminal() {
   const [lines, setLines] = useState<TerminalLine[]>([]);
   const [cursorVisible, setCursorVisible] = useState(true);
-  const terminalRef = useRef<HTMLDivElement>(null);
 
   const commands = [
     { text: "./hack_target --bypass-firewall", type: "command" as const },
-    { text: `[OK] Connection established: ${generateIP()}`, type: "success" as const },
-    { text: `[WARN] Intrusion detection active`, type: "warning" as const },
-    { text: `[...] Decrypting security protocols...`, type: "output" as const },
-    { text: `[OK] Access granted: ROOT`, type: "success" as const },
-    { text: `./exploit_payload --type=buffer-overflow`, type: "command" as const },
-    { text: `[ERR] Segmentation fault at 0x${generateHexData(8).replace(/ /g, "")}`, type: "error" as const },
-    { text: `./retry --force`, type: "command" as const },
-    { text: `[OK] Payload delivered successfully`, type: "success" as const },
-    { text: `./download --files=classified`, type: "command" as const },
-    { text: `[...] Downloading ${Math.floor(Math.random() * 999)}MB...`, type: "output" as const },
-    { text: `[OK] Transfer complete`, type: "success" as const },
-    { text: `./disconnect --clean-logs`, type: "command" as const },
+    { text: `[OK] Connection: ${generateIP()}`, type: "success" as const },
+    { text: `[WARN] Intrusion detected`, type: "warning" as const },
+    { text: `[...] Decrypting...`, type: "output" as const },
+    { text: `[OK] Access: ROOT`, type: "success" as const },
+    { text: `./exploit_payload --type=overflow`, type: "command" as const },
+    { text: `[OK] Payload delivered`, type: "success" as const },
   ];
 
   useEffect(() => {
     let lineIndex = 0;
     const interval = setInterval(() => {
       if (lineIndex < commands.length) {
-        setLines(prev => [...prev.slice(-6), { ...commands[lineIndex], id: Date.now() }]);
+        setLines(prev => [...prev.slice(-4), { ...commands[lineIndex], id: Date.now() }]);
         lineIndex++;
       } else {
         lineIndex = 0;
         setLines([]);
       }
-    }, 2000);
+    }, 1800);
 
     return () => clearInterval(interval);
   }, []);
@@ -72,24 +65,18 @@ function SystemTerminal() {
     return () => clearInterval(cursorInterval);
   }, []);
 
-  useEffect(() => {
-    if (terminalRef.current) {
-      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
-    }
-  }, [lines]);
-
   return (
-    <div className="absolute right-4 top-4 bottom-4 w-64 bg-black/80 border border-[#00ff00]/30 rounded font-mono text-xs overflow-hidden">
-      <div className="px-2 py-1 bg-[#00ff00]/10 border-b border-[#00ff00]/30 text-[#00ff00] text-[10px] uppercase tracking-wider">
-        SYSTEM TERMINAL v2.1
+    <div className="flex flex-col h-full bg-black/80 border border-[#00ff00]/40 rounded overflow-hidden">
+      <div className="px-2 py-1 bg-[#00ff00]/10 border-b border-[#00ff00]/30 text-[#00ff00] text-[9px] uppercase tracking-wider font-mono">
+        TERMINAL v2.1
       </div>
-      <div ref={terminalRef} className="p-2 space-y-1 overflow-hidden h-[calc(100%-24px)]">
+      <div className="flex-1 p-2 space-y-1 overflow-hidden font-mono">
         {lines.map((line) => (
           <motion.div
             key={line.id}
-            initial={{ opacity: 0, x: -10 }}
+            initial={{ opacity: 0, x: -5 }}
             animate={{ opacity: 1, x: 0 }}
-            className={`text-[10px] ${
+            className={`text-[9px] leading-tight ${
               line.type === "command" ? "text-[#00ffff]" :
               line.type === "success" ? "text-[#00ff00]" :
               line.type === "error" ? "text-[#ff0040]" :
@@ -100,7 +87,7 @@ function SystemTerminal() {
             {line.type === "command" && "> "}{line.text}
           </motion.div>
         ))}
-        <span className={`text-[#00ff00] ${cursorVisible ? "opacity-100" : "opacity-0"}`}>▮</span>
+        <span className={`text-[#00ff00] text-[9px] ${cursorVisible ? "opacity-100" : "opacity-0"}`}>▮</span>
       </div>
     </div>
   );
@@ -152,39 +139,26 @@ function HexDump() {
 // Radar/Scanner Component
 function RadarScanner() {
   return (
-    <div className="absolute left-4 top-4 w-20 h-20 hidden md:block">
-      <svg viewBox="0 0 100 100" className="w-full h-full">
-        {/* Grid */}
-        <circle cx="50" cy="50" r="45" fill="none" stroke="#00ff00" strokeWidth="0.5" opacity="0.3" />
-        <circle cx="50" cy="50" r="30" fill="none" stroke="#00ff00" strokeWidth="0.5" opacity="0.3" />
+    <div className="flex flex-col items-center">
+      <svg width="56" height="56" viewBox="0 0 100 100" className="opacity-80">
+        <circle cx="50" cy="50" r="45" fill="none" stroke="#00ff00" strokeWidth="0.8" opacity="0.4" />
+        <circle cx="50" cy="50" r="30" fill="none" stroke="#00ff00" strokeWidth="0.6" opacity="0.3" />
         <circle cx="50" cy="50" r="15" fill="none" stroke="#00ff00" strokeWidth="0.5" opacity="0.3" />
-        <line x1="50" y1="5" x2="50" y2="95" stroke="#00ff00" strokeWidth="0.5" opacity="0.3" />
-        <line x1="5" y1="50" x2="95" y2="50" stroke="#00ff00" strokeWidth="0.5" opacity="0.3" />
-        
-        {/* Scan line */}
+        <line x1="50" y1="5" x2="50" y2="95" stroke="#00ff00" strokeWidth="0.4" opacity="0.3" />
+        <line x1="5" y1="50" x2="95" y2="50" stroke="#00ff00" strokeWidth="0.4" opacity="0.3" />
         <motion.line
-          x1="50" y1="50" x2="50" y2="5"
+          x1="50" y1="50" x2="50" y2="8"
           stroke="#00ff00"
           strokeWidth="1"
-          opacity="0.8"
+          opacity="0.9"
           animate={{ rotate: 360 }}
           transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
           style={{ transformOrigin: "50px 50px" }}
         />
-        
-        {/* Blips */}
-        <motion.circle
-          cx="70" cy="30" r="2" fill="#ff0040"
-          animate={{ opacity: [0, 1, 0] }}
-          transition={{ duration: 2, repeat: Infinity, delay: 1 }}
-        />
-        <motion.circle
-          cx="25" cy="60" r="2" fill="#ffaa00"
-          animate={{ opacity: [0, 1, 0] }}
-          transition={{ duration: 2, repeat: Infinity, delay: 2.5 }}
-        />
+        <motion.circle cx="70" cy="30" r="2" fill="#ff0040" animate={{ opacity: [0, 1, 0] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }} />
+        <motion.circle cx="25" cy="65" r="2" fill="#ffaa00" animate={{ opacity: [0, 1, 0] }} transition={{ duration: 1.5, repeat: Infinity, delay: 1.8 }} />
       </svg>
-      <div className="text-[8px] text-[#00ff00] text-center mt-1">SYS.SCANNER</div>
+      <div className="text-[7px] text-[#00ff00] font-mono mt-1">SCANNER</div>
     </div>
   );
 }
@@ -339,55 +313,47 @@ export function SystemShockBanner() {
         {/* AR HUD */}
         <ARHud />
         
-        {/* Terminal */}
-        <SystemTerminal />
-        
-        {/* Radar */}
-        <RadarScanner />
-        
-        {/* Hex Dump */}
-        <HexDump />
-        
-        {/* Data Stream */}
-        <DataStream />
-        
-        {/* Central SHODAN eye */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-          <motion.div
-            animate={{ 
-              scale: [1, 1.05, 1],
-              opacity: [0.8, 1, 0.8]
-            }}
-            transition={{ duration: 3, repeat: Infinity }}
-            className="relative"
-          >
-            <svg width="60" height="40" viewBox="0 0 60 40">
-              {/* SHODAN eye shape */}
-              <ellipse cx="30" cy="20" rx="25" ry="15" fill="none" stroke="#00ff00" strokeWidth="1" />
-              <ellipse cx="30" cy="20" rx="20" ry="10" fill="none" stroke="#00ff00" strokeWidth="0.5" opacity="0.5" />
-              <ellipse cx="30" cy="20" rx="15" ry="6" fill="none" stroke="#00ff00" strokeWidth="0.5" opacity="0.3" />
-              {/* Pupil */}
-              <motion.ellipse 
-                cx="30" cy="20" rx="6" ry="3" 
-                fill="#00ff00"
-                animate={{ rx: [6, 8, 6], ry: [3, 4, 3] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              />
-            </svg>
+        {/* Main content with flex layout - no overlaps */}
+        <div className="absolute inset-0 top-6 flex">
+          {/* Left - Radar Scanner */}
+          <div className="w-24 flex items-center justify-center pl-4">
+            <RadarScanner />
+          </div>
+          
+          {/* Center - SHODAN Eye + Warning */}
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <motion.div
+              animate={{ scale: [1, 1.05, 1], opacity: [0.8, 1, 0.8] }}
+              transition={{ duration: 3, repeat: Infinity }}
+            >
+              <svg width="60" height="40" viewBox="0 0 60 40">
+                <ellipse cx="30" cy="20" rx="25" ry="15" fill="none" stroke="#00ff00" strokeWidth="1" />
+                <ellipse cx="30" cy="20" rx="20" ry="10" fill="none" stroke="#00ff00" strokeWidth="0.5" opacity="0.5" />
+                <motion.ellipse 
+                  cx="30" cy="20" rx="6" ry="3" 
+                  fill="#00ff00"
+                  animate={{ rx: [6, 8, 6], ry: [3, 4, 3] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+              </svg>
+            </motion.div>
             <div className="text-[8px] text-[#00ff00] text-center mt-1 font-mono tracking-widest">
               SHODAN
             </div>
-          </motion.div>
+            <motion.div
+              animate={{ opacity: [0, 1, 0] }}
+              transition={{ duration: 3, repeat: Infinity }}
+              className="mt-2 text-[9px] font-mono text-[#ff0040] tracking-wider"
+            >
+              UNAUTHORIZED ACCESS
+            </motion.div>
+          </div>
+          
+          {/* Right - Terminal */}
+          <div className="w-48 pr-4 py-2">
+            <SystemTerminal />
+          </div>
         </div>
-        
-        {/* Warning text */}
-        <motion.div
-          animate={{ opacity: [0, 1, 0] }}
-          transition={{ duration: 3, repeat: Infinity }}
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-mono text-[#ff0040] tracking-widest"
-        >
-          UNAUTHORIZED ACCESS DETECTED
-        </motion.div>
       </div>
     </div>
   );

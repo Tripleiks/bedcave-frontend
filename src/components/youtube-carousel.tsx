@@ -13,6 +13,7 @@ interface YouTubeVideo {
   publishedAt: string;
   viewCount: string;
   videoUrl: string;
+  category?: "generative-ai" | "claude-code" | "perplexity" | "ai-tools";
 }
 
 interface YouTubeCarouselProps {

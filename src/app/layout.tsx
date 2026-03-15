@@ -5,6 +5,7 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { AuthProvider } from "@/lib/auth";
 import { RetroGameEasterEgg } from "@/components/retro-game-easter-egg";
+import { Analytics } from "@vercel/analytics/react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,6 +40,7 @@ export default function RootLayout({
           <Footer />
           <RetroGameEasterEgg />
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   );

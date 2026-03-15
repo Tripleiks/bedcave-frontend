@@ -218,7 +218,7 @@ function getFallbackVideos(): YouTubeVideo[] {
     {
       id: "verified-1",
       title: "Claude Code: The AI Coding Agent That Actually Works",
-      thumbnail: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=480&h=270&fit=crop",
+      thumbnail: "https://placehold.co/480x270/1e293b/00d4ff?text=Claude+Code",
       channelTitle: "AI Explained",
       publishedAt: "2 days ago",
       viewCount: "1.2M",
@@ -228,7 +228,7 @@ function getFallbackVideos(): YouTubeVideo[] {
     {
       id: "verified-2",
       title: "Perplexity AI Full Tutorial: Better Than ChatGPT?",
-      thumbnail: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=480&h=270&fit=crop",
+      thumbnail: "https://placehold.co/480x270/1e293b/ff006e?text=Perplexity+AI",
       channelTitle: "Tech Review",
       publishedAt: "1 week ago",
       viewCount: "856K",
@@ -238,7 +238,7 @@ function getFallbackVideos(): YouTubeVideo[] {
     {
       id: "verified-3",
       title: "Generative AI 2025: What's Actually Worth Using",
-      thumbnail: "https://images.unsplash.com/photo-1676299081847-824916de030a?w=480&h=270&fit=crop",
+      thumbnail: "https://placehold.co/480x270/1e293b/8338ec?text=Generative+AI",
       channelTitle: "AI Academy",
       publishedAt: "3 days ago",
       viewCount: "423K",
@@ -248,7 +248,7 @@ function getFallbackVideos(): YouTubeVideo[] {
     {
       id: "verified-4",
       title: "Claude 3.7 Sonnet: Extended Thinking Mode Explained",
-      thumbnail: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=480&h=270&fit=crop",
+      thumbnail: "https://placehold.co/480x270/1e293b/39ff14?text=Claude+3.7",
       channelTitle: "Anthropic Labs",
       publishedAt: "5 days ago",
       viewCount: "234K",
@@ -258,7 +258,7 @@ function getFallbackVideos(): YouTubeVideo[] {
     {
       id: "verified-5",
       title: "Perplexity Pro vs Free: Is It Worth $20/Month?",
-      thumbnail: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=480&h=270&fit=crop",
+      thumbnail: "https://placehold.co/480x270/1e293b/ffbe0b?text=Perplexity+Pro",
       channelTitle: "Dev Focus",
       publishedAt: "1 week ago",
       viewCount: "567K",
@@ -268,7 +268,7 @@ function getFallbackVideos(): YouTubeVideo[] {
     {
       id: "verified-6",
       title: "DALL-E 3 vs Midjourney vs Stable Diffusion 2025",
-      thumbnail: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=480&h=270&fit=crop",
+      thumbnail: "https://placehold.co/480x270/1e293b/00d4ff?text=DALL-E+vs+Midjourney",
       channelTitle: "Creative AI",
       publishedAt: "4 days ago",
       viewCount: "892K",
@@ -278,7 +278,7 @@ function getFallbackVideos(): YouTubeVideo[] {
     {
       id: "verified-7",
       title: "Building Apps with Claude Code: Real Project",
-      thumbnail: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=480&h=270&fit=crop",
+      thumbnail: "https://placehold.co/480x270/1e293b/ff006e?text=Claude+Project",
       channelTitle: "Code With AI",
       publishedAt: "6 days ago",
       viewCount: "312K",
@@ -288,7 +288,7 @@ function getFallbackVideos(): YouTubeVideo[] {
     {
       id: "verified-8",
       title: "Perplexity for Research: Academic Use Cases",
-      thumbnail: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=480&h=270&fit=crop",
+      thumbnail: "https://placehold.co/480x270/1e293b/8338ec?text=Research+AI",
       channelTitle: "Research Tools",
       publishedAt: "2 weeks ago",
       viewCount: "178K",
@@ -298,7 +298,7 @@ function getFallbackVideos(): YouTubeVideo[] {
     {
       id: "verified-9",
       title: "GPT-4o Image Generation: First Look",
-      thumbnail: "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=480&h=270&fit=crop",
+      thumbnail: "https://placehold.co/480x270/1e293b/39ff14?text=GPT-4o",
       channelTitle: "OpenAI",
       publishedAt: "3 days ago",
       viewCount: "445K",
@@ -308,7 +308,7 @@ function getFallbackVideos(): YouTubeVideo[] {
     {
       id: "verified-10",
       title: "AI Tools I Actually Use Daily (2025)",
-      thumbnail: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=480&h=270&fit=crop",
+      thumbnail: "https://placehold.co/480x270/1e293b/ffbe0b?text=AI+Tools",
       channelTitle: "AI Daily",
       publishedAt: "1 week ago",
       viewCount: "678K",

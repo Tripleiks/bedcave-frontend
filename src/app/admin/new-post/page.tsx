@@ -90,7 +90,7 @@ export default function NewPostPage() {
     setImageGenerating(true);
     try {
       const response = await fetch(
-        `/api/unsplash/search?query=${encodeURIComponent(formData.title)}&orientation=landscape`
+        `/api/grok/search?query=${encodeURIComponent(formData.title)}&orientation=landscape`
       );
       
       if (response.ok) {

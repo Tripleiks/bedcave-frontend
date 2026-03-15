@@ -206,7 +206,7 @@ sources: ${JSON.stringify(generatedPost.sources || [])}
     
     try {
       const imageResponse = await fetch(
-        `/api/unsplash/search?query=${encodeURIComponent(generatedPost.title)}&orientation=landscape`
+        `/api/grok/search?query=${encodeURIComponent(generatedPost.title)}&orientation=landscape`
       );
       
       if (imageResponse.ok) {
@@ -234,7 +234,7 @@ sources: ${JSON.stringify(generatedPost.sources || [])}
           prompt: generatedPost.title,
           tags: generatedPost.tags || [],
           category: category || "general",
-          source: "unsplash",
+          source: "grok-aurora",
         }),
       });
       

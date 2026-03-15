@@ -25,7 +25,7 @@ const fallbackVideos: YouTubeVideo[] = [
   {
     id: "fallback-1",
     title: "AI Revolution 2025: What's Coming Next",
-    thumbnail: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=480&h=270&fit=crop",
+    thumbnail: "https://placehold.co/480x270/1e293b/00d4ff?text=AI+Revolution",
     channelTitle: "AI Explained",
     publishedAt: "2 days ago",
     viewCount: "1.2M",
@@ -34,7 +34,7 @@ const fallbackVideos: YouTubeVideo[] = [
   {
     id: "fallback-2",
     title: "OpenAI GPT-5 Leaks & Rumors",
-    thumbnail: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=480&h=270&fit=crop",
+    thumbnail: "https://placehold.co/480x270/1e293b/ff006e?text=GPT-5+Leaks",
     channelTitle: "Tech Review",
     publishedAt: "1 week ago",
     viewCount: "856K",
@@ -43,7 +43,7 @@ const fallbackVideos: YouTubeVideo[] = [
   {
     id: "fallback-3",
     title: "Claude 3.7: The AI That Thinks",
-    thumbnail: "https://images.unsplash.com/photo-1676299081847-824916de030a?w=480&h=270&fit=crop",
+    thumbnail: "https://placehold.co/480x270/1e293b/8338ec?text=Claude+3.7",
     channelTitle: "Anthropic Labs",
     publishedAt: "3 days ago",
     viewCount: "423K",
@@ -52,7 +52,7 @@ const fallbackVideos: YouTubeVideo[] = [
   {
     id: "fallback-4",
     title: "Top 10 AI Tools for Developers 2025",
-    thumbnail: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=480&h=270&fit=crop",
+    thumbnail: "https://placehold.co/480x270/1e293b/39ff14?text=Top+10+AI+Tools",
     channelTitle: "Dev Focus",
     publishedAt: "5 days ago",
     viewCount: "234K",
@@ -61,7 +61,7 @@ const fallbackVideos: YouTubeVideo[] = [
   {
     id: "fallback-5",
     title: "Machine Learning in 2025: Complete Guide",
-    thumbnail: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=480&h=270&fit=crop",
+    thumbnail: "https://placehold.co/480x270/1e293b/ffbe0b?text=Machine+Learning",
     channelTitle: "AI Academy",
     publishedAt: "1 week ago",
     viewCount: "567K",
@@ -70,7 +70,7 @@ const fallbackVideos: YouTubeVideo[] = [
   {
     id: "fallback-6",
     title: "Google Gemini 2.0: Full Breakdown",
-    thumbnail: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=480&h=270&fit=crop",
+    thumbnail: "https://placehold.co/480x270/1e293b/00d4ff?text=Gemini+2.0",
     channelTitle: "Google DeepMind",
     publishedAt: "4 days ago",
     viewCount: "892K",
@@ -79,7 +79,7 @@ const fallbackVideos: YouTubeVideo[] = [
   {
     id: "fallback-7",
     title: "AI Art Generation: Midjourney vs DALL-E 3",
-    thumbnail: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=480&h=270&fit=crop",
+    thumbnail: "https://placehold.co/480x270/1e293b/ff006e?text=AI+Art+Generation",
     channelTitle: "Creative AI",
     publishedAt: "6 days ago",
     viewCount: "312K",
@@ -88,7 +88,7 @@ const fallbackVideos: YouTubeVideo[] = [
   {
     id: "fallback-8",
     title: "Building AI Agents with LangChain",
-    thumbnail: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=480&h=270&fit=crop",
+    thumbnail: "https://placehold.co/480x270/1e293b/8338ec?text=LangChain",
     channelTitle: "Code With AI",
     publishedAt: "2 weeks ago",
     viewCount: "178K",
@@ -97,7 +97,7 @@ const fallbackVideos: YouTubeVideo[] = [
   {
     id: "fallback-9",
     title: "AI in Cybersecurity: Threat Detection",
-    thumbnail: "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=480&h=270&fit=crop",
+    thumbnail: "https://placehold.co/480x270/1e293b/39ff14?text=AI+Cybersecurity",
     channelTitle: "Security Weekly",
     publishedAt: "3 days ago",
     viewCount: "445K",
@@ -106,7 +106,7 @@ const fallbackVideos: YouTubeVideo[] = [
   {
     id: "fallback-10",
     title: "The Future of AI Hardware: Neural Chips",
-    thumbnail: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=480&h=270&fit=crop",
+    thumbnail: "https://placehold.co/480x270/1e293b/ffbe0b?text=AI+Hardware",
     channelTitle: "Hardware AI",
     publishedAt: "1 week ago",
     viewCount: "678K",
@@ -326,7 +326,7 @@ export function YouTubeCarousel({ videos: propVideos }: YouTubeCarouselProps) {
                       fill
                       className="object-cover transition-transform duration-300 group-hover:scale-105"
                       sizes="(max-width: 768px) 100vw, 33vw"
-                      unoptimized={video.thumbnail.includes("unsplash")}
+                      unoptimized={video.thumbnail.includes("placehold.co")}
                     />
                     
                     {/* Play Button Overlay */}

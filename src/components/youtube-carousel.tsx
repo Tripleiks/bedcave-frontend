@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, ChevronLeft, ChevronRight, Youtube, Eye, Clock } from "lucide-react";
+import { Play, ChevronLeft, ChevronRight, Youtube, Eye, Clock, RefreshCw } from "lucide-react";
 import Image from "next/image";
 
 interface YouTubeVideo {
@@ -120,39 +120,59 @@ export function YouTubeCarousel({ videos: propVideos }: YouTubeCarouselProps) {
   const [loading, setLoading] = useState(!propVideos);
   const [error, setError] = useState<string | null>(null);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
 
   // Fetch videos from API
-  useEffect(() => {
+  const fetchVideos = useCallback(async (showLoading = true) => {
     if (propVideos) return;
-
-    async function fetchVideos() {
-      try {
-        setLoading(true);
-        const response = await fetch("/api/youtube/ai-videos");
-        
-        if (!response.ok) {
-          throw new Error("Failed to fetch videos");
-        }
-        
-        const data = await response.json();
-        
-        if (data.success && data.videos && data.videos.length > 0) {
-          setVideos(data.videos);
-        } else {
-          console.warn("[YouTube Carousel] No videos returned, using fallback");
-          setVideos(fallbackVideos);
-        }
-      } catch (err: any) {
-        console.error("[YouTube Carousel] Error fetching videos:", err);
-        setError(err.message);
-        setVideos(fallbackVideos);
-      } finally {
-        setLoading(false);
+    
+    try {
+      if (showLoading) setLoading(true);
+      setIsRefreshing(true);
+      setError(null);
+      
+      const response = await fetch("/api/youtube/ai-videos", {
+        cache: "no-store",
+        headers: {
+          "Cache-Control": "no-cache",
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch videos");
       }
+      
+      const data = await response.json();
+      
+      if (data.success && data.videos && data.videos.length > 0) {
+        setVideos(data.videos);
+        setLastRefreshed(new Date());
+      } else {
+        console.warn("[YouTube Carousel] No videos returned, using fallback");
+        setVideos(fallbackVideos);
+      }
+    } catch (err: any) {
+      console.error("[YouTube Carousel] Error fetching videos:", err);
+      setError(err.message);
+      setVideos(fallbackVideos);
+    } finally {
+      setLoading(false);
+      setIsRefreshing(false);
     }
-
-    fetchVideos();
   }, [propVideos]);
+
+  // Initial fetch
+  useEffect(() => {
+    fetchVideos();
+  }, [fetchVideos]);
+
+  // Manual refresh handler
+  const handleRefresh = useCallback(async () => {
+    setIsAutoPlaying(false);
+    setCurrentIndex(0);
+    await fetchVideos(true);
+  }, [fetchVideos]);
 
   // Auto-play carousel
   useEffect(() => {
@@ -240,28 +260,43 @@ export function YouTubeCarousel({ videos: propVideos }: YouTubeCarouselProps) {
           </div>
         </div>
         
-        {/* Navigation Controls */}
-        {videos.length > 3 && (
-          <div className="flex items-center gap-2">
-            <button
-              onClick={goToPrevious}
-              className="p-2 rounded-lg border border-[#1e293b] bg-[#13131f] hover:bg-[#1e293b] hover:border-[#00d4ff]/50 transition-all duration-200 group"
-              aria-label="Previous videos"
-            >
-              <ChevronLeft className="w-4 h-4 text-[#64748b] group-hover:text-[#00d4ff]" />
-            </button>
-            <span className="font-mono text-xs text-[#64748b] px-2">
-              {currentIndex + 1}-{Math.min(currentIndex + 3, videos.length)} / {videos.length}
-            </span>
-            <button
-              onClick={goToNext}
-              className="p-2 rounded-lg border border-[#1e293b] bg-[#13131f] hover:bg-[#1e293b] hover:border-[#00d4ff]/50 transition-all duration-200 group"
-              aria-label="Next videos"
-            >
-              <ChevronRight className="w-4 h-4 text-[#64748b] group-hover:text-[#00d4ff]" />
-            </button>
-          </div>
-        )}
+        {/* Navigation Controls + Refresh */}
+        <div className="flex items-center gap-2">
+          {/* Refresh Button */}
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="p-2 rounded-lg border border-[#1e293b] bg-[#13131f] hover:bg-[#1e293b] hover:border-[#39ff14]/50 transition-all duration-200 group disabled:opacity-50"
+            aria-label="Refresh videos"
+            title="Refresh video list"
+          >
+            <RefreshCw className={`w-4 h-4 text-[#64748b] group-hover:text-[#39ff14] ${isRefreshing ? 'animate-spin' : ''}`} />
+          </button>
+
+          <div className="w-px h-6 bg-[#1e293b] mx-1" />
+
+          {videos.length > 3 && (
+            <>
+              <button
+                onClick={goToPrevious}
+                className="p-2 rounded-lg border border-[#1e293b] bg-[#13131f] hover:bg-[#1e293b] hover:border-[#00d4ff]/50 transition-all duration-200 group"
+                aria-label="Previous videos"
+              >
+                <ChevronLeft className="w-4 h-4 text-[#64748b] group-hover:text-[#00d4ff]" />
+              </button>
+              <span className="font-mono text-xs text-[#64748b] px-2">
+                {currentIndex + 1}-{Math.min(currentIndex + 3, videos.length)} / {videos.length}
+              </span>
+              <button
+                onClick={goToNext}
+                className="p-2 rounded-lg border border-[#1e293b] bg-[#13131f] hover:bg-[#1e293b] hover:border-[#00d4ff]/50 transition-all duration-200 group"
+                aria-label="Next videos"
+              >
+                <ChevronRight className="w-4 h-4 text-[#64748b] group-hover:text-[#00d4ff]" />
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Video Carousel */}

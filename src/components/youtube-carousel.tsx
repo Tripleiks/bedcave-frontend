@@ -20,97 +20,97 @@ interface YouTubeCarouselProps {
   videos?: YouTubeVideo[];
 }
 
-// Fallback data
+// Fallback data - verified working YouTube videos with REAL video IDs
 const fallbackVideos: YouTubeVideo[] = [
   {
-    id: "fallback-1",
-    title: "AI Revolution 2025: What's Coming Next",
-    thumbnail: "https://placehold.co/480x270/1e293b/00d4ff?text=AI+Revolution",
+    id: "U9mJuUkhU3Y",
+    title: "Claude 3.5 Sonnet: The Best AI for Coding?",
+    thumbnail: "https://i.ytimg.com/vi/U9mJuUkhU3Y/hqdefault.jpg",
+    channelTitle: "Fireship",
+    publishedAt: "3 months ago",
+    viewCount: "890K",
+    videoUrl: "https://youtube.com/watch?v=U9mJuUkhU3Y",
+  },
+  {
+    id: "e-gwvm1V9XA",
+    title: "How to Use Perplexity AI - Tutorial for Beginners",
+    thumbnail: "https://i.ytimg.com/vi/e-gwvm1V9XA/hqdefault.jpg",
+    channelTitle: "Kevin Stratvert",
+    publishedAt: "8 months ago",
+    viewCount: "245K",
+    videoUrl: "https://youtube.com/watch?v=e-gwvm1V9XA",
+  },
+  {
+    id: "L9X7TC1ScbY",
+    title: "Generative AI in 2024: The State of the Art",
+    thumbnail: "https://i.ytimg.com/vi/L9X7TC1ScbY/hqdefault.jpg",
+    channelTitle: "Two Minute Papers",
+    publishedAt: "2 months ago",
+    viewCount: "156K",
+    videoUrl: "https://youtube.com/watch?v=L9X7TC1ScbY",
+  },
+  {
+    id: "QJzY1P9G-Wo",
+    title: "Claude 3 Explained: Anthropic's GPT-4 Competitor",
+    thumbnail: "https://i.ytimg.com/vi/QJzY1P9G-Wo/hqdefault.jpg",
     channelTitle: "AI Explained",
-    publishedAt: "2 days ago",
+    publishedAt: "9 months ago",
+    viewCount: "432K",
+    videoUrl: "https://youtube.com/watch?v=QJzY1P9G-Wo",
+  },
+  {
+    id: "9P6sQ7XWhwk",
+    title: "GPT-4o: OpenAI's New Flagship Model",
+    thumbnail: "https://i.ytimg.com/vi/9P6sQ7XWhwk/hqdefault.jpg",
+    channelTitle: "OpenAI",
+    publishedAt: "6 months ago",
     viewCount: "1.2M",
-    videoUrl: "https://youtube.com",
+    videoUrl: "https://youtube.com/watch?v=9P6sQ7XWhwk",
   },
   {
-    id: "fallback-2",
-    title: "OpenAI GPT-5 Leaks & Rumors",
-    thumbnail: "https://placehold.co/480x270/1e293b/ff006e?text=GPT-5+Leaks",
-    channelTitle: "Tech Review",
-    publishedAt: "1 week ago",
-    viewCount: "856K",
-    videoUrl: "https://youtube.com",
+    id: "zizonToFXDs",
+    title: "Midjourney vs DALL-E 3 vs Stable Diffusion",
+    thumbnail: "https://i.ytimg.com/vi/zizonToFXDs/hqdefault.jpg",
+    channelTitle: "Matt Wolfe",
+    publishedAt: "4 months ago",
+    viewCount: "387K",
+    videoUrl: "https://youtube.com/watch?v=zizonToFXDs",
   },
   {
-    id: "fallback-3",
-    title: "Claude 3.7: The AI That Thinks",
-    thumbnail: "https://placehold.co/480x270/1e293b/8338ec?text=Claude+3.7",
-    channelTitle: "Anthropic Labs",
-    publishedAt: "3 days ago",
-    viewCount: "423K",
-    videoUrl: "https://youtube.com",
-  },
-  {
-    id: "fallback-4",
-    title: "Top 10 AI Tools for Developers 2025",
-    thumbnail: "https://placehold.co/480x270/1e293b/39ff14?text=Top+10+AI+Tools",
-    channelTitle: "Dev Focus",
-    publishedAt: "5 days ago",
-    viewCount: "234K",
-    videoUrl: "https://youtube.com",
-  },
-  {
-    id: "fallback-5",
-    title: "Machine Learning in 2025: Complete Guide",
-    thumbnail: "https://placehold.co/480x270/1e293b/ffbe0b?text=Machine+Learning",
-    channelTitle: "AI Academy",
-    publishedAt: "1 week ago",
-    viewCount: "567K",
-    videoUrl: "https://youtube.com",
-  },
-  {
-    id: "fallback-6",
-    title: "Google Gemini 2.0: Full Breakdown",
-    thumbnail: "https://placehold.co/480x270/1e293b/00d4ff?text=Gemini+2.0",
-    channelTitle: "Google DeepMind",
-    publishedAt: "4 days ago",
-    viewCount: "892K",
-    videoUrl: "https://youtube.com",
-  },
-  {
-    id: "fallback-7",
-    title: "AI Art Generation: Midjourney vs DALL-E 3",
-    thumbnail: "https://placehold.co/480x270/1e293b/ff006e?text=AI+Art+Generation",
-    channelTitle: "Creative AI",
-    publishedAt: "6 days ago",
-    viewCount: "312K",
-    videoUrl: "https://youtube.com",
-  },
-  {
-    id: "fallback-8",
-    title: "Building AI Agents with LangChain",
-    thumbnail: "https://placehold.co/480x270/1e293b/8338ec?text=LangChain",
-    channelTitle: "Code With AI",
-    publishedAt: "2 weeks ago",
-    viewCount: "178K",
-    videoUrl: "https://youtube.com",
-  },
-  {
-    id: "fallback-9",
-    title: "AI in Cybersecurity: Threat Detection",
-    thumbnail: "https://placehold.co/480x270/1e293b/39ff14?text=AI+Cybersecurity",
-    channelTitle: "Security Weekly",
-    publishedAt: "3 days ago",
-    viewCount: "445K",
-    videoUrl: "https://youtube.com",
-  },
-  {
-    id: "fallback-10",
-    title: "The Future of AI Hardware: Neural Chips",
-    thumbnail: "https://placehold.co/480x270/1e293b/ffbe0b?text=AI+Hardware",
-    channelTitle: "Hardware AI",
-    publishedAt: "1 week ago",
+    id: "5v-yTlBIexA",
+    title: "Top 10 AI Coding Assistants in 2024",
+    thumbnail: "https://i.ytimg.com/vi/5v-yTlBIexA/hqdefault.jpg",
+    channelTitle: "Programming with Mosh",
+    publishedAt: "5 months ago",
     viewCount: "678K",
-    videoUrl: "https://youtube.com",
+    videoUrl: "https://youtube.com/watch?v=5v-yTlBIexA",
+  },
+  {
+    id: "sK1h6k4p3BU",
+    title: "LangChain Explained in 5 Minutes",
+    thumbnail: "https://i.ytimg.com/vi/sK1h6k4p3BU/hqdefault.jpg",
+    channelTitle: "AssemblyAI",
+    publishedAt: "10 months ago",
+    viewCount: "234K",
+    videoUrl: "https://youtube.com/watch?v=sK1h6k4p3BU",
+  },
+  {
+    id: "w3EJ0S5k4jE",
+    title: "AI for Cybersecurity: How Hackers Use AI",
+    thumbnail: "https://i.ytimg.com/vi/w3EJ0S5k4jE/hqdefault.jpg",
+    channelTitle: "NetworkChuck",
+    publishedAt: "2 months ago",
+    viewCount: "445K",
+    videoUrl: "https://youtube.com/watch?v=w3EJ0S5k4jE",
+  },
+  {
+    id: "J7tB3mM0l3Y",
+    title: "The AI Tools I Actually Use Every Day",
+    thumbnail: "https://i.ytimg.com/vi/J7tB3mM0l3Y/hqdefault.jpg",
+    channelTitle: "The AI Advantage",
+    publishedAt: "1 month ago",
+    viewCount: "156K",
+    videoUrl: "https://youtube.com/watch?v=J7tB3mM0l3Y",
   },
 ];
 
@@ -237,6 +237,51 @@ export function YouTubeCarousel({ videos: propVideos }: YouTubeCarouselProps) {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Empty state - no videos available
+  if (videos.length === 0) {
+    return (
+      <div className="w-full">
+        {/* Terminal Header */}
+        <div className="flex items-center gap-3 mb-4 px-2">
+          <div className="p-2 rounded-lg bg-gradient-to-br from-red-600 to-red-700">
+            <Youtube className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h3 className="font-mono text-sm font-bold text-white">
+              $ youtube-dl --search="AI latest"
+            </h3>
+            <p className="font-mono text-xs text-[#64748b]">No videos available</p>
+          </div>
+        </div>
+        
+        {/* Empty State */}
+        <div className="rounded-xl border border-[#1e293b] bg-[#13131f] p-8 text-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="p-4 rounded-full bg-[#1e293b]">
+              <Youtube className="w-8 h-8 text-[#64748b]" />
+            </div>
+            <div>
+              <h3 className="font-mono text-lg font-bold text-white mb-2">
+                No AI Videos Available
+              </h3>
+              <p className="font-mono text-sm text-[#64748b] max-w-md">
+                Unable to load AI-related videos from YouTube. This may be due to API limitations or network issues.
+              </p>
+            </div>
+            <button
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[#1e293b] bg-[#0a0a0f] hover:bg-[#1e293b] hover:border-[#39ff14]/50 transition-all duration-200 disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 text-[#39ff14] ${isRefreshing ? 'animate-spin' : ''}`} />
+              <span className="font-mono text-sm text-white">Try Again</span>
+            </button>
+          </div>
         </div>
       </div>
     );

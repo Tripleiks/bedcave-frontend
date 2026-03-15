@@ -442,6 +442,24 @@ Static Provider Data → Framer Motion Animations
               Grid Layout      Hover Glow Effects
 ```
 
+### YouTube AI Videos Flow
+
+```
+YouTube Data API v3 → Multiple Targeted Searches
+                              ↓
+                    ┌─────────┴─────────┬─────────┐
+                    ↓                   ↓         ↓
+              Claude Code        Perplexity    Generative AI
+                    ↓                   ↓         ↓
+              Video Stats → Thumbnail Validation → Deduplication
+                                                  ↓
+                                        Categorization
+                                                  ↓
+                                        Top 10 by Views
+                                                  ↓
+                                        YouTubeCarousel Component
+```
+
 ---
 
 ## 🛡️ Error Handling
@@ -494,6 +512,7 @@ try {
 - [ ] Newsletter signup works
 - [ ] News ticker animates (all 3 rows filled)
 - [ ] Cloud Status Banner displays all providers
+- [ ] YouTube AI Videos carousel loads with videos
 - [ ] Mobile responsive
 
 ---
@@ -634,4 +653,4 @@ chore: Maintenance
 ---
 
 > Last Updated: 2025-03-15
-> Version: 1.2.0
+> Version: 1.3.0

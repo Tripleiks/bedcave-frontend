@@ -192,11 +192,24 @@ bedcave-frontend/
 | Newsletter | ✅ Ready | Resend integration |
 | News Ticker | ✅ Ready | 38 fallback items + HackerNews API |
 | Cloud Status | ✅ Ready | Azure, AWS, GCP, Vercel dashboard |
+| YouTube AI Videos | ✅ Ready | Claude Code, Perplexity, Generative AI carousel |
 | Terminal Design | ✅ Live | Complete design system |
 
 ---
 
 ## 🚀 Deployment
+
+### Environment Variables
+
+```bash
+# Required for AI content generation
+ANTHROPIC_API_KEY=your_anthropic_key
+GROK_AURORA_KEY=your_grok_key
+RESEND_API_KEY=your_resend_key
+
+# Required for YouTube AI Videos
+YOUTUBE_API_KEY=your_youtube_api_key
+```
 
 ### Vercel (Recommended)
 1. Push to GitHub

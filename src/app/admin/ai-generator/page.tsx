@@ -220,11 +220,48 @@ sources: ${JSON.stringify(generatedPost.sources || [])}
     }
   };
 
+  // Save cover image to library
+  const saveImageToLibrary = async () => {
+    if (!image?.url || !generatedPost?.title) return;
+    
+    try {
+      const response = await fetch("/api/images/library", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          url: image.url,
+          title: generatedPost.title,
+          prompt: generatedPost.title,
+          tags: generatedPost.tags || [],
+          category: category || "general",
+          source: "unsplash",
+        }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log("✅ Image saved to library:", data.image?.id);
+        return data.image;
+      } else {
+        const error = await response.json();
+        console.warn("⚠️ Failed to save image to library:", error.error);
+      }
+    } catch (error) {
+      console.error("❌ Error saving image to library:", error);
+    }
+    return null;
+  };
+
   const publishPost = async () => {
     if (!generatedPost) return;
     setPublishing(true);
     
     try {
+      // First, save the cover image to library
+      if (image?.url) {
+        await saveImageToLibrary();
+      }
+
       const response = await fetch("/api/github/publish", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -260,6 +297,11 @@ sources: ${JSON.stringify(generatedPost.sources || [])}
     setArchiving(true);
     
     try {
+      // First, save the cover image to library
+      if (image?.url) {
+        await saveImageToLibrary();
+      }
+
       const response = await fetch("/api/posts/archive", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

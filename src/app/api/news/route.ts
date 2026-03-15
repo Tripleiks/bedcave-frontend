@@ -134,23 +134,17 @@ function categorizeWithKeywords(text: string, title: string): { category: NewsIt
   
   if (fullText.includes("docker") || fullText.includes("kubernetes") || fullText.includes("container") || fullText.includes("k8s") || fullText.includes("podman")) {
     return { category: "docker", icon: "Container", color: "#2496ed" };
-  }
-  if (fullText.includes("unraid") || fullText.includes("truenas") || fullText.includes("nas")) {
+  } else if (fullText.includes("unraid") || fullText.includes("truenas") || fullText.includes("nas")) {
     return { category: "unraid", icon: "HardDrive", color: "#ff6c00" };
-  }
-  if (fullText.includes("homelab") || fullText.includes("self-host") || fullText.includes("proxmox") || fullText.includes("pihole") || fullText.includes("server")) {
+  } else if (fullText.includes("homelab") || fullText.includes("self-host") || fullText.includes("proxmox") || fullText.includes("pihole") || fullText.includes("server")) {
     return { category: "homelab", icon: "Server", color: "#e57000" };
-  }
-  if (fullText.includes("m365") || fullText.includes("microsoft 365") || fullText.includes("teams") || fullText.includes("exchange") || fullText.includes("sharepoint")) {
+  } else if (fullText.includes("m365") || fullText.includes("microsoft 365") || fullText.includes("teams") || fullText.includes("exchange") || fullText.includes("sharepoint")) {
     return { category: "m365", icon: "Cloud", color: "#0078d4" };
-  }
-  if (fullText.includes("azure") || fullText.includes("aws") || fullText.includes("gcp") || fullText.includes("cloud")) {
+  } else if (fullText.includes("azure") || fullText.includes("aws") || fullText.includes("gcp") || fullText.includes("cloud")) {
     return { category: "azure", icon: "Cloud", color: "#0089d6" };
-  }
-  if (fullText.includes("github") || fullText.includes("git") || fullText.includes("open source") || fullText.includes("repository")) {
+  } else if (fullText.includes("github") || fullText.includes("git") || fullText.includes("open source") || fullText.includes("repository")) {
     return { category: "github", icon: "GitBranch", color: "#39ff14" };
-  }
-  if (fullText.includes("ai") || fullText.includes("gpt") || fullText.includes("llm") || fullText.includes("openai") || fullText.includes("claude") || fullText.includes("machine learning") || fullText.includes("neural")) {
+  } else if (fullText.includes("ai") || fullText.includes("gpt") || fullText.includes("llm") || fullText.includes("openai") || fullText.includes("claude") || fullText.includes("machine learning") || fullText.includes("neural")) {
     return { category: "ai", icon: "Brain", color: "#10a37f" };
   }
   
@@ -178,13 +172,13 @@ async function fetchGitHubTrending(): Promise<NewsItem[]> {
     
     const data = await response.json();
     
-    return data.items.slice(0, 8).map((repo: any) => {
+    return data.items.slice(0, 8).map(async (repo: any) => {
       const title = repo.name || "";
       const description = repo.description || "";
       const fullText = `${title} ${description}`;
       
       // Use AI categorization if available, fallback to keywords
-      const { category, icon, color } = categorizeWithKeywords(fullText, title);
+      const { category, icon, color } = await categorizeWithAI(fullText, title);
       
       return {
         id: `gh-${repo.id}`,
@@ -220,32 +214,13 @@ async function fetchDevTo(): Promise<NewsItem[]> {
     
     const articles = await response.json();
     
-    return articles.slice(0, 8).map((article: any) => {
-      const title = article.title?.toLowerCase() || "";
-      const tags = article.tag_list?.join(" ").toLowerCase() || "";
+    const results = await Promise.all(articles.slice(0, 8).map(async (article: any) => {
+      const title = article.title || "";
+      const tags = article.tag_list?.join(" ") || "";
       const fullText = `${title} ${tags}`;
       
-      let category: NewsItem["category"] = "tech";
-      let icon = "Cpu";
-      let color = "#64748b";
-      
-      if (fullText.includes("docker") || fullText.includes("kubernetes") || fullText.includes("container")) {
-        category = "docker";
-        icon = "Container";
-        color = "#2496ed";
-      } else if (fullText.includes("react") || fullText.includes("nextjs") || fullText.includes("vue") || fullText.includes("angular") || fullText.includes("javascript") || fullText.includes("typescript")) {
-        category = "github";
-        icon = "Code";
-        color = "#39ff14";
-      } else if (fullText.includes("ai") || fullText.includes("machine learning") || fullText.includes("python")) {
-        category = "ai";
-        icon = "Brain";
-        color = "#10a37f";
-      } else if (fullText.includes("cloud") || fullText.includes("aws") || fullText.includes("azure")) {
-        category = "azure";
-        icon = "Cloud";
-        color = "#0089d6";
-      }
+      // Use AI categorization if available, fallback to keywords
+      const { category, icon, color } = await categorizeWithAI(fullText, title);
       
       return {
         id: `dev-${article.id}`,
@@ -257,7 +232,8 @@ async function fetchDevTo(): Promise<NewsItem[]> {
         source: "Dev.to",
         isNew: article.positive_reactions_count > 50,
       };
-    });
+    }));
+    return results;
   } catch (error) {
     console.error("[News API] Dev.to fetch failed:", error);
     return [];
@@ -320,29 +296,14 @@ async function fetchProductHunt(): Promise<NewsItem[]> {
     
     if (!data.data?.posts?.edges) return [];
     
-    return data.data.posts.edges.slice(0, 6).map((edge: any) => {
+    const results = await Promise.all(data.data.posts.edges.slice(0, 6).map(async (edge: any) => {
       const node = edge.node;
-      const tagline = node.tagline?.toLowerCase() || "";
-      const topics = node.topics?.edges?.map((e: any) => e.node.name.toLowerCase()).join(" ") || "";
+      const tagline = node.tagline || "";
+      const topics = node.topics?.edges?.map((e: any) => e.node.name).join(" ") || "";
       const fullText = `${tagline} ${topics}`;
       
-      let category: NewsItem["category"] = "tech";
-      let icon = "Layers";
-      let color = "#ffffff";
-      
-      if (fullText.includes("ai") || fullText.includes("gpt") || fullText.includes("machine learning")) {
-        category = "ai";
-        icon = "Brain";
-        color = "#10a37f";
-      } else if (fullText.includes("dev") || fullText.includes("code") || fullText.includes("developer")) {
-        category = "github";
-        icon = "Code";
-        color = "#39ff14";
-      } else if (fullText.includes("cloud") || fullText.includes("hosting")) {
-        category = "azure";
-        icon = "Cloud";
-        color = "#0089d6";
-      }
+      // Use AI categorization if available, fallback to keywords
+      const { category, icon, color } = await categorizeWithAI(fullText, node.name);
       
       return {
         id: `ph-${node.id}`,
@@ -354,7 +315,8 @@ async function fetchProductHunt(): Promise<NewsItem[]> {
         source: "Product Hunt",
         isNew: node.votesCount > 100,
       };
-    });
+    }));
+    return results;
   } catch (error) {
     console.error("[News API] Product Hunt fetch failed:", error);
     return [];
@@ -379,33 +341,16 @@ async function fetchMastodon(): Promise<NewsItem[]> {
     
     const posts = await response.json();
     
-    return posts.slice(0, 6).map((post: any) => {
-      const content = post.content?.toLowerCase() || "";
+    const results = await Promise.all(posts.slice(0, 6).map(async (post: any) => {
+      const content = post.content || "";
+      const textOnly = content.replace(/<[^>]*>/g, "").substring(0, 100);
       
-      let category: NewsItem["category"] = "tech";
-      let icon = "MessageSquare";
-      let color = "#6364ff";
-      
-      if (content.includes("docker") || content.includes("kubernetes")) {
-        category = "docker";
-        icon = "Container";
-        color = "#2496ed";
-      } else if (content.includes("linux") || content.includes("server") || content.includes("homelab")) {
-        category = "homelab";
-        icon = "Server";
-        color = "#e57000";
-      } else if (content.includes("ai") || content.includes("gpt") || content.includes("claude")) {
-        category = "ai";
-        icon = "Brain";
-        color = "#10a37f";
-      }
-      
-      // Strip HTML tags from content
-      const text = post.content?.replace(/<[^>]*>/g, "").substring(0, 100) || "";
+      // Use AI categorization if available, fallback to keywords
+      const { category, icon, color } = await categorizeWithAI(textOnly, "");
       
       return {
         id: `masto-${post.id}`,
-        text: `${text}${text.length >= 100 ? "..." : ""}`,
+        text: `${textOnly}${textOnly.length >= 100 ? "..." : ""}`,
         category,
         icon,
         color,
@@ -413,7 +358,8 @@ async function fetchMastodon(): Promise<NewsItem[]> {
         source: "Mastodon",
         isNew: post.reblogged || post.favourited,
       };
-    });
+    }));
+    return results;
   } catch (error) {
     console.error("[News API] Mastodon fetch failed:", error);
     return [];

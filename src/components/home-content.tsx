@@ -5,6 +5,7 @@ import { ArticleCard } from "@/components/article-card";
 import { HeroSection } from "@/components/hero-section";
 import { NewsTicker } from "@/components/news-ticker";
 import { CloudStatusBanner } from "@/components/cloud-status-banner";
+import { YouTubeCarousel } from "@/components/youtube-carousel";
 import { Post } from "@/lib/mdx/posts";
 import { Terminal, ArrowRight, Cpu, Mail, Code2, Clock, Quote, Activity, Search, TerminalSquare } from "lucide-react";
 import Link from "next/link";
@@ -374,6 +375,30 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
           transition={{ duration: 0.6, delay: 0.2 }}
         >
           <NewsTicker />
+        </motion.div>
+      </div>
+
+      {/* YouTube AI Videos Carousel - Under Latest News */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="rounded-xl border border-[#1e293b] bg-[#13131f]/50 overflow-hidden"
+        >
+          {/* Terminal Header */}
+          <div className="flex items-center gap-2 px-4 py-3 border-b border-[#1e293b] bg-[#0f0f1a]">
+            <div className="flex gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-[#ff006e]" />
+              <div className="w-3 h-3 rounded-full bg-[#ffbe0b]" />
+              <div className="w-3 h-3 rounded-full bg-[#39ff14]" />
+            </div>
+            <span className="ml-4 font-mono text-xs text-[#64748b]">user@bedcave:~$ youtube-dl --search="AI latest" --top-10</span>
+          </div>
+          
+          <div className="p-6">
+            <YouTubeCarousel />
+          </div>
         </motion.div>
       </div>
 

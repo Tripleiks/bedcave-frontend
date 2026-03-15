@@ -5,6 +5,7 @@ import { ArticleCard } from "@/components/article-card";
 import { HeroSection } from "@/components/hero-section";
 import { NewsTicker } from "@/components/news-ticker";
 import { MarioBanner } from "@/components/mario-banner";
+import { SystemShockBanner } from "@/components/system-shock-banner";
 import { Post } from "@/lib/mdx/posts";
 import { Terminal, ArrowRight, Cpu, Mail, Code2, Clock, Quote, Activity, Search, TerminalSquare } from "lucide-react";
 import Link from "next/link";
@@ -335,8 +336,8 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
       {/* Hero Section */}
       <HeroSection />
 
-      {/* Mario Banner - Gamification Element */}
-      <MarioBanner />
+      {/* System Shock Banner - Retro Sci-Fi Theme */}
+      <SystemShockBanner />
 
       {/* Featured / Sticky Posts - Terminal Style */}
       {stickyPosts.length > 0 && (

@@ -336,6 +336,9 @@ export async function GET() {
   try {
     const apiKey = process.env.YOUTUBE_API_KEY;
     
+    console.log(`[YouTube API] Environment check - API Key exists: ${!!apiKey}`);
+    console.log(`[YouTube API] API Key length: ${apiKey ? apiKey.length : 0}`);
+    
     if (!apiKey) {
       console.error("[YouTube API] YOUTUBE_API_KEY not configured");
       return NextResponse.json({

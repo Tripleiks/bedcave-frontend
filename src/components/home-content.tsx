@@ -378,31 +378,9 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
         </motion.div>
       </div>
 
-      {/* YouTube AI Videos Carousel - Under Latest News */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="rounded-xl border border-[#1e293b] bg-[#13131f]/50 overflow-hidden"
-        >
-          {/* Terminal Header */}
-          <div className="flex items-center gap-2 px-4 py-3 border-b border-[#1e293b] bg-[#0f0f1a]">
-            <div className="flex gap-1.5">
-              <div className="w-3 h-3 rounded-full bg-[#ff006e]" />
-              <div className="w-3 h-3 rounded-full bg-[#ffbe0b]" />
-              <div className="w-3 h-3 rounded-full bg-[#39ff14]" />
-            </div>
-            <span className="ml-4 font-mono text-xs text-[#64748b]">user@bedcave:~$ youtube-dl --search="AI latest" --top-10</span>
-          </div>
-          
-          <div className="p-6">
-            <YouTubeCarousel />
-          </div>
-        </motion.div>
-      </div>
+      {/* YouTube AI Videos Carousel - Removed from here, moved above Newsletter */}
 
-      {/* Supporting Technology - Moved under YouTube Carousel */}
+      {/* Supporting Technology - Moved under Latest News */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         <motion.section 
           initial={{ opacity: 0, y: 40 }}
@@ -622,6 +600,30 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
               </Link>
             </motion.div>
           )}
+        </motion.section>
+
+        {/* YouTube AI Videos Carousel - Moved above Newsletter */}
+        <motion.section 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mt-16"
+        >
+          <div className="rounded-xl border border-[#1e293b] bg-[#13131f]/50 overflow-hidden">
+            {/* Terminal Header */}
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-[#1e293b] bg-[#0f0f1a]">
+              <div className="flex gap-1.5">
+                <div className="w-3 h-3 rounded-full bg-[#ff006e]" />
+                <div className="w-3 h-3 rounded-full bg-[#ffbe0b]" />
+                <div className="w-3 h-3 rounded-full bg-[#39ff14]" />
+              </div>
+              <span className="ml-4 font-mono text-xs text-[#64748b]">user@bedcave:~$ youtube-dl --search="AI latest" --top-10</span>
+            </div>
+            
+            <div className="p-6">
+              <YouTubeCarousel />
+            </div>
+          </div>
         </motion.section>
 
         {/* Newsletter Section - Terminal Command Style */}

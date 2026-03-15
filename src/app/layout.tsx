@@ -4,6 +4,7 @@ import "./globals.css";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { AuthProvider } from "@/lib/auth";
+import { RetroGameEasterEgg } from "@/components/retro-game-easter-egg";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,6 +37,7 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
+          <RetroGameEasterEgg />
         </AuthProvider>
       </body>
     </html>

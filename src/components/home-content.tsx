@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ArticleCard } from "@/components/article-card";
 import { HeroSection } from "@/components/hero-section";
 import { NewsTicker } from "@/components/news-ticker";
+import { MarioBanner } from "@/components/mario-banner";
 import { Post } from "@/lib/mdx/posts";
 import { Terminal, ArrowRight, Cpu, Mail, Code2, Clock, Quote, Activity, Search, TerminalSquare } from "lucide-react";
 import Link from "next/link";
@@ -333,6 +334,9 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
     <div className="min-h-screen bg-[#0a0a0f]">
       {/* Hero Section */}
       <HeroSection />
+
+      {/* Mario Banner - Gamification Element */}
+      <MarioBanner />
 
       {/* Featured / Sticky Posts - Terminal Style */}
       {stickyPosts.length > 0 && (

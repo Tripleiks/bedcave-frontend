@@ -80,6 +80,8 @@ async function validateVideoExists(videoId: string): Promise<boolean> {
 // Fetch videos for specific search queries
 async function fetchVideosForQuery(apiKey: string, query: string, maxResults: number = 5): Promise<YouTubeVideo[]> {
   try {
+    console.log(`[YouTube API] Searching for: "${query}"`);
+    
     const searchUrl = new URL("https://www.googleapis.com/youtube/v3/search");
     searchUrl.searchParams.set("part", "snippet");
     searchUrl.searchParams.set("q", query);
@@ -101,11 +103,13 @@ async function fetchVideosForQuery(apiKey: string, query: string, maxResults: nu
     clearTimeout(timeoutId);
     
     if (!searchRes.ok) {
-      console.error(`[YouTube API] Search failed for "${query}":`, searchRes.status);
+      const errorText = await searchRes.text();
+      console.error(`[YouTube API] Search failed for "${query}":`, searchRes.status, errorText);
       return [];
     }
     
     const searchData = await searchRes.json();
+    console.log(`[YouTube API] Found ${searchData.items?.length || 0} items for "${query}"`);
     
     if (!searchData.items || searchData.items.length === 0) {
       return [];
@@ -113,6 +117,7 @@ async function fetchVideosForQuery(apiKey: string, query: string, maxResults: nu
     
     // Get video IDs
     const videoIds = searchData.items.map((item: any) => item.id.videoId).join(",");
+    console.log(`[YouTube API] Fetching statistics for ${searchData.items.length} videos`);
     
     // Fetch video statistics
     const statsUrl = new URL("https://www.googleapis.com/youtube/v3/videos");
@@ -126,10 +131,13 @@ async function fetchVideosForQuery(apiKey: string, query: string, maxResults: nu
     });
     
     if (!statsRes.ok) {
+      const errorText = await statsRes.text();
+      console.error(`[YouTube API] Stats fetch failed:`, statsRes.status, errorText);
       return [];
     }
     
     const statsData = await statsRes.json();
+    console.log(`[YouTube API] Got statistics for ${statsData.items?.length || 0} videos`);
     
     // Map and validate videos
     const videos: YouTubeVideo[] = [];
@@ -165,9 +173,10 @@ async function fetchVideosForQuery(apiKey: string, query: string, maxResults: nu
       });
     }
     
+    console.log(`[YouTube API] Added ${videos.length} valid videos for "${query}"`);
     return videos;
   } catch (error: any) {
-    console.error(`[YouTube API] Error fetching for "${query}":`, error.message);
+    console.error(`[YouTube API] Error fetching for "${query}":`, error.message, error.stack);
     return [];
   }
 }

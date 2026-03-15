@@ -141,12 +141,15 @@ async function fetchVideosForQuery(apiKey: string, query: string, maxResults: nu
                        item.snippet.thumbnails.default?.url;
       
       // Skip if no thumbnail
-      if (!thumbnail) continue;
+      if (!thumbnail) {
+        console.log(`[YouTube API] Video ${videoId} has no thumbnail, skipping`);
+        continue;
+      }
       
-      // Validate video exists
-      const exists = await validateVideoExists(videoId);
-      if (!exists) {
-        console.log(`[YouTube API] Video ${videoId} does not exist or is private, skipping`);
+      // Skip if video is private or deleted (check statistics)
+      const viewCount = item.statistics?.viewCount;
+      if (viewCount === undefined || viewCount === null) {
+        console.log(`[YouTube API] Video ${videoId} has no statistics (private/deleted), skipping`);
         continue;
       }
       
@@ -156,7 +159,7 @@ async function fetchVideosForQuery(apiKey: string, query: string, maxResults: nu
         thumbnail: thumbnail,
         channelTitle: item.snippet.channelTitle,
         publishedAt: formatPublishedDate(item.snippet.publishedAt),
-        viewCount: formatViewCount(item.statistics.viewCount || "0"),
+        viewCount: formatViewCount(viewCount || "0"),
         videoUrl: `https://youtube.com/watch?v=${videoId}`,
         category: categorizeVideo(item.snippet.title),
       });

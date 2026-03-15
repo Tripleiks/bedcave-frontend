@@ -414,7 +414,7 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
           </div>
         </motion.section>
 
-        {/* Latest Posts - Symmetrical Grid */}
+        {/* Latest Posts - Symmetrical Grid (max 11 posts: 2 featured + 9 standard) */}
         <motion.section 
           id="latest"
           initial={{ opacity: 0 }}
@@ -425,9 +425,16 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
           <div className="flex items-center gap-4 mb-8">
             <div className="flex items-center gap-2 px-3 py-1.5 rounded bg-[#1e293b] border border-[#1e293b]">
               <Cpu className="w-4 h-4 text-[#39ff14]" />
-              <span className="font-mono text-sm text-[#39ff14]">$ ls -la /all-posts/ ({recentPosts.length} items)</span>
+              <span className="font-mono text-sm text-[#39ff14]">$ ls -la /latest/ (max 11 items)</span>
             </div>
             <div className="flex-1 h-px bg-[#1e293b]" />
+            <Link 
+              href="/blog" 
+              className="font-mono text-sm text-[#64748b] hover:text-[#00d4ff] transition-colors flex items-center gap-2"
+            >
+              view_all --list
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
 
           {/* Featured Top 2 - larger */}
@@ -448,10 +455,10 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
             </div>
           )}
           
-          {/* All remaining posts - standard size */}
+          {/* Next 9 posts - standard size (max 11 total) */}
           {recentPosts.length > 2 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recentPosts.slice(2).map((post, index) => (
+              {recentPosts.slice(2, 11).map((post, index) => (
                 <motion.div
                   key={post.slug}
                   initial={{ opacity: 0, y: 20 }}
@@ -463,6 +470,29 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
                 </motion.div>
               ))}
             </div>
+          )}
+
+          {/* More Button - if there are more than 11 posts */}
+          {recentPosts.length > 11 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              className="mt-8 flex justify-center"
+            >
+              <Link
+                href="/blog"
+                className="group flex items-center gap-3 px-6 py-3 rounded-lg border border-[#1e293b] bg-[#13131f] hover:border-[#00d4ff]/50 hover:bg-[#1a1a2e] transition-all"
+              >
+                <span className="font-mono text-sm text-[#64748b] group-hover:text-[#00d4ff]">
+                  $ ls -la /blog/ | more
+                </span>
+                <span className="px-2 py-0.5 rounded text-xs font-mono bg-[#1e293b] text-[#64748b] group-hover:text-[#00d4ff] group-hover:bg-[#00d4ff]/10 transition-colors">
+                  +{recentPosts.length - 11} more
+                </span>
+                <ArrowRight className="w-4 h-4 text-[#64748b] group-hover:text-[#00d4ff] group-hover:translate-x-1 transition-all" />
+              </Link>
+            </motion.div>
           )}
         </motion.section>
 

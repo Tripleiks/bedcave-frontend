@@ -157,10 +157,22 @@ export function NewsTicker() {
     return () => clearInterval(interval);
   }, []);
 
-  // Split news into 3 rows
-  const row1 = newsData.filter((_, i) => i % 3 === 0);
-  const row2 = newsData.filter((_, i) => i % 3 === 1);
-  const row3 = newsData.filter((_, i) => i % 3 === 2);
+  // Ensure we have enough items for all rows - fill with fallback if needed
+  const ensureMinimumItems = (items: NewsItem[], minCount: number) => {
+    if (items.length >= minCount) return items;
+    const result = [...items];
+    while (result.length < minCount) {
+      result.push(...fallbackNews.slice(0, minCount - result.length));
+    }
+    return result;
+  };
+
+  const allNews = ensureMinimumItems(newsData, 9);
+
+  // Split news into 3 rows with at least 3 items each
+  const row1 = allNews.filter((_, i) => i % 3 === 0);
+  const row2 = allNews.filter((_, i) => i % 3 === 1);
+  const row3 = allNews.filter((_, i) => i % 3 === 2);
 
   return (
     <div className="w-full">
@@ -207,9 +219,9 @@ export function NewsTicker() {
           </div>
         ) : (
           <>
-            <NewsRow items={row1} direction="left" speed={35} rowColor="#00d4ff" />
-            <NewsRow items={row2} direction="right" speed={40} rowColor="#ff006e" />
-            <NewsRow items={row3} direction="left" speed={45} rowColor="#39ff14" />
+            {row1.length > 0 && <NewsRow items={row1} direction="left" speed={35} rowColor="#00d4ff" />}
+            {row2.length > 0 && <NewsRow items={row2} direction="right" speed={40} rowColor="#ff006e" />}
+            {row3.length > 0 && <NewsRow items={row3} direction="left" speed={45} rowColor="#39ff14" />}
           </>
         )}
       </div>

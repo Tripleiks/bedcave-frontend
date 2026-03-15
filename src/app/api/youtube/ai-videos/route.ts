@@ -14,6 +14,16 @@ interface YouTubeVideo {
   category: "generative-ai" | "claude-code" | "perplexity" | "ai-tools";
 }
 
+interface CacheEntry {
+  videos: YouTubeVideo[];
+  timestamp: number;
+  isFallback: boolean;
+}
+
+// Simple in-memory cache (clears on server restart)
+let videoCache: CacheEntry | null = null;
+const CACHE_DURATION_MS = 2 * 60 * 60 * 1000; // 2 hours
+
 // Format view count to human readable
 function formatViewCount(count: string): string {
   const num = parseInt(count, 10);
@@ -181,19 +191,13 @@ async function fetchVideosForQuery(apiKey: string, query: string, maxResults: nu
   }
 }
 
-// Main function to fetch all targeted videos
+// Main function to fetch all targeted videos - OPTIMIZED for Quota
 async function fetchTargetedVideos(apiKey: string): Promise<YouTubeVideo[]> {
+  // Reduced from 10 to 3 queries to save quota
   const searchQueries = [
-    { query: "Claude Code tutorial AI coding", category: "claude-code" as const },
-    { query: "Claude 3.7 Sonnet features", category: "claude-code" as const },
-    { query: "Anthropic Claude Code agent", category: "claude-code" as const },
-    { query: "Perplexity AI search tutorial", category: "perplexity" as const },
-    { query: "Perplexity Pro features review", category: "perplexity" as const },
-    { query: "generative AI 2024 2025", category: "generative-ai" as const },
-    { query: "GPT-4o image generation", category: "generative-ai" as const },
-    { query: "Midjourney v6 tutorial", category: "generative-ai" as const },
-    { query: "DALL-E 3 vs Midjourney", category: "generative-ai" as const },
-    { query: "AI art generation tools", category: "generative-ai" as const },
+    { query: "Claude Code AI coding tutorial", category: "claude-code" as const },
+    { query: "Perplexity AI search tutorial review", category: "perplexity" as const },
+    { query: "generative AI tools Midjourney DALL-E 2024", category: "generative-ai" as const },
   ];
   
   const allVideos: YouTubeVideo[] = [];
@@ -334,18 +338,40 @@ export async function GET() {
   const requestStart = Date.now();
   
   try {
+    // Check cache first
+    if (videoCache && (Date.now() - videoCache.timestamp < CACHE_DURATION_MS)) {
+      console.log(`[YouTube API] ✅ Returning cached videos (${Math.round((Date.now() - videoCache.timestamp) / 1000 / 60)}m old)`);
+      return NextResponse.json({
+        success: true,
+        videos: videoCache.videos,
+        isFallback: videoCache.isFallback,
+        count: videoCache.videos.length,
+        cached: true,
+        cacheAge: Math.round((Date.now() - videoCache.timestamp) / 1000),
+      }, {
+        headers: {
+          "Cache-Control": "public, max-age=1800, stale-while-revalidate=3600",
+        },
+      });
+    }
+    
     const apiKey = process.env.YOUTUBE_API_KEY;
     
     console.log(`[YouTube API] Environment check - API Key exists: ${!!apiKey}`);
-    console.log(`[YouTube API] API Key length: ${apiKey ? apiKey.length : 0}`);
     
     if (!apiKey) {
       console.error("[YouTube API] YOUTUBE_API_KEY not configured");
+      videoCache = {
+        videos: getFallbackVideos(),
+        timestamp: Date.now(),
+        isFallback: true,
+      };
       return NextResponse.json({
         success: true,
-        videos: getFallbackVideos(),
+        videos: videoCache.videos,
         isFallback: true,
         count: 10,
+        cached: false,
         message: "Using fallback videos - API key not configured",
       }, {
         headers: { "Cache-Control": "public, max-age=1800" },
@@ -356,27 +382,41 @@ export async function GET() {
     
     const videos = await fetchTargetedVideos(apiKey);
     
-    // If no videos found, use fallback
+    // If no videos found or API error, use fallback
     if (videos.length === 0) {
       console.warn("[YouTube API] No valid videos found, using fallback");
+      videoCache = {
+        videos: getFallbackVideos(),
+        timestamp: Date.now(),
+        isFallback: true,
+      };
       return NextResponse.json({
         success: true,
-        videos: getFallbackVideos(),
+        videos: videoCache.videos,
         isFallback: true,
         count: 10,
-        message: "Using fallback videos - no valid videos found",
+        cached: false,
+        message: "Using fallback videos - API quota exceeded or no videos found",
       }, {
         headers: { "Cache-Control": "public, max-age=1800" },
       });
     }
     
+    // Store in cache
+    videoCache = {
+      videos,
+      timestamp: Date.now(),
+      isFallback: false,
+    };
+    
     const duration = Date.now() - requestStart;
-    console.log(`[YouTube API] ✅ Returning ${videos.length} validated videos in ${duration}ms`);
+    console.log(`[YouTube API] ✅ Returning ${videos.length} fresh videos in ${duration}ms`);
     
     return NextResponse.json({
       success: true,
       videos,
       isFallback: false,
+      cached: false,
       count: videos.length,
       categories: {
         "claude-code": videos.filter(v => v.category === "claude-code").length,
@@ -394,17 +434,30 @@ export async function GET() {
   } catch (error: any) {
     console.error("[YouTube API] ❌ Failed:", error);
     
+    // Return cached or fallback on error
+    if (videoCache) {
+      return NextResponse.json({
+        success: true,
+        videos: videoCache.videos,
+        isFallback: videoCache.isFallback,
+        cached: true,
+        error: error.message,
+      }, { 
+        status: 200,
+        headers: { "Cache-Control": "public, max-age=1800" },
+      });
+    }
+    
     return NextResponse.json({
       success: true,
       videos: getFallbackVideos(),
       isFallback: true,
+      cached: false,
       error: error.message,
       count: 10,
     }, { 
       status: 200,
-      headers: {
-        "Cache-Control": "public, max-age=1800",
-      },
+      headers: { "Cache-Control": "public, max-age=1800" },
     });
   }
 }

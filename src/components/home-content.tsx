@@ -402,28 +402,127 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
         </motion.div>
       </div>
 
+      {/* Supporting Technology - Moved under YouTube Carousel */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+        <motion.section 
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <div className="flex items-center gap-4 mb-8">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded bg-[#1e293b] border border-[#1e293b]">
+              <Terminal className="w-4 h-4 text-[#ffbe0b]" />
+              <span className="font-mono text-sm text-[#ffbe0b]">$ cat technology.conf</span>
+            </div>
+            <div className="flex-1 h-px bg-[#1e293b]" />
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Unifi */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0 }}
+              className="group relative rounded-xl border border-[#1e293b] bg-[#13131f] overflow-hidden hover:border-[#00d4ff]/50 transition-all"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-[#00d4ff]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="p-6 relative">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-[#00d4ff]/10 flex items-center justify-center">
+                    <svg viewBox="0 0 24 24" className="w-6 h-6 text-[#00d4ff]" fill="currentColor">
+                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                  </div>
+                  <h3 className="font-mono text-xl font-bold text-white">UniFi</h3>
+                </div>
+                <p className="text-[#64748b] font-mono text-sm mb-4">
+                  // Enterprise networking gear for your homelab. Access points, switches, and security gateways.
+                </p>
+                <a 
+                  href="https://ui.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-[#00d4ff] font-mono text-sm hover:underline"
+                >
+                  <span>ui.com</span>
+                  <ArrowRight className="w-3 h-3" />
+                </a>
+              </div>
+            </motion.div>
+
+            {/* Unraid */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="group relative rounded-xl border border-[#1e293b] bg-[#13131f] overflow-hidden hover:border-[#ff6c00]/50 transition-all"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-[#ff6c00]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="p-6 relative">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-[#ff6c00]/10 flex items-center justify-center">
+                    <svg viewBox="0 0 24 24" className="w-6 h-6 text-[#ff6c00]" fill="currentColor">
+                      <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>
+                    </svg>
+                  </div>
+                  <h3 className="font-mono text-xl font-bold text-white">Unraid</h3>
+                </div>
+                <p className="text-[#64748b] font-mono text-sm mb-4">
+                  // NAS operating system with Docker support. The ultimate homelab OS for storage and apps.
+                </p>
+                <a 
+                  href="https://unraid.net" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-[#ff6c00] font-mono text-sm hover:underline"
+                >
+                  <span>unraid.net</span>
+                  <ArrowRight className="w-3 h-3" />
+                </a>
+              </div>
+            </motion.div>
+
+            {/* Omarchy */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="group relative rounded-xl border border-[#1e293b] bg-[#13131f] overflow-hidden hover:border-[#8338ec]/50 transition-all"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-[#8338ec]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="p-6 relative">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-[#8338ec]/10 flex items-center justify-center">
+                    <svg viewBox="0 0 24 24" className="w-6 h-6 text-[#8338ec]" fill="currentColor">
+                      <path d="M12 2L2 19h20L12 2zm0 3l8 14H4l8-14z"/>
+                    </svg>
+                  </div>
+                  <h3 className="font-mono text-xl font-bold text-white">Omarchy</h3>
+                </div>
+                <p className="text-[#64748b] font-mono text-sm mb-4">
+                  // Modern automation and orchestration platform. Streamline your workflows with AI-powered tools.
+                </p>
+                <a 
+                  href="https://omarchy.org/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-[#8338ec] font-mono text-sm hover:underline"
+                >
+                  <span>omarchy.org</span>
+                  <ArrowRight className="w-3 h-3" />
+                </a>
+              </div>
+            </motion.div>
+          </div>
+        </motion.section>
+      </div>
+
       {/* Content Sections */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
         
-        {/* System Dashboard - Stats, Typing, Quick Commands */}
-        <motion.section 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-4"
-        >
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* System Stats */}
-            <SystemStats />
-            
-            {/* Typing Command */}
-            <TypingCommand />
-            
-            {/* Quick Commands */}
-            <QuickCommands />
-          </div>
-        </motion.section>
-
         {/* Tech Dashboard - Clock, Stack & Quotes */}
         <motion.section 
           initial={{ opacity: 0, y: 20 }}
@@ -596,120 +695,29 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
           </div>
         </motion.section>
 
-        {/* Supporting Technology */}
+        {/* System Dashboard - Stats, Typing, Quick Commands - MOVED TO END */}
         <motion.section 
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mt-16"
+          className="mt-24 mb-4"
         >
           <div className="flex items-center gap-4 mb-8">
             <div className="flex items-center gap-2 px-3 py-1.5 rounded bg-[#1e293b] border border-[#1e293b]">
-              <Terminal className="w-4 h-4 text-[#ffbe0b]" />
-              <span className="font-mono text-sm text-[#ffbe0b]">$ cat technology.conf</span>
+              <Activity className="w-4 h-4 text-[#ff006e]" />
+              <span className="font-mono text-sm text-[#ff006e]">$ htop --system-overview</span>
             </div>
             <div className="flex-1 h-px bg-[#1e293b]" />
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Unifi */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0 }}
-              className="group relative rounded-xl border border-[#1e293b] bg-[#13131f] overflow-hidden hover:border-[#00d4ff]/50 transition-all"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-[#00d4ff]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="p-6 relative">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-[#00d4ff]/10 flex items-center justify-center">
-                    <svg viewBox="0 0 24 24" className="w-6 h-6 text-[#00d4ff]" fill="currentColor">
-                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                    </svg>
-                  </div>
-                  <h3 className="font-mono text-xl font-bold text-white">UniFi</h3>
-                </div>
-                <p className="text-[#64748b] font-mono text-sm mb-4">
-                  // Enterprise networking gear for your homelab. Access points, switches, and security gateways.
-                </p>
-                <a 
-                  href="https://ui.com" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-[#00d4ff] font-mono text-sm hover:underline"
-                >
-                  <span>ui.com</span>
-                  <ArrowRight className="w-3 h-3" />
-                </a>
-              </div>
-            </motion.div>
-
-            {/* Unraid */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="group relative rounded-xl border border-[#1e293b] bg-[#13131f] overflow-hidden hover:border-[#ff6c00]/50 transition-all"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-[#ff6c00]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="p-6 relative">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-[#ff6c00]/10 flex items-center justify-center">
-                    <svg viewBox="0 0 24 24" className="w-6 h-6 text-[#ff6c00]" fill="currentColor">
-                      <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>
-                    </svg>
-                  </div>
-                  <h3 className="font-mono text-xl font-bold text-white">Unraid</h3>
-                </div>
-                <p className="text-[#64748b] font-mono text-sm mb-4">
-                  // NAS operating system with Docker support. The ultimate homelab OS for storage and apps.
-                </p>
-                <a 
-                  href="https://unraid.net" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-[#ff6c00] font-mono text-sm hover:underline"
-                >
-                  <span>unraid.net</span>
-                  <ArrowRight className="w-3 h-3" />
-                </a>
-              </div>
-            </motion.div>
-
-            {/* Omarchy */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="group relative rounded-xl border border-[#1e293b] bg-[#13131f] overflow-hidden hover:border-[#8338ec]/50 transition-all"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-[#8338ec]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="p-6 relative">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-[#8338ec]/10 flex items-center justify-center">
-                    <svg viewBox="0 0 24 24" className="w-6 h-6 text-[#8338ec]" fill="currentColor">
-                      <path d="M12 2L2 19h20L12 2zm0 3l8 14H4l8-14z"/>
-                    </svg>
-                  </div>
-                  <h3 className="font-mono text-xl font-bold text-white">Omarchy</h3>
-                </div>
-                <p className="text-[#64748b] font-mono text-sm mb-4">
-                  // Modern automation and orchestration platform. Streamline your workflows with AI-powered tools.
-                </p>
-                <a 
-                  href="https://omarchy.org/" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-[#8338ec] font-mono text-sm hover:underline"
-                >
-                  <span>omarchy.org</span>
-                  <ArrowRight className="w-3 h-3" />
-                </a>
-              </div>
-            </motion.div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* System Stats */}
+            <SystemStats />
+            
+            {/* Typing Command */}
+            <TypingCommand />
+            
+            {/* Quick Commands */}
+            <QuickCommands />
           </div>
         </motion.section>
       </div>

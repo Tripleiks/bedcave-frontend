@@ -20,6 +20,10 @@ interface NewsData {
   items: NewsItem[];
   sources: {
     hackerNews: number;
+    gitHub: number;
+    devTo: number;
+    productHunt: number;
+    mastodon: number;
     fallback: number;
   };
   lastUpdated: string;
@@ -179,7 +183,7 @@ export function NewsTicker() {
       if (data.success && data.items.length > 0) {
         setNewsData(data.items);
         setLastUpdated(new Date(data.lastUpdated));
-        setApiStatus(`live (${data.sources.hackerNews > 0 ? 'api' : 'fallback'})`);
+        setApiStatus(`live (${data.sources.hackerNews > 0 || data.sources.gitHub > 0 ? 'api' : 'fallback'})`);
         setError(null);
       } else {
         setApiStatus("fallback mode");
@@ -192,10 +196,35 @@ export function NewsTicker() {
     }
   };
 
+  // Setup SSE connection for real-time updates
   useEffect(() => {
     fetchNews();
     const interval = setInterval(fetchNews, 5 * 60 * 1000);
-    return () => clearInterval(interval);
+    
+    // Connect to SSE stream
+    const eventSource = new EventSource("/api/news/stream");
+    
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === "news_update") {
+          setNewsData(data.items);
+          setLastUpdated(new Date(data.timestamp));
+          setApiStatus("live (realtime)");
+        }
+      } catch {
+        // Ignore non-JSON messages (like ping)
+      }
+    };
+    
+    eventSource.onerror = () => {
+      // Silent fail - fallback to polling
+    };
+    
+    return () => {
+      clearInterval(interval);
+      eventSource.close();
+    };
   }, []);
 
   // Ensure we have enough items for all rows - fill with fallback if needed

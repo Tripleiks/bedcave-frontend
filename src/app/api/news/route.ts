@@ -71,6 +71,92 @@ const fallbackNews: NewsItem[] = [
   { id: "fb-38", text: "PostgreSQL 17 beta with enhanced JSON support", category: "tech", icon: "Database", color: "#336791", source: "PostgreSQL" },
 ];
 
+// AI-Powered Categorization using OpenAI
+async function categorizeWithAI(text: string, title: string): Promise<{ category: NewsItem["category"]; icon: string; color: string }> {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    // Fallback to keyword matching if no API key
+    return categorizeWithKeywords(text, title);
+  }
+  
+  try {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content: `You are a tech news categorizer. Analyze the text and return ONLY a JSON object with: category (one of: docker, unraid, homelab, m365, azure, github, ai, tech), icon (Container, HardDrive, Server, Cloud, GitBranch, Brain, Cpu, or Layers), and color (hex code). Categories: docker=container tech, unraid=NAS/storage, homelab=self-hosting, m365=Microsoft 365, azure=Microsoft cloud, github=development/FOSS, ai=AI/ML, tech=general tech.`
+          },
+          {
+            role: "user",
+            content: `Title: "${title}"\nContent: "${text.substring(0, 500)}"`
+          }
+        ],
+        temperature: 0.3,
+        max_tokens: 150,
+      }),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`OpenAI API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    const content = data.choices[0]?.message?.content || "";
+    
+    // Parse JSON from response
+    const jsonMatch = content.match(/\{[^}]+\}/);
+    if (jsonMatch) {
+      const result = JSON.parse(jsonMatch[0]);
+      return {
+        category: result.category || "tech",
+        icon: result.icon || "Cpu",
+        color: result.color || "#64748b",
+      };
+    }
+    
+    return categorizeWithKeywords(text, title);
+  } catch (error) {
+    console.error("[News API] AI categorization failed:", error);
+    return categorizeWithKeywords(text, title);
+  }
+}
+
+// Fallback keyword-based categorization
+function categorizeWithKeywords(text: string, title: string): { category: NewsItem["category"]; icon: string; color: string } {
+  const fullText = `${title} ${text}`.toLowerCase();
+  
+  if (fullText.includes("docker") || fullText.includes("kubernetes") || fullText.includes("container") || fullText.includes("k8s") || fullText.includes("podman")) {
+    return { category: "docker", icon: "Container", color: "#2496ed" };
+  }
+  if (fullText.includes("unraid") || fullText.includes("truenas") || fullText.includes("nas")) {
+    return { category: "unraid", icon: "HardDrive", color: "#ff6c00" };
+  }
+  if (fullText.includes("homelab") || fullText.includes("self-host") || fullText.includes("proxmox") || fullText.includes("pihole") || fullText.includes("server")) {
+    return { category: "homelab", icon: "Server", color: "#e57000" };
+  }
+  if (fullText.includes("m365") || fullText.includes("microsoft 365") || fullText.includes("teams") || fullText.includes("exchange") || fullText.includes("sharepoint")) {
+    return { category: "m365", icon: "Cloud", color: "#0078d4" };
+  }
+  if (fullText.includes("azure") || fullText.includes("aws") || fullText.includes("gcp") || fullText.includes("cloud")) {
+    return { category: "azure", icon: "Cloud", color: "#0089d6" };
+  }
+  if (fullText.includes("github") || fullText.includes("git") || fullText.includes("open source") || fullText.includes("repository")) {
+    return { category: "github", icon: "GitBranch", color: "#39ff14" };
+  }
+  if (fullText.includes("ai") || fullText.includes("gpt") || fullText.includes("llm") || fullText.includes("openai") || fullText.includes("claude") || fullText.includes("machine learning") || fullText.includes("neural")) {
+    return { category: "ai", icon: "Brain", color: "#10a37f" };
+  }
+  
+  return { category: "tech", icon: "Cpu", color: "#64748b" };
+}
+
 // Fetch GitHub Trending Repositories
 async function fetchGitHubTrending(): Promise<NewsItem[]> {
   try {
@@ -93,31 +179,12 @@ async function fetchGitHubTrending(): Promise<NewsItem[]> {
     const data = await response.json();
     
     return data.items.slice(0, 8).map((repo: any) => {
-      const title = repo.name?.toLowerCase() || "";
-      const description = repo.description?.toLowerCase() || "";
+      const title = repo.name || "";
+      const description = repo.description || "";
       const fullText = `${title} ${description}`;
       
-      let category: NewsItem["category"] = "github";
-      let icon = "GitBranch";
-      let color = "#39ff14";
-      
-      if (fullText.includes("docker") || fullText.includes("kubernetes") || fullText.includes("container") || fullText.includes("k8s")) {
-        category = "docker";
-        icon = "Container";
-        color = "#2496ed";
-      } else if (fullText.includes("azure") || fullText.includes("aws") || fullText.includes("cloud") || fullText.includes("serverless")) {
-        category = "azure";
-        icon = "Cloud";
-        color = "#0089d6";
-      } else if (fullText.includes("ai") || fullText.includes("machine learning") || fullText.includes("llm") || fullText.includes("gpt") || fullText.includes("neural")) {
-        category = "ai";
-        icon = "Brain";
-        color = "#10a37f";
-      } else if (fullText.includes("homelab") || fullText.includes("self-host") || fullText.includes("nas") || fullText.includes("server")) {
-        category = "homelab";
-        icon = "Server";
-        color = "#e57000";
-      }
+      // Use AI categorization if available, fallback to keywords
+      const { category, icon, color } = categorizeWithKeywords(fullText, title);
       
       return {
         id: `gh-${repo.id}`,

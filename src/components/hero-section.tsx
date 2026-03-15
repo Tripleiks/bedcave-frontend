@@ -1,9 +1,151 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Terminal, Cpu, HardDrive, Server, Zap } from "lucide-react";
+import { ArrowRight, Terminal, Cpu, HardDrive, Server, Zap, Copy, Check } from "lucide-react";
 import Link from "next/link";
 import { WavyBackground } from "@/components/ui/wavy-background";
+import { useState, useEffect } from "react";
+
+// Live Terminal Component - Shows animated typing commands
+function LiveTerminal() {
+  const commands = [
+    { cmd: "docker ps", output: "CONTAINER ID   IMAGE        STATUS        NAMES\n3f2a...1b2c   nginx:alpine Up 2 hours    web-proxy\n8d4e...9f1a   postgres:15  Up 5 days     database\n2c1b...4e5d   redis:7      Up 1 week     cache" },
+    { cmd: "kubectl get pods", output: "NAME                      READY   STATUS    RESTARTS   AGE\nnginx-7854ff8877-x2k9p    1/1     Running   0          3d21h\npostgres-0                1/1     Running   1          7d2h\nhome-assistant-5d8f       1/1     Running   0          12d" },
+    { cmd: "htop --no-color", output: "  1  [||||||||||||||||||||||||    42.3%]  Tasks: 127,  45 thr\n  2  [||||||||||||||||||          28.1%]  Load average: 0.45\nMem [|||||||||||||||           8.2G/32G]  Uptime: 14 days\nSwp [||                      512M/2G]   Docker: 12 running" },
+    { cmd: "git status", output: "On branch main\nYour branch is ahead of 'origin/main' by 3 commits.\n  (use \"git push\" to publish your local commits)\n\nChanges to be committed:\n  modified:   src/app/page.tsx\n  new file:   content/posts/ai-guide.mdx" },
+    { cmd: "ls -la ~/homelab/", output: "drwxr-xr-x  6 admin admin 4096 Mar 15 08:32 .\ndrwxr-xr-x 18 admin admin 4096 Jan 12 14:22 ..\n-rw-r--r--  1 admin admin  892 docker-compose.yml\n-rw-r--r--  1 admin admin 2048 .env\ndrwxr-xr-x  4 admin admin 4096 configs/\ndrwxr-xr-x  8 admin admin 4096 backups/" },
+  ];
+
+  const [currentCmdIndex, setCurrentCmdIndex] = useState(0);
+  const [typedText, setTypedText] = useState("");
+  const [showOutput, setShowOutput] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [isTyping, setIsTyping] = useState(true);
+
+  const currentCommand = commands[currentCmdIndex];
+
+  useEffect(() => {
+    if (isTyping) {
+      if (typedText.length < currentCommand.cmd.length) {
+        const timeout = setTimeout(() => {
+          setTypedText(currentCommand.cmd.slice(0, typedText.length + 1));
+        }, 100 + Math.random() * 50);
+        return () => clearTimeout(timeout);
+      } else {
+        setIsTyping(false);
+        setTimeout(() => setShowOutput(true), 300);
+      }
+    } else {
+      const timeout = setTimeout(() => {
+        setShowOutput(false);
+        setTypedText("");
+        setIsTyping(true);
+        setCurrentCmdIndex((prev) => (prev + 1) % commands.length);
+      }, 4000);
+      return () => clearTimeout(timeout);
+    }
+  }, [typedText, isTyping, currentCommand, currentCmdIndex, commands.length]);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(currentCommand.cmd);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 1.2, duration: 0.6 }}
+      className="w-full max-w-2xl mx-auto"
+    >
+      {/* Terminal Window */}
+      <div className="rounded-lg border border-[#1e293b] bg-[#0a0a0f] overflow-hidden shadow-2xl">
+        {/* Terminal Header */}
+        <div className="flex items-center gap-2 px-4 py-2 bg-[#13131f] border-b border-[#1e293b]">
+          <div className="flex gap-1.5">
+            <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
+            <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
+            <div className="w-3 h-3 rounded-full bg-[#27ca40]" />
+          </div>
+          <div className="flex-1 text-center">
+            <span className="font-mono text-xs text-[#64748b]">user@bedcave:~</span>
+          </div>
+          <button
+            onClick={handleCopy}
+            className="p-1 rounded hover:bg-[#1e293b] transition-colors"
+            title="Copy command"
+          >
+            {copied ? (
+              <Check className="w-3.5 h-3.5 text-[#27ca40]" />
+            ) : (
+              <Copy className="w-3.5 h-3.5 text-[#64748b] hover:text-[#00d4ff]" />
+            )}
+          </button>
+        </div>
+
+        {/* Terminal Content */}
+        <div className="p-4 font-mono text-sm min-h-[140px]">
+          {/* Command Input */}
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-[#27ca40]">➜</span>
+            <span className="text-[#00d4ff]">~</span>
+            <span className="text-[#64748b]">$</span>
+            <span className="text-[#e2e8f0]">{typedText}</span>
+            <motion.span
+              animate={{ opacity: [1, 0] }}
+              transition={{ duration: 0.5, repeat: Infinity }}
+              className="w-2 h-4 bg-[#00d4ff] ml-0.5"
+            />
+          </div>
+
+          {/* Command Output */}
+          {showOutput && (
+            <motion.pre
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="text-[#94a3b8] text-xs leading-relaxed whitespace-pre-wrap"
+            >
+              {currentCommand.output}
+            </motion.pre>
+          )}
+        </div>
+
+        {/* Terminal Footer - Status */}
+        <div className="flex items-center justify-between px-4 py-1.5 bg-[#13131f] border-t border-[#1e293b]">
+          <div className="flex items-center gap-4 text-[10px] font-mono text-[#64748b]">
+            <span className="flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#27ca40] animate-pulse" />
+              bash
+            </span>
+            <span>UTF-8</span>
+          </div>
+          <div className="flex items-center gap-1 text-[10px] font-mono text-[#64748b]">
+            <span>cmd {currentCmdIndex + 1}/{commands.length}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Scroll hint below terminal */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 2 }}
+        className="flex justify-center mt-6"
+      >
+        <motion.div
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="flex flex-col items-center gap-1 text-[#64748b] font-mono text-xs"
+        >
+          <span>SCROLL_DOWN</span>
+          <div className="w-px h-6 bg-gradient-to-b from-[#00d4ff] to-transparent" />
+        </motion.div>
+      </motion.div>
+    </motion.div>
+  );
+}
 
 export function HeroSection() {
   const categories = [
@@ -136,22 +278,8 @@ export function HeroSection() {
             ))}
           </motion.div>
 
-          {/* Scroll indicator - positioned after the category tiles */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.5 }}
-            className="py-8 flex justify-center"
-          >
-            <motion.div
-              animate={{ y: [0, 10, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-              className="flex flex-col items-center gap-2 text-[#64748b] font-mono text-xs"
-            >
-              <span>SCROLL_DOWN</span>
-              <div className="w-px h-8 bg-gradient-to-b from-[#00d4ff] to-transparent" />
-            </motion.div>
-          </motion.div>
+          {/* Live Terminal Window */}
+          <LiveTerminal />
         </div>
       </div>
     </WavyBackground>

@@ -277,9 +277,6 @@ export function HeroSection() {
               </motion.div>
             ))}
           </motion.div>
-
-          {/* Live Terminal Window */}
-          <LiveTerminal />
         </div>
       </div>
     </WavyBackground>

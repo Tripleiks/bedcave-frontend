@@ -290,12 +290,12 @@ export function SystemShockBanner() {
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-2">
       <div 
-        className="relative h-28 rounded-lg overflow-hidden border-2 border-[#00ff00]/50 bg-black"
+        className="relative h-48 rounded-lg overflow-hidden border border-[#00ff00]/50 bg-black"
         style={{ imageRendering: "pixelated" }}
       >
         {/* Scanlines effect */}
         <div 
-          className="absolute inset-0 pointer-events-none z-20"
+          className="absolute inset-0 pointer-events-none z-20 opacity-30"
           style={{
             background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,0,0.03) 2px, rgba(0,255,0,0.03) 4px)',
           }}
@@ -316,8 +316,10 @@ export function SystemShockBanner() {
         {/* Main content with flex layout - no overlaps */}
         <div className="absolute inset-0 top-6 flex">
           {/* Left - Radar Scanner */}
-          <div className="w-24 flex items-center justify-center pl-4">
-            <RadarScanner />
+          <div className="w-28 flex items-center justify-center pl-4">
+            <div className="scale-125">
+              <RadarScanner />
+            </div>
           </div>
           
           {/* Center - SHODAN Eye + Warning */}
@@ -325,6 +327,7 @@ export function SystemShockBanner() {
             <motion.div
               animate={{ scale: [1, 1.05, 1], opacity: [0.8, 1, 0.8] }}
               transition={{ duration: 3, repeat: Infinity }}
+              className="scale-150"
             >
               <svg width="60" height="40" viewBox="0 0 60 40">
                 <ellipse cx="30" cy="20" rx="25" ry="15" fill="none" stroke="#00ff00" strokeWidth="1" />
@@ -337,20 +340,20 @@ export function SystemShockBanner() {
                 />
               </svg>
             </motion.div>
-            <div className="text-[8px] text-[#00ff00] text-center mt-1 font-mono tracking-widest">
+            <div className="text-[10px] text-[#00ff00] text-center mt-3 font-mono tracking-widest">
               SHODAN
             </div>
             <motion.div
               animate={{ opacity: [0, 1, 0] }}
               transition={{ duration: 3, repeat: Infinity }}
-              className="mt-2 text-[9px] font-mono text-[#ff0040] tracking-wider"
+              className="mt-3 text-[10px] font-mono text-[#ff0040] tracking-wider"
             >
-              UNAUTHORIZED ACCESS
+              UNAUTHORIZED ACCESS DETECTED
             </motion.div>
           </div>
           
           {/* Right - Terminal */}
-          <div className="w-48 pr-4 py-2">
+          <div className="w-56 pr-4 py-3">
             <SystemTerminal />
           </div>
         </div>

@@ -54,12 +54,21 @@
 
 ### 📰 Live News Ticker
 - **3-Row Animated Ticker** - Infinite scrolling with varying speeds
-- **Categories:** Docker, Unraid, Homelab, M365, Azure
+- **Categories:** Docker, Unraid, Homelab, M365, Azure, GitHub, Tech
+- **Smart Fallback** - Automatically fills empty rows with fallback content
 - **Vivid Colors** - Cyan (#00d4ff), Pink (#ff006e), Neon Green (#39ff14)
 - **NEW Badges** - Highlights for latest news items
 - **Terminal Aesthetics** - Glow effects and smooth animations
 
-### 🎨 Design System
+### �️ Cloud Status Dashboard
+- **4 Major Cloud Providers** - Azure, AWS, Google Cloud, Vercel
+- **Real-time Status** - Live operational/degraded/outage indicators
+- **Region Display** - European region focus (West Europe, eu-west-1, etc.)
+- **Latency Visualization** - Animated ping bars showing response times
+- **Uptime Stats** - 99.9%+ uptime indicators
+- **Terminal Design** - Consistent with site-wide terminal aesthetic
+
+### �🎨 Design System
 - **Terminal/IDE Inspired** - Dark theme with monospace fonts
 - **Vivid Accent Colors:**
   - Cyan `#00d4ff` - Primary actions
@@ -158,6 +167,7 @@ bedcave-frontend/
 │   │   ├── hero-section.tsx
 │   │   ├── home-content.tsx
 │   │   ├── news-ticker.tsx
+│   │   ├── cloud-status-banner.tsx
 │   │   └── ui/            # UI components
 │   ├── lib/               # Utilities
 │   │   └── mdx/           # MDX processing
@@ -178,7 +188,8 @@ bedcave-frontend/
 | AI Generator | ✅ Ready | Claude + Grok Aurora |
 | GitHub Publish | ✅ Ready | Auto-commit MDX files |
 | Newsletter | ✅ Ready | Resend integration |
-| News Ticker | ✅ Ready | 3-row animated ticker |
+| News Ticker | ✅ Ready | 3-row animated with fallback |
+| Cloud Status | ✅ Ready | Azure, AWS, GCP, Vercel dashboard |
 | Terminal Design | ✅ Live | Complete design system |
 
 ---

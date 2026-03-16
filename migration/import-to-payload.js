@@ -176,7 +176,111 @@ async function findPostBySlug(slug) {
   return data.docs?.length > 0 ? data.docs[0] : null;
 }
 
+// ─── Import ──────────────────────────────────────────────────────────────────
+
+/**
+ * Erstellt einen einzelnen Post via Payload REST API.
+ * Loggt bei Fehler den vollständigen Response-Body (Payload gibt errors[] zurück).
+ */
+async function createPost(post, token, authorId) {
+  const body = {
+    title: post.title,
+    slug: post.slug,
+    // excerpt ist required: true in der Collection → leerer String würde Validation-Fehler auslösen
+    excerpt: truncateExcerpt(post.excerpt) || (() => { throw new Error(`Post "${post.title}" hat kein excerpt`); })(),
+    content: markdownToLexical(post.content || ''),
+    category: post.category || 'news',
+    tags: (post.tags || []).map(tag => ({ tag })),
+    status: post.status || 'published',
+    publishedAt: toISODateTime(post.publishedAt),
+    featured: post.featured || false,
+    author: authorId,
+    // featuredImage weglassen wenn null — explizit null zu senden kann Payload-Validation auslösen
+    ...(post.featuredImage ? { featuredImage: post.featuredImage } : {}),
+  };
+
+  const res = await fetch(`${PAYLOAD_URL}/api/blog-posts`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `JWT ${token}`,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => ({ message: 'Kein JSON in Response' }));
+    console.error(`  → HTTP ${res.status}:`, JSON.stringify(errorBody, null, 2));
+    throw new Error(`HTTP ${res.status}`);
+  }
+
+  return res.json();
+}
+
+// ─── Main ────────────────────────────────────────────────────────────────────
+
+async function main() {
+  // Posts-Daten hier laden (nicht im Top-Level), damit require() keine Seiteneffekte hat
+  const postsData = JSON.parse(
+    fs.readFileSync(path.join(__dirname, 'posts-data.json'), 'utf8')
+  );
+
+  console.log('\n🚀 Payload CMS — MDX Import\n');
+
+  await waitForServer();
+
+  const email    = await prompt('📧 Email:    ');
+  const password = await prompt('🔑 Passwort: ', true);
+
+  console.log('\n🔐 Anmelden...');
+  const token    = await login(email, password);
+  const authorId = await getMyUserId(token);
+  console.log(`✓ Eingeloggt (User-ID: ${authorId})\n`);
+
+  let imported = 0, skipped = 0, failed = 0;
+
+  for (const post of postsData) {
+    try {
+      const existing = await findPostBySlug(post.slug);
+      if (existing) {
+        console.log(`⏭  Übersprungen: ${post.title}`);
+        skipped++;
+        continue;
+      }
+
+      await createPost(post, token, authorId);
+      console.log(`✓  Importiert:   ${post.title}`);
+      imported++;
+
+      await new Promise(r => setTimeout(r, 200));
+    } catch (err) {
+      console.error(`✗  Fehlgeschlagen: ${post.title} — ${err.message}`);
+      failed++;
+    }
+  }
+
+  console.log('\n═══════════════════════════════');
+  console.log(`✓  Importiert:   ${imported}`);
+  console.log(`⏭  Übersprungen: ${skipped}`);
+  console.log(`✗  Fehlgeschlagen: ${failed}`);
+  console.log('═══════════════════════════════\n');
+
+  if (failed > 0) {
+    console.error('❌ Import mit Fehlern abgeschlossen.');
+    process.exit(1);
+  }
+  console.log('🎉 Import erfolgreich abgeschlossen!');
+}
+
 module.exports = {
   waitForServer, prompt, markdownToLexical, truncateExcerpt,
-  toISODateTime, login, getMyUserId, findPostBySlug,
+  toISODateTime, login, getMyUserId, findPostBySlug, createPost,
 };
+
+// Nur ausführen wenn direkt aufgerufen (nicht bei require() in Tests)
+if (require.main === module) {
+  main().catch(err => {
+    console.error('\n❌ Import abgebrochen:', err.message);
+    process.exit(1);
+  });
+}

@@ -129,4 +129,54 @@ function toISODateTime(dateString) {
   return new Date(dateString).toISOString();
 }
 
-module.exports = { waitForServer, prompt, markdownToLexical, truncateExcerpt, toISODateTime };
+// ─── Auth ───────────────────────────────────────────────────────────────────
+
+/**
+ * Meldet sich bei Payload an und gibt den JWT-Token zurück.
+ */
+async function login(email, password) {
+  const res = await fetch(`${PAYLOAD_URL}/api/users/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(`Login fehlgeschlagen (${res.status}): ${JSON.stringify(body)}`);
+  }
+  const data = await res.json();
+  return data.token;
+}
+
+/**
+ * Gibt die ID des aktuell eingeloggten Users zurück.
+ * Payload 3.x response shape: { user: { id, email, ... } }
+ */
+async function getMyUserId(token) {
+  const res = await fetch(`${PAYLOAD_URL}/api/users/me`, {
+    headers: { Authorization: `JWT ${token}` },
+  });
+  if (!res.ok) throw new Error(`/api/users/me fehlgeschlagen (${res.status})`);
+  const data = await res.json();
+  if (!data.user?.id) throw new Error('User-ID nicht in Response gefunden');
+  return data.user.id;
+}
+
+/**
+ * Prüft ob ein Post mit diesem Slug bereits existiert (idempotency guard).
+ * Gibt den existierenden Post zurück oder null.
+ */
+async function findPostBySlug(slug) {
+  const encodedSlug = encodeURIComponent(slug);
+  const res = await fetch(
+    `${PAYLOAD_URL}/api/blog-posts?where[slug][equals]=${encodedSlug}`
+  );
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data.docs?.length > 0 ? data.docs[0] : null;
+}
+
+module.exports = {
+  waitForServer, prompt, markdownToLexical, truncateExcerpt,
+  toISODateTime, login, getMyUserId, findPostBySlug,
+};

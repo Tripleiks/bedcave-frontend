@@ -135,11 +135,11 @@ ${formData.content}
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link 
-              href="/admin/new-post" 
+              href="/dashboard/dashboard" 
               className="font-mono text-[#00d4ff] hover:text-white transition-colors flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
-              $ cd /admin
+              $ cd /dashboard
             </Link>
             <div className="flex items-center gap-2">
               <Save className="w-5 h-5 text-[#ffbe0b]" />

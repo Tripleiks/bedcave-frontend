@@ -175,7 +175,7 @@ export default function AdminDashboardPage() {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
               <Link 
-                href="/admin" 
+                href="/dashboard" 
                 className="font-mono text-[#00d4ff] hover:text-white transition-colors flex items-center gap-2"
               >
                 <LayoutDashboard className="w-4 h-4" />
@@ -302,7 +302,7 @@ export default function AdminDashboardPage() {
               
               <div className="p-4 space-y-2">
                 <Link
-                  href="/admin/ai-generator"
+                  href="/dashboard/ai-generator"
                   className="flex items-center justify-between p-3 rounded-lg bg-[#1e293b]/50 hover:bg-[#1e293b] transition-colors group"
                 >
                   <div className="flex items-center gap-3">
@@ -313,7 +313,7 @@ export default function AdminDashboardPage() {
                 </Link>
                 
                 <Link
-                  href="/admin/new-post"
+                  href="/dashboard/new-post"
                   className="flex items-center justify-between p-3 rounded-lg bg-[#1e293b]/50 hover:bg-[#1e293b] transition-colors group"
                 >
                   <div className="flex items-center gap-3">
@@ -324,7 +324,7 @@ export default function AdminDashboardPage() {
                 </Link>
                 
                 <Link
-                  href="/admin/images"
+                  href="/dashboard/images"
                   className="flex items-center justify-between p-3 rounded-lg bg-[#1e293b]/50 hover:bg-[#1e293b] transition-colors group"
                 >
                   <div className="flex items-center gap-3">

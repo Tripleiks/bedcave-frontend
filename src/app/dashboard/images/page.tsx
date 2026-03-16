@@ -137,7 +137,7 @@ export default function ImagesLibraryPage() {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
               <Link 
-                href="/admin" 
+                href="/dashboard" 
                 className="font-mono text-[#00d4ff] hover:text-white transition-colors flex items-center gap-2"
               >
                 <ArrowLeft className="w-4 h-4" />
@@ -151,7 +151,7 @@ export default function ImagesLibraryPage() {
               </div>
             </div>
             <Link
-              href="/admin/ai-generator"
+              href="/dashboard/ai-generator"
               className="flex items-center gap-2 px-4 py-2 rounded bg-[#00d4ff] text-[#0a0a0f] font-mono font-bold hover:bg-[#00d4ff]/90 transition-all"
             >
               <Plus className="w-4 h-4" />
@@ -280,7 +280,7 @@ export default function ImagesLibraryPage() {
                   : "// No images yet. Generate some with AI!"}
               </p>
               <Link
-                href="/admin/ai-generator"
+                href="/dashboard/ai-generator"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded bg-[#00d4ff] text-[#0a0a0f] font-mono text-sm hover:bg-[#00d4ff]/90 transition-colors"
               >
                 Go to AI Generator →

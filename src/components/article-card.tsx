@@ -113,7 +113,7 @@ export function ArticleCard({ post, resolvedImageUrl, variant = 'default', class
 
   // Create filename from slug
   const filename = `${post.slug.slice(0, 20)}${post.slug.length > 20 ? '...' : ''}.md`;
-  const mainCategory = post.category || 'Article';
+  const mainCategory = (post.category || 'news').toLowerCase();
   const author = typeof post.author === 'object' ? post.author.name : String(post.author);
 
   // Format date as comment

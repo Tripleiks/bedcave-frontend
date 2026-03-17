@@ -1,6 +1,7 @@
-import { getPostBySlug, getAllPosts } from '@/lib/mdx/posts';
+import { getPostBySlug, lexicalToMarkdown, calculateReadingTime, resolveMediaUrl } from '@/lib/payload/posts';
+import type { PayloadPost } from '@/lib/payload/types';
 import Link from 'next/link';
-import { ArrowLeft, Calendar, Clock, User, Tag, Pencil, BookOpen, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, User, Tag, Pencil } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -11,45 +12,39 @@ interface PostPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
-  const posts = getAllPosts();
-  return posts.map((post) => ({
-    slug: post.slug,
-  }));
-}
-
-export async function generateMetadata({ params }: PostPageProps) {
-  const { slug } = await params;
-  const post = getPostBySlug(slug);
-  
-  if (!post) {
-    return {
-      title: 'Post Not Found - Bedcave',
-    };
-  }
-
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const post = await getPostBySlug(slug)
+  if (!post) return {}
   return {
-    title: `${post.title} - Bedcave`,
-    description: post.excerpt,
-  };
+    title: post.metaTitle ?? post.title,
+    description: post.metaDescription ?? post.excerpt,
+  }
 }
 
 export default async function PostPage({ params }: PostPageProps) {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = await getPostBySlug(slug);
 
   if (!post) {
     notFound();
   }
 
-  const formattedDate = new Date(post.date).toLocaleDateString('en-US', {
+  const markdownContent = lexicalToMarkdown(post.content);
+  const readingTime = calculateReadingTime(markdownContent);
+  const authorName = typeof post.author === 'object' ? post.author.name : 'Bedcave Team';
+
+  const PAYLOAD_BASE = process.env.PAYLOAD_URL ?? 'http://localhost:3000';
+  const featuredImageUrl = resolveMediaUrl(
+    PAYLOAD_BASE,
+    typeof post.featuredImage === 'object' && post.featuredImage !== null ? post.featuredImage?.url : undefined
+  );
+
+  const formattedDate = new Date(post.publishedAt).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   });
-
-  // Use post content directly
-  const content = post.content;
 
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
@@ -57,8 +52,8 @@ export default async function PostPage({ params }: PostPageProps) {
       <header className="border-b border-[#1e293b] bg-[#0f0f1a]/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               className="font-mono text-[#00d4ff] hover:text-white transition-colors flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -103,19 +98,19 @@ export default async function PostPage({ params }: PostPageProps) {
             </span>
             <span className="flex items-center gap-2">
               <User className="w-4 h-4" />
-              {post.author}
+              {authorName}
             </span>
             <span className="flex items-center gap-2">
               <Clock className="w-4 h-4" />
-              {post.readingTime} min read
+              {readingTime} min read
             </span>
           </div>
 
-          {/* Cover Image */}
-          {post.coverImage && (
+          {/* Featured Image */}
+          {featuredImageUrl && (
             <div className="mb-8 rounded-lg overflow-hidden border border-[#1e293b]">
-              <img 
-                src={post.coverImage} 
+              <img
+                src={featuredImageUrl}
                 alt={post.title}
                 className="w-full h-auto object-cover"
               />
@@ -124,7 +119,7 @@ export default async function PostPage({ params }: PostPageProps) {
 
           {/* Content */}
           <div className="prose prose-invert prose-lg max-w-none font-mono">
-            <Markdown 
+            <Markdown
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeHighlight]}
               components={{
@@ -136,17 +131,17 @@ export default async function PostPage({ params }: PostPageProps) {
                 pre: CodeBlock,
               }}
             >
-              {content}
+              {markdownContent}
             </Markdown>
           </div>
 
           {/* Tags */}
-          {post.tags.length > 0 && (
+          {(post.tags ?? []).length > 0 && (
             <div className="mt-12 pt-8 border-t border-[#1e293b]">
               <div className="flex items-center gap-2 flex-wrap">
                 <Tag className="w-4 h-4 text-[#64748b]" />
-                {post.tags.map((tag) => (
-                  <span 
+                {(post.tags ?? []).map(t => t.tag).map(tag => (
+                  <span
                     key={tag}
                     className="px-2 py-1 rounded bg-[#1e293b] text-[#00d4ff] font-mono text-xs"
                   >
@@ -157,41 +152,10 @@ export default async function PostPage({ params }: PostPageProps) {
             </div>
           )}
 
-          {/* Sources Section */}
-          {post.sources && post.sources.length > 0 && (
-            <div className="mt-12 pt-8 border-t border-[#1e293b]">
-              <div className="flex items-center gap-2 mb-4">
-                <BookOpen className="w-4 h-4 text-[#64748b]" />
-                <h3 className="font-mono text-sm text-[#64748b] uppercase tracking-wider">Sources</h3>
-              </div>
-              <ul className="space-y-3">
-                {post.sources.map((source, index) => (
-                  <li key={index} className="flex items-start gap-3">
-                    <span className="text-[#00d4ff] font-mono text-sm mt-1">[{index + 1}]</span>
-                    <a 
-                      href={source} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-[#94a3b8] hover:text-[#00d4ff] font-mono text-sm break-all transition-colors flex items-center gap-1 group"
-                    >
-                      {source}
-                      <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </a>
-                  </li>
-                ))}
-              </ul>
-              {post.aiModel && (
-                <p className="mt-4 text-xs text-[#64748b] font-mono">
-                  Research powered by {post.aiModel}
-                </p>
-              )}
-            </div>
-          )}
-
           {/* Footer */}
           <div className="mt-12 pt-8 border-t border-[#1e293b]">
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               className="font-mono text-[#00d4ff] hover:underline flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />

@@ -2,21 +2,20 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Sparkles, 
-  Image as ImageIcon, 
-  FileText, 
-  Loader2, 
+import {
+  Sparkles,
+  Image as ImageIcon,
+  FileText,
+  Loader2,
   Save,
   ArrowLeft,
   Wand2,
   Download,
-  GitBranch,
+  Database,
   Library,
   X,
   Check,
   Search,
-  Archive
 } from "lucide-react";
 import Link from "next/link";
 
@@ -67,8 +66,6 @@ export default function AIGeneratorPage() {
   const [saved, setSaved] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [published, setPublished] = useState(false);
-  const [archiving, setArchiving] = useState(false);
-  const [archived, setArchived] = useState(false);
   
   // Library state
   const [libraryImages, setLibraryImages] = useState<LibraryImage[]>([]);
@@ -255,14 +252,9 @@ sources: ${JSON.stringify(generatedPost.sources || [])}
   const publishPost = async () => {
     if (!generatedPost) return;
     setPublishing(true);
-    
-    try {
-      // First, save the cover image to library
-      if (image?.url) {
-        await saveImageToLibrary();
-      }
 
-      const response = await fetch("/api/github/publish", {
+    try {
+      const response = await fetch("/api/payload/publish", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -275,61 +267,20 @@ sources: ${JSON.stringify(generatedPost.sources || [])}
           sticky,
         }),
       });
-      
+
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || "Failed to publish");
       }
-      
+
       const data = await response.json();
       setPublished(true);
-      alert(`✅ Published successfully! File: ${data.filename}`);
+      alert(`✅ In Payload gespeichert! Post ID: ${data.postId} — Slug: ${data.slug}`);
     } catch (error: any) {
       console.error("Publish error:", error);
-      alert(`❌ Failed to publish: ${error.message}`);
+      alert(`❌ Fehler: ${error.message}`);
     } finally {
       setPublishing(false);
-    }
-  };
-
-  const archivePost = async () => {
-    if (!generatedPost) return;
-    setArchiving(true);
-    
-    try {
-      // First, save the cover image to library
-      if (image?.url) {
-        await saveImageToLibrary();
-      }
-
-      const response = await fetch("/api/posts/archive", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: generatedPost.title,
-          content: generatedPost.content,
-          category,
-          tags: generatedPost.tags,
-          excerpt: generatedPost.excerpt,
-          imageUrl: image?.url,
-          author: "Grok Aurora AI",
-          sticky,
-        }),
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to archive");
-      }
-      
-      const data = await response.json();
-      setArchived(true);
-      alert(`✅ Archived successfully! File: ${data.path}`);
-    } catch (error: any) {
-      console.error("Archive error:", error);
-      alert(`❌ Failed to archive: ${error.message}`);
-    } finally {
-      setArchiving(false);
     }
   };
 
@@ -471,17 +422,17 @@ sources: ${JSON.stringify(generatedPost.sources || [])}
                       {publishing ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin" />
-                          PUBLISHING...
+                          SAVING...
                         </>
                       ) : published ? (
                         <>
-                          <GitBranch className="w-4 h-4" />
-                          PUBLISHED!
+                          <Database className="w-4 h-4" />
+                          SAVED!
                         </>
                       ) : (
                         <>
-                          <GitBranch className="w-4 h-4" />
-                          PUBLISH TO GITHUB
+                          <Database className="w-4 h-4" />
+                          SAVE TO PAYLOAD
                         </>
                       )}
                     </button>
@@ -491,32 +442,6 @@ sources: ${JSON.stringify(generatedPost.sources || [])}
                     >
                       <Download className="w-4 h-4" />
                       DOWNLOAD
-                    </button>
-                    <button
-                      onClick={archivePost}
-                      disabled={archiving || archived}
-                      className={`flex items-center gap-2 px-4 py-2 rounded font-mono text-sm font-bold transition-all ${
-                        archived
-                          ? "bg-[#ffbe0b] text-[#0a0a0f]"
-                          : "bg-[#8338ec] text-white hover:bg-[#8338ec]/90"
-                      } disabled:opacity-50`}
-                    >
-                      {archiving ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          ARCHIVING...
-                        </>
-                      ) : archived ? (
-                        <>
-                          <Archive className="w-4 h-4" />
-                          ARCHIVED!
-                        </>
-                      ) : (
-                        <>
-                          <Archive className="w-4 h-4" />
-                          SAVE TO REPO
-                        </>
-                      )}
                     </button>
                   </div>
                 </div>
@@ -775,9 +700,9 @@ sources: ${JSON.stringify(generatedPost.sources || [])}
               <div className="rounded-lg border border-[#1e293b] bg-[#0f0f1a] p-4">
                 <p className="font-mono text-sm text-[#64748b]">
                   {published ? (
-                    <><span className="text-[#39ff14]">✓</span> Post published! Vercel will auto-deploy in ~1 minute.</>
+                    <><span className="text-[#39ff14]">✓</span> In Payload gespeichert und sofort live! Im Admin unter /admin einsehbar.</>
                   ) : (
-                    <><span className="text-[#ffbe0b]">⚠</span> Click "PUBLISH TO GITHUB" to auto-commit, or "DOWNLOAD" for manual upload.</>
+                    <><span className="text-[#ffbe0b]">⚠</span> Klick "SAVE TO PAYLOAD" um direkt in Payload CMS zu speichern, oder "DOWNLOAD" für ein MDX-Backup.</>
                   )}
                 </p>
               </div>

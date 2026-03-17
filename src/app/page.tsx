@@ -1,15 +1,33 @@
 import { HomeContent } from "@/components/home-content";
-import { getAllPosts } from "@/lib/mdx/posts";
+import { getAllPosts, resolveMediaUrl } from "@/lib/payload/posts";
 
-// Server-Side Rendering mit MDX-Posts
+// Server-Side Rendering with Payload CMS
 export default async function Home() {
-  // Alle MDX-Posts zur Build-Zeit laden
-  const posts = getAllPosts();
-  
-  // Posts mit sticky=true aus dem Frontmatter filtern (maximal 3)
-  const stickyPosts = posts.filter(post => post.sticky).slice(0, 3);
-  // Alle Posts für "all-posts" (inkl. sticky posts)
-  const allPosts = posts;
+  const allPosts = await getAllPosts();
 
-  return <HomeContent recentPosts={allPosts} stickyPosts={stickyPosts} />;
+  // Posts with featured === true (max 3)
+  const stickyPosts = allPosts.filter((post) => post.featured).slice(0, 3);
+
+  // Remaining posts sorted by publishedAt desc for recent posts
+  const recentPosts = allPosts
+    .filter((post) => !post.featured)
+    .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+
+  // Resolve image URLs server-side (cannot use resolveMediaUrl in client component)
+  const PAYLOAD_BASE = process.env.PAYLOAD_URL ?? 'http://localhost:3000';
+  const resolvedImageUrls: Record<string, string | undefined> = {};
+  for (const post of allPosts) {
+    const rawUrl = typeof post.featuredImage === 'object' && post.featuredImage !== null
+      ? post.featuredImage.url
+      : undefined;
+    resolvedImageUrls[post.slug] = resolveMediaUrl(PAYLOAD_BASE, rawUrl);
+  }
+
+  return (
+    <HomeContent
+      recentPosts={recentPosts}
+      stickyPosts={stickyPosts}
+      resolvedImageUrls={resolvedImageUrls}
+    />
+  );
 }

@@ -6,14 +6,15 @@ import { HeroSection } from "@/components/hero-section";
 import { NewsTicker } from "@/components/news-ticker";
 import { CloudStatusBanner } from "@/components/cloud-status-banner";
 import { YouTubeCarousel } from "@/components/youtube-carousel";
-import { Post } from "@/lib/mdx/posts";
+import type { PayloadPost } from "@/lib/payload/types";
 import { Terminal, ArrowRight, Cpu, Mail, Code2, Clock, Quote, Activity, Search, TerminalSquare } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
 interface HomeContentProps {
-  recentPosts: Post[];
-  stickyPosts: Post[];
+  recentPosts: PayloadPost[];
+  stickyPosts: PayloadPost[];
+  resolvedImageUrls: Record<string, string | undefined>;
 }
 
 // System Stats Component
@@ -288,7 +289,7 @@ function QuoteTicker() {
   );
 }
 
-export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
+export function HomeContent({ recentPosts, stickyPosts, resolvedImageUrls }: HomeContentProps) {
   // Newsletter State
   const [email, setEmail] = useState("");
   const [isSubscribing, setIsSubscribing] = useState(false);
@@ -360,7 +361,7 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {stickyPosts.map((post) => (
-                <ArticleCard key={post.slug} post={post} variant="default" />
+                <ArticleCard key={post.slug} post={post} resolvedImageUrl={resolvedImageUrls[post.slug]} variant="default" />
               ))}
             </div>
           </motion.section>
@@ -555,7 +556,7 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
                   transition={{ delay: index * 0.1 }}
                   className="lg:row-span-1"
                 >
-                  <ArticleCard post={post} variant="featured" />
+                  <ArticleCard post={post} resolvedImageUrl={resolvedImageUrls[post.slug]} variant="featured" />
                 </motion.div>
               ))}
             </div>
@@ -572,7 +573,7 @@ export function HomeContent({ recentPosts, stickyPosts }: HomeContentProps) {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.03 }}
                 >
-                  <ArticleCard post={post} variant="default" />
+                  <ArticleCard post={post} resolvedImageUrl={resolvedImageUrls[post.slug]} variant="default" />
                 </motion.div>
               ))}
             </div>

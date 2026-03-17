@@ -19,7 +19,7 @@ async function waitForServer() {
   for (let i = 1; i <= maxRetries; i++) {
     try {
       const res = await fetch(`${PAYLOAD_URL}/api/users`);
-      if (res.status === 401 || res.ok) {
+      if (res.status === 401 || res.status === 403 || res.ok) {
         console.log('✓ Server bereit');
         return;
       }

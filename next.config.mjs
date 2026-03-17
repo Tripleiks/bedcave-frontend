@@ -22,6 +22,15 @@ const nextConfig = {
         hostname: '*.optimole.com',
         pathname: '/**',
       },
+      // Payload CMS media (development)
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3000',
+        pathname: '/media/**',
+      },
+      // Payload CMS media (production) — add when Payload production URL is known:
+      // { protocol: 'https', hostname: 'cms.bedcave.com', pathname: '/media/**' },
     ],
   },
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],

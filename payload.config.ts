@@ -12,6 +12,8 @@ import { Users } from './collections/Users'
 import { Pages } from './collections/Pages'
 import { BlogPosts } from './collections/BlogPosts'
 import { Media } from './collections/Media'
+import { Privacy } from './globals/Privacy'
+import { Legal } from './globals/Legal'
 
 export default buildConfig({
   admin: {
@@ -21,6 +23,7 @@ export default buildConfig({
     },
   },
   collections: [Users, Pages, BlogPosts, Media],
+  globals: [Privacy, Legal],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || 'dev-secret-key',
   typescript: {

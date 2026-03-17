@@ -1,4 +1,4 @@
-import { withPayload } from '@payloadcms/next'
+import { withPayload } from '@payloadcms/next/withPayload'
 import createMDX from '@next/mdx';
 
 /** @type {import('next').NextConfig} */

@@ -18,7 +18,7 @@ export function Footer() {
       { label: "PRIVACY", href: "/privacy" },
       { label: "LEGAL", href: "/legal" },
       { label: "RSS_FEED", href: "/feed" },
-      { label: "new post", href: "/admin/new-post" },
+      { label: "new post", href: "/admin" },
     ],
   };
 

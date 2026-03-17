@@ -4,7 +4,7 @@ const PAYLOAD_URL = process.env.PAYLOAD_URL ?? 'http://localhost:3000'
 
 export function lexicalToMarkdown(content: LexicalJSON): string {
   const paragraphs = content.root.children
-    .map((paragraph) => paragraph.children.map((node) => node.text).join(''))
+    .map((paragraph) => paragraph.children.map((node) => node.text ?? '').join(''))
     .filter((text) => text.length > 0)
 
   return paragraphs.join('\n\n')
@@ -20,7 +20,7 @@ export function resolveMediaUrl(baseUrl: string, url: string | undefined): strin
     return undefined
   }
   if (url.startsWith('/')) {
-    return `${baseUrl}${url}`
+    return `${baseUrl.replace(/\/$/, '')}${url}`
   }
   return url
 }
@@ -30,6 +30,7 @@ export async function getAllPosts(): Promise<PayloadPost[]> {
     const res = await fetch(
       `${PAYLOAD_URL}/api/blog-posts?where[status][equals]=published&sort=-publishedAt&depth=1&limit=0`
     )
+    if (!res.ok) return []
     const response: PayloadListResponse = await res.json() as PayloadListResponse
     return response.docs
   } catch {
@@ -42,6 +43,7 @@ export async function getPostBySlug(slug: string): Promise<PayloadPost | null> {
     const res = await fetch(
       `${PAYLOAD_URL}/api/blog-posts?where[slug][equals]=${encodeURIComponent(slug)}&where[status][equals]=published&depth=1&limit=1`
     )
+    if (!res.ok) return null
     const response: PayloadListResponse = await res.json() as PayloadListResponse
     if (response.docs.length === 0) {
       return null
@@ -57,6 +59,7 @@ export async function getPostsByCategory(category: PayloadCategory): Promise<Pay
     const res = await fetch(
       `${PAYLOAD_URL}/api/blog-posts?where[status][equals]=published&where[category][equals]=${category}&sort=-publishedAt&depth=1&limit=0`
     )
+    if (!res.ok) return []
     const response: PayloadListResponse = await res.json() as PayloadListResponse
     return response.docs
   } catch {

@@ -276,7 +276,7 @@ describe('resolveMediaUrl', () => {
 
   it('should handle baseUrl with trailing slash', () => {
     expect(resolveMediaUrl('http://localhost:3000/', '/media/image.jpg')).toBe(
-      'http://localhost:3000//media/image.jpg'
+      'http://localhost:3000/media/image.jpg'
     )
   })
 

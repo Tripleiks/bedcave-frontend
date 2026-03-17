@@ -1,10 +1,17 @@
-import { getPostsByCategory } from "@/lib/mdx/posts";
+import { getPostsByCategory, resolveMediaUrl } from "@/lib/payload/posts";
 import { ArticleCard } from "@/components/article-card";
 import Link from "next/link";
 import { ArrowLeft, Container } from "lucide-react";
 
 export default async function DockerPage() {
-  const posts = getPostsByCategory("Docker");
+  const posts = await getPostsByCategory("docker");
+
+  const PAYLOAD_BASE = process.env.PAYLOAD_URL ?? 'http://localhost:3000'
+  const resolvedImageUrls: Record<string, string | undefined> = {}
+  for (const post of posts) {
+    const rawUrl = typeof post.featuredImage === 'object' ? post.featuredImage?.url : undefined
+    resolvedImageUrls[post.slug] = resolveMediaUrl(PAYLOAD_BASE, rawUrl)
+  }
 
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
@@ -44,7 +51,7 @@ export default async function DockerPage() {
           {posts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {posts.map((post) => (
-                <ArticleCard key={post.slug} post={post} variant="default" />
+                <ArticleCard key={post.slug} post={post} variant="default" resolvedImageUrl={resolvedImageUrls[post.slug]} />
               ))}
             </div>
           ) : (

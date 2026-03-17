@@ -1,3 +1,4 @@
+import { withPayload } from '@payloadcms/next'
 import createMDX from '@next/mdx';
 
 /** @type {import('next').NextConfig} */
@@ -40,4 +41,4 @@ const withMDX = createMDX({
   // MDX options can be added here
 });
 
-export default withMDX(nextConfig);
+export default withPayload(withMDX(nextConfig));

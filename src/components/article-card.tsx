@@ -4,21 +4,26 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useRef } from "react";
-import { Post } from '@/lib/mdx/posts';
+import type { PayloadPost } from '@/lib/payload/types';
 import { ArrowUpRight } from "lucide-react";
 
 interface ArticleCardProps {
-  post: Post;
+  post: PayloadPost;
+  resolvedImageUrl?: string;
   variant?: 'default' | 'featured' | 'compact';
   className?: string;
 }
 
 // Terminal color scheme for categories
 const categoryColors: Record<string, { bg: string; text: string; border: string }> = {
-  'News': { bg: 'bg-[#00d4ff]/10', text: 'text-[#00d4ff]', border: 'border-[#00d4ff]/30' },
-  'Hardware': { bg: 'bg-[#39ff14]/10', text: 'text-[#39ff14]', border: 'border-[#39ff14]/30' },
-  'Docker': { bg: 'bg-[#ff006e]/10', text: 'text-[#ff006e]', border: 'border-[#ff006e]/30' },
-  'Homeserver': { bg: 'bg-[#ffbe0b]/10', text: 'text-[#ffbe0b]', border: 'border-[#ffbe0b]/30' },
+  'news':        { bg: 'bg-[#00d4ff]/10',  text: 'text-[#00d4ff]',  border: 'border-[#00d4ff]/30' },
+  'hardware':    { bg: 'bg-[#39ff14]/10',  text: 'text-[#39ff14]',  border: 'border-[#39ff14]/30' },
+  'docker':      { bg: 'bg-[#ff006e]/10',  text: 'text-[#ff006e]',  border: 'border-[#ff006e]/30' },
+  'homelab':     { bg: 'bg-[#ffbe0b]/10',  text: 'text-[#ffbe0b]',  border: 'border-[#ffbe0b]/30' },
+  'ai-tools':    { bg: 'bg-purple-900/30', text: 'text-purple-300', border: 'border-purple-700/50' },
+  'development': { bg: 'bg-blue-900/30',   text: 'text-blue-300',   border: 'border-blue-700/50'   },
+  'design':      { bg: 'bg-pink-900/30',   text: 'text-pink-300',   border: 'border-pink-700/50'   },
+  'tutorial':    { bg: 'bg-amber-900/30',  text: 'text-amber-300',  border: 'border-amber-700/50'  },
 };
 
 // 3D Tilt Wrapper Component
@@ -102,17 +107,17 @@ function TerminalHeader({
   );
 }
 
-export function ArticleCard({ post, variant = 'default', className = '' }: ArticleCardProps) {
-  const imageUrl = post.coverImage;
+export function ArticleCard({ post, resolvedImageUrl, variant = 'default', className = '' }: ArticleCardProps) {
+  const imageUrl = resolvedImageUrl;
   const altText = post.title;
-  
+
   // Create filename from slug
   const filename = `${post.slug.slice(0, 20)}${post.slug.length > 20 ? '...' : ''}.md`;
   const mainCategory = post.category || 'Article';
-  const author = post.author;
-  
+  const author = typeof post.author === 'object' ? post.author.name : String(post.author);
+
   // Format date as comment
-  const formattedDate = new Date(post.date).toLocaleDateString('en-US', {
+  const formattedDate = new Date(post.publishedAt).toLocaleDateString('en-US', {
     month: '2-digit',
     day: '2-digit',
     year: 'numeric',
@@ -193,7 +198,7 @@ export function ArticleCard({ post, variant = 'default', className = '' }: Artic
   }
 
   if (variant === 'compact') {
-    const colorScheme = categoryColors[mainCategory] || categoryColors['News'];
+    const colorScheme = categoryColors[mainCategory] || categoryColors['news'];
     
     return (
       <motion.article 

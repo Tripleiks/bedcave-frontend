@@ -8,6 +8,8 @@ import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import { CodeBlock } from '@/components/code-block';
 
+export const dynamic = 'force-dynamic';
+
 interface PostPageProps {
   params: Promise<{ slug: string }>;
 }

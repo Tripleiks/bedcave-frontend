@@ -1,7 +1,8 @@
 import { HomeContent } from "@/components/home-content";
 import { getAllPosts, resolveMediaUrl } from "@/lib/payload/posts";
 
-// Server-Side Rendering with Payload CMS
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   const allPosts = await getAllPosts();
 

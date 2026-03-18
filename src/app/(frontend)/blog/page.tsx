@@ -6,11 +6,10 @@ import { ArrowLeft, Newspaper } from "lucide-react";
 export default async function BlogPage() {
   const posts = await getAllPosts();
 
-  const PAYLOAD_BASE = process.env.PAYLOAD_URL ?? 'http://localhost:3000';
   const resolvedImageUrls: Record<string, string | undefined> = {};
   for (const post of posts) {
     const rawUrl = typeof post.featuredImage === 'object' ? post.featuredImage?.url : undefined;
-    resolvedImageUrls[post.slug] = resolveMediaUrl(PAYLOAD_BASE, rawUrl);
+    resolvedImageUrls[post.slug] = resolveMediaUrl('', rawUrl);
   }
 
   return (

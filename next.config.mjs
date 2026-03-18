@@ -3,7 +3,6 @@ import createMDX from '@next/mdx';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactCompiler: true,
   allowedDevOrigins: ['localhost', '127.0.0.1', '10.0.0.127'],
   images: {
     unoptimized: true,
@@ -30,8 +29,12 @@ const nextConfig = {
         port: '3000',
         pathname: '/media/**',
       },
-      // Payload CMS media (production) — add when Payload production URL is known:
-      // { protocol: 'https', hostname: 'cms.bedcave.com', pathname: '/media/**' },
+      // Vercel Blob Storage (production media)
+      {
+        protocol: 'https',
+        hostname: '*.public.blob.vercel-storage.com',
+        pathname: '/**',
+      },
     ],
   },
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],

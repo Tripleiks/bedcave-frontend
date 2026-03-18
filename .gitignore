@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Payload
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# Local media uploads
+/public/media/

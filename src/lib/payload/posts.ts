@@ -1,13 +1,17 @@
-import type { LexicalJSON, PayloadCategory, PayloadPost, PayloadListResponse } from './types'
+import { getPayload } from 'payload'
+import config from '@payload-config'
+import type { PayloadCategory, PayloadPost } from './types'
 
-const PAYLOAD_URL = process.env.PAYLOAD_URL ?? 'http://localhost:3000'
-
-export function lexicalToMarkdown(content: LexicalJSON): string {
-  const paragraphs = content.root.children
-    .map((paragraph) => paragraph.children.map((node) => node.text ?? '').join(''))
+export function lexicalToMarkdown(content: unknown): string {
+  if (!content || typeof content !== 'object') return ''
+  const root = (content as { root?: { children?: Array<{ children?: Array<{ text?: string }> }> } }).root
+  if (!root?.children) return ''
+  return root.children
+    .map((paragraph) =>
+      (paragraph.children ?? []).map((node) => node.text ?? '').join('')
+    )
     .filter((text) => text.length > 0)
-
-  return paragraphs.join('\n\n')
+    .join('\n\n')
 }
 
 export function calculateReadingTime(text: string): number {
@@ -15,24 +19,31 @@ export function calculateReadingTime(text: string): number {
   return Math.max(1, Math.ceil(words.length / 200))
 }
 
-export function resolveMediaUrl(baseUrl: string, url: string | undefined): string | undefined {
-  if (url === undefined) {
-    return undefined
-  }
-  if (url.startsWith('/')) {
-    return `${baseUrl.replace(/\/$/, '')}${url}`
+const BLOB_BASE = process.env.BLOB_PUBLIC_BASE_URL ?? ''
+
+export function resolveMediaUrl(_baseUrl: string, url: string | undefined): string | undefined {
+  if (!url) return undefined
+  // Payload returns local paths like /api/media/file/filename.jpg in production
+  // when the Vercel Blob plugin overrides the stored URL — rewrite to Blob URL
+  if (BLOB_BASE && url.startsWith('/api/media/file/')) {
+    const filename = url.slice('/api/media/file/'.length)
+    return `${BLOB_BASE}/media/${filename}`
   }
   return url
 }
 
 export async function getAllPosts(): Promise<PayloadPost[]> {
   try {
-    const res = await fetch(
-      `${PAYLOAD_URL}/api/blog-posts?where[status][equals]=published&sort=-publishedAt&depth=1&limit=0`
-    )
-    if (!res.ok) return []
-    const response: PayloadListResponse = await res.json() as PayloadListResponse
-    return response.docs
+    const payload = await getPayload({ config })
+    const response = await payload.find({
+      collection: 'blog-posts',
+      where: { status: { equals: 'published' } },
+      sort: '-publishedAt',
+      depth: 1,
+      limit: 0,
+      overrideAccess: true,
+    })
+    return response.docs as unknown as PayloadPost[]
   } catch {
     return []
   }
@@ -40,15 +51,20 @@ export async function getAllPosts(): Promise<PayloadPost[]> {
 
 export async function getPostBySlug(slug: string): Promise<PayloadPost | null> {
   try {
-    const res = await fetch(
-      `${PAYLOAD_URL}/api/blog-posts?where[slug][equals]=${encodeURIComponent(slug)}&where[status][equals]=published&depth=1&limit=1`
-    )
-    if (!res.ok) return null
-    const response: PayloadListResponse = await res.json() as PayloadListResponse
-    if (response.docs.length === 0) {
-      return null
-    }
-    return response.docs[0]
+    const payload = await getPayload({ config })
+    const response = await payload.find({
+      collection: 'blog-posts',
+      where: {
+        and: [
+          { slug: { equals: slug } },
+          { status: { equals: 'published' } },
+        ],
+      },
+      depth: 1,
+      limit: 1,
+      overrideAccess: true,
+    })
+    return response.docs.length > 0 ? response.docs[0] as unknown as PayloadPost : null
   } catch {
     return null
   }
@@ -56,12 +72,21 @@ export async function getPostBySlug(slug: string): Promise<PayloadPost | null> {
 
 export async function getPostsByCategory(category: PayloadCategory): Promise<PayloadPost[]> {
   try {
-    const res = await fetch(
-      `${PAYLOAD_URL}/api/blog-posts?where[status][equals]=published&where[category][equals]=${category}&sort=-publishedAt&depth=1&limit=0`
-    )
-    if (!res.ok) return []
-    const response: PayloadListResponse = await res.json() as PayloadListResponse
-    return response.docs
+    const payload = await getPayload({ config })
+    const response = await payload.find({
+      collection: 'blog-posts',
+      where: {
+        and: [
+          { status: { equals: 'published' } },
+          { category: { equals: category } },
+        ],
+      },
+      sort: '-publishedAt',
+      depth: 1,
+      limit: 0,
+      overrideAccess: true,
+    })
+    return response.docs as unknown as PayloadPost[]
   } catch {
     return []
   }

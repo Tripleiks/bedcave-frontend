@@ -13,14 +13,12 @@ export default async function Home() {
     .filter((post) => !post.featured)
     .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
-  // Resolve image URLs server-side (cannot use resolveMediaUrl in client component)
-  const PAYLOAD_BASE = process.env.PAYLOAD_URL ?? 'http://localhost:3000';
   const resolvedImageUrls: Record<string, string | undefined> = {};
   for (const post of allPosts) {
     const rawUrl = typeof post.featuredImage === 'object' && post.featuredImage !== null
       ? post.featuredImage.url
       : undefined;
-    resolvedImageUrls[post.slug] = resolveMediaUrl(PAYLOAD_BASE, rawUrl);
+    resolvedImageUrls[post.slug] = resolveMediaUrl('', rawUrl);
   }
 
   return (

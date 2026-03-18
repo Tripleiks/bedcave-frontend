@@ -23,6 +23,14 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    components: {
+      views: {
+        aiGenerator: {
+          Component: 'src/components/payload/AIGeneratorView#AIGeneratorView',
+          path: '/ai-generator',
+        },
+      },
+    },
   },
   collections: [Users, Pages, BlogPosts, Media],
   globals: [Privacy, Legal],

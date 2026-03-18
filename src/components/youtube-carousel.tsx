@@ -132,12 +132,7 @@ export function YouTubeCarousel({ videos: propVideos }: YouTubeCarouselProps) {
       setIsRefreshing(true);
       setError(null);
       
-      const response = await fetch("/api/youtube/ai-videos", {
-        cache: "no-store",
-        headers: {
-          "Cache-Control": "no-cache",
-        },
-      });
+      const response = await fetch("/api/youtube/ai-videos");
       
       if (!response.ok) {
         throw new Error("Failed to fetch videos");

@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
-export const revalidate = 1800; // Revalidate every 30 minutes
 
 interface YouTubeVideo {
   id: string;

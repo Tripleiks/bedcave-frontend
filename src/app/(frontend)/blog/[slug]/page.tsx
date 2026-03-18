@@ -63,7 +63,7 @@ export default async function PostPage({ params }: PostPageProps) {
             </Link>
             <div className="flex items-center gap-4">
               <Link
-                href={`/admin/edit/${slug}`}
+                href={`/dashboard/edit/${slug}`}
                 className="font-mono text-xs text-[#ffbe0b] hover:text-white transition-colors flex items-center gap-1.5 px-2 py-1 rounded border border-[#ffbe0b]/30 hover:border-[#ffbe0b]"
               >
                 <Pencil className="w-3 h-3" />
